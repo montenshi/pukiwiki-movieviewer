@@ -3,9 +3,7 @@
 class MovieViewerPeriodTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
-        if (!defined('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR')) {
-            define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', "plugin/movieviewer");
-        }
+        $this->define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', "plugin/movieviewer");
         chdir('../../../../../app/pukiwiki');
         require_once('plugin/movieviewer/models.php');
     }
@@ -26,6 +24,12 @@ class MovieViewerPeriodTest extends PHPUnit_Framework_TestCase {
         $period = new MovieViewerPeriod($date_begin, $date_end);
 
         $this->assertFalse($period->isExpired(new DateTime('2015-10-01 09:59:59+09:00')));
+    }
+
+    function define($name, $value) {
+        if (!defined($name)) {
+            define($name, $value);
+        }
     }
 }
 

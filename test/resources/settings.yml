@@ -1,0 +1,7 @@
+settings:
+  data:
+    dir:           /vagrant/resources
+  aws:
+    path:          /vagrant/resources/aws/settings.yml
+  mail:
+    path:          /vagrant/resources/mail.yml

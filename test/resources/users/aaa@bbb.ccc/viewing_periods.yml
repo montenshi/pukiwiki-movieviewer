@@ -1,0 +1,42 @@
+---
+viewing_periods:
+  - 
+    course_id: K1Kiso
+    session_id: 01
+    date_begin: 2015-10-15 00:00:00+09:00
+    date_end: 2016-02-15 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 02
+    date_begin: 2015-10-15 00:00:00+09:00
+    date_end: 2016-02-15 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 03
+    date_begin: 2015-10-15 00:00:00+09:00
+    date_end: 2016-02-15 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 04
+    date_begin: 2015-10-15 00:00:00+09:00
+    date_end: 2016-02-15 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 05
+    date_begin: 2015-09-01 00:00:00+09:00
+    date_end: 2016-01-01 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 06
+    date_begin: 2015-09-01 00:00:00+09:00
+    date_end: 2016-01-01 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 07
+    date_begin: 2015-09-01 00:00:00+09:00
+    date_end: 2016-01-01 00:00:00+09:00
+  - 
+    course_id: K1Kiso
+    session_id: 08
+    date_begin: 2015-09-01 00:00:00+09:00
+    date_end: 2016-01-01 00:00:00+09:00

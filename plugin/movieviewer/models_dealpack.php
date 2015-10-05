@@ -108,16 +108,29 @@ class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
     }
 }
 
+class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
+    function __construct() {
+        parent::__construct("K2Kiso");
+        $this->addPack(1, array("01", "02", "03", "04"), 4500, 4750);
+        $this->addPack(2, array("05", "06", "07", "08"), 4500, 4750);
+        $this->addPack(3, array("09", "10", "11", "12"), 4500, 4750);
+    }
+}
+
 class MovieViewerS4DealContainer {
     public $boxes = array();
 
     function __construct() {
-        $box = new MovieViewerS4K1KisoDealBox();
-        $this->boxes[$box->course_id] = $box;
+        $this->addBox(new MovieViewerS4K1KisoDealBox());
+        $this->addBox(new MovieViewerS4K2KisoDealBox());
     }
 
     public function getBox($course_id) {
         return $this->boxes[$course_id];
+    }
+
+    public function addBox($box) {
+        $this->boxes[$box->course_id] = $box;
     }
 }
 

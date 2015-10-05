@@ -1,0 +1,8 @@
+cloud_front:
+  host:
+    video:  hogehoge.cloudfront.net
+    text:   fugafuga.cloudfront.net
+  key:         KEY
+  secret:      SECRET
+  private_key: PRIVATEKEY.pem
+  key_pair_id: KEY_PAIR_ID

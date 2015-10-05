@@ -89,6 +89,10 @@ class MovieViewerDealPackOfferMaker {
         return end($this->offers);
     }
 
+    public function getOffers() {
+        return $this->offers;
+    }
+
     function createOffers() {
         $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
 
@@ -105,7 +109,7 @@ class MovieViewerDealPackOfferMaker {
             }
 
             foreach($box->packs as $pack) {
-                if ($payments[$pack->getId()] !== NULL) {
+                if (isset($payments[$pack->getId()]) && $payments[$pack->getId()] !== NULL) {
                     // 直近に買ったパックの視聴期限が切れている場合はオファーの可能性があるので次に行く
                     if ($payments[$pack->getId()]->viewing_period->isExpired()) {
                         continue;

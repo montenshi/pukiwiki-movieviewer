@@ -42,10 +42,10 @@ class MovieViewerLogger {
     static $logger = null;
 
     public static function getLogger() {
-        if ($logger === null) {
-            $log_path = PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/movieviewer.log";
-            $logger = new \Monolog\Logger('movieviewer');
-            $logger->pushHandler(new \Monolog\Handler\RotatingFileHandler($log_path, 10, \Monolog\Logger::INFO));
+        if (self::$logger === null) {
+            $log_path = PLUGIN_MOVIEVIEWER_LOG_DIR . "/movieviewer.log";
+            self::$logger = new \Monolog\Logger('movieviewer');
+            self::$logger->pushHandler(new \Monolog\Handler\RotatingFileHandler($log_path, 10, \Monolog\Logger::INFO));
             $ip = new \Monolog\Processor\IntrospectionProcessor(
                 \Monolog\Logger::DEBUG,
                 array(
@@ -53,9 +53,9 @@ class MovieViewerLogger {
                 'Illuminate\\',
                 )
             );
-            $logger->pushProcessor($ip);
+            self::$logger->pushProcessor($ip);
         }
-        return $logger;
+        return self::$logger;
     }
 }
 

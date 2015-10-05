@@ -1,0 +1,16 @@
+p.caution {
+  padding: 1em;
+  background-color: #fdd;
+  border: 1px dashed #f00;
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table, td, th {
+  border: 1px solid #CCC;
+  background: #FFF none repeat scroll 0% 0%;
+  padding: 4px;
+}

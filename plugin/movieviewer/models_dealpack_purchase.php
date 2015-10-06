@@ -109,31 +109,48 @@ class MovieViewerDealPackOfferMaker {
     }
 
     function createOffer($user, $box, $payment_confirmations) {
-        $payments = array();
+
+        $next_pack = $this->getNextPack($box, $payment_confirmations);
+
+        if ($next_pack == NULL) {
+            return NULL;
+        }
+
+        $offer = new MovieViewerDealPackOffer($user, $next_pack, $discount_period);
+
+        if ($offer->isAccepted()) {
+            return NULL;
+        }
+
+        return $offer;
+    }
+
+    function getNextPack($box, $payment_confirmations) {
+
+        $maped_confirmations = array();
         foreach($payment_confirmations as $payment_confirmation) {
-            $payments[$payment_confirmation->pack_id] = $payment_confirmation;
+            $maped_confirmations[$payment_confirmation->pack_id] = $payment_confirmation;
         }
 
         foreach($box->packs as $pack) {
-            if (isset($payments[$pack->getId()]) && $payments[$pack->getId()] !== NULL) {
-                // 直近に買ったパックの視聴期限が切れている場合はオファーの可能性があるので次に行く
-                if ($payments[$pack->getId()]->viewing_period->isExpired()) {
-                    continue;
-                }
-
-                // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、次のパックのオファーをする
-                if ($payments[$pack->getId()]->viewing_period->aboutToExpire() === TRUE) {
-                    continue;
-                }
-
-                break;
+            // 購入していないパックがあればそれを返す
+            if (!isset($maped_confirmations[$pack->getId()])) {
+                return $pack;
             }
 
-            return new MovieViewerDealPackOffer(
-                        $user
-                      , $pack
-                      , $discount_period
-                  );
+            // 直近に買ったパックの視聴期限が切れている場合は、オファーするので次に行く
+            if ($maped_confirmations[$pack->getId()]->viewing_period->isExpired()) {
+                continue;
+            }
+
+            // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、オファーするので次に行く
+            if ($maped_confirmations[$pack->getId()]->viewing_period->aboutToExpire()) {
+                continue;
+            }
+
+            // 視聴期限内または、視聴期限が始まっておらず、
+            // かつ、視聴期限まで1ヶ月以上ある場合はオファーをしない(ループを終了する)
+            break;
         }
 
         return NULL;

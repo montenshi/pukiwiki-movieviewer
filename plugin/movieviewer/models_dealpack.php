@@ -92,7 +92,7 @@ class MovieViewerDealBox {
     public function getPackById($id) {
         return $this->packs[$id];
     }
-
+    
     function addPack($pack_id, $session_ids, $fixed_price, $discount_price) {
         $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price);
         $this->packs[$pack->getId()] = $pack;

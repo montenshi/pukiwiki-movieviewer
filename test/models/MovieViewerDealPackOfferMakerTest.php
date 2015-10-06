@@ -13,14 +13,75 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $this->setGlobalSettings($settings);
     }
 
-    public function testGetOfferNoOffer() {
+    public function testGetOfferShouldReturnsNoOfferBeforeBegining() {
+        // 視聴期限開始1秒まえ
+        $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "aaa@bbb.ccc";
+        $user->selected_courses = array("K1Kiso");
+
+        $maker = new MovieViewerDealPackOfferMaker($user);
+        $offer = $maker->getOffer();
+
+        $this->assertEquals(NULL, $offer);
+    }
+
+    public function testGetOfferShouldReturnsNoOfferRemainsMoreThan1Month() {
         // 視聴期限切れ1ヶ月と1秒まえ
         $date_freeze = new DateTime("2015-10-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso","K2Kiso");
+        $user->selected_courses = array("K1Kiso");
+
+        $maker = new MovieViewerDealPackOfferMaker($user);
+        $offer = $maker->getOffer();
+
+        $this->assertEquals(NULL, $offer);
+    }
+
+    public function testGetOfferShouldReturnsOfferAboutToExpire() {
+        // 視聴期限切れ1ヶ月
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "aaa@bbb.ccc";
+        $user->selected_courses = array("K1Kiso");
+
+        $maker = new MovieViewerDealPackOfferMaker($user);
+        $offer = $maker->getOffer();
+
+        $this->assertEquals("K1Kiso-2", $offer->getPackId());
+    }
+
+    public function testGetOfferShouldReturnsOfferAlreadyExpired() {
+        // 11-15で視聴期限が切れる
+        $date_freeze = new DateTime("2015-11-15 00:00:01+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "aaa@bbb.ccc";
+        $user->selected_courses = array("K1Kiso");
+
+        $maker = new MovieViewerDealPackOfferMaker($user);
+        $offer = $maker->getOffer();
+
+        $this->assertEquals("K1Kiso-2", $offer->getPackId());
+    }
+
+    public function testGetOffersShouldReturnsNoOfferRemainsMoreThan1Month() {
+        // 視聴期限切れ1ヶ月と1秒まえ
+        $date_freeze = new DateTime("2015-10-14 23:59:59+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "aaa@bbb.ccc";
+        $user->selected_courses = array("K1Kiso", "K2Kiso");
+
         $maker = new MovieViewerDealPackOfferMaker($user);
         $offers = $maker->getOffers();
 
@@ -28,14 +89,15 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $this->assertEquals("K2Kiso-1", $offers[0]->getPackId());
     }
 
-    public function testGetOfferAboutToExpire() {
+    public function testGetOffersShouldReturnsOfferAboutToExpire() {
         // 視聴期限切れ1ヶ月
         $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso","K2Kiso");
+        $user->selected_courses = array("K1Kiso", "K2Kiso");
+
         $maker = new MovieViewerDealPackOfferMaker($user);
         $offers = $maker->getOffers();
 
@@ -43,29 +105,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $this->assertEquals("K1Kiso-2", $offers[0]->getPackId());
         $this->assertEquals("K2Kiso-1", $offers[1]->getPackId());
     }
-
-    public function testGetOfferAlreadyExpired() {
-        // 11-15で視聴期限が切れる
-        $date_freeze = new DateTime("2015-11-15 00:00:01+09:00");
-        timecop_freeze($date_freeze->getTimestamp());
-
-        $user = new MovieViewerUser();
-        $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso","K2Kiso");
-        $maker = new MovieViewerDealPackOfferMaker($user);
-        $offers = $maker->getOffers();
-
-        $this->assertEquals(2, count($offers));
-        $this->assertEquals("K1Kiso-2", $offers[0]->getPackId());
-        $this->assertEquals("K2Kiso-1", $offers[1]->getPackId());
-    }
-
-    function define($name, $value) {
-        if (!defined($name)) {
-            define($name, $value);
-        }
-    }
-
 }
 
 ?>

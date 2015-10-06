@@ -25,12 +25,6 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
 
         $this->assertFalse($period->isExpired(new DateTime('2015-10-01 09:59:59+09:00')));
     }
-
-    function define($name, $value) {
-        if (!defined($name)) {
-            define($name, $value);
-        }
-    }
 }
 
 ?>

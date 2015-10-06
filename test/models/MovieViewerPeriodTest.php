@@ -1,11 +1,11 @@
 <?php
 
-class MovieViewerPeriodTest extends PHPUnit_Framework_TestCase {
+require_once('MovieViewerTestCase.php');
+
+class MovieViewerPeriodTest extends MovieViewerTestCase {
 
     public function setUp() {
-        $this->define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', "plugin/movieviewer");
-        chdir('../../../../../app/pukiwiki');
-        require_once('plugin/movieviewer/models.php');
+        parent::setUp();
     }
 
     public function testIsExpiredShouldBeTrue() {

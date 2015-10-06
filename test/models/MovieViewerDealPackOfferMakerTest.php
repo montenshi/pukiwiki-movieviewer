@@ -1,25 +1,16 @@
 <?php
 
-class MovieViewerDealPackOfferMakerTest extends PHPUnit_Framework_TestCase {
+require_once('MovieViewerTestCase.php');
+
+class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
     public function setUp() {
-        $test_dir = getcwd();
-        $this->define('PLUGIN_MOVIEVIEWER_COMMU_DIR', dirname(__FILE__) . "/../lib/commu");
-        $this->define('PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR', ".");
-        $this->define('PLUGIN_MOVIEVIEWER_PLUGIN_DIR', "plugin");
-        $this->define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', "plugin/movieviewer");
-        $this->define('PLUGIN_MOVIEVIEWER_LOG_DIR', dirname(__FILE__) . "/../logs");
-        chdir('../../../../../app/pukiwiki');
-        require_once('plugin/movieviewer/models.php');
-        require_once('plugin/movieviewer/models_dealpack.php');
-        require_once('plugin/movieviewer/models_dealpack_purchase.php');
-        require_once('plugin/movieviewer/repositories.php');
+        parent::setUp();
 
         $settings = new MovieViewerSettings();
         $settings->data["dir"] = dirname(__FILE__) . "/../resources";
         $settings->timezone = new DateTimeZone("Asia/Tokyo");
-        date_default_timezone_set("Asia/Tokyo");
-        $GLOBALS['movieviewer_settings'] = $settings;
+        $this->setGlobalSettings($settings);
     }
 
     public function testGetOfferNoOffer() {

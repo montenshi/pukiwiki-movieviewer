@@ -67,15 +67,12 @@ class MovieViewerDealPackOffer {
 
 class MovieViewerDealPackOfferMaker {
     private $user;
-    private $purchase_histories;
-
     private $s4_packs;
 
     private $offers = array();
 
     function __construct($user) {
         $this->user = $user;
-        $this->purchase_histories = array();
         $this->s4_container = new MovieViewerS4DealContainer();
 
         $this->createOffers();
@@ -103,39 +100,43 @@ class MovieViewerDealPackOfferMaker {
             $box = $this->s4_container->getBox($selected_course);
             $payment_confirmations = $repo->findByCourse($this->user->id, $selected_course);
 
-            $payments = array();
-            foreach($payment_confirmations as $payment_confirmation) {
-                $payments[$payment_confirmation->pack_id] = $payment_confirmation;
-            }
+            $offer = $this->createOffer($this->user, $box, $payment_confirmations);
 
-            foreach($box->packs as $pack) {
-                if (isset($payments[$pack->getId()]) && $payments[$pack->getId()] !== NULL) {
-                    // 直近に買ったパックの視聴期限が切れている場合はオファーの可能性があるので次に行く
-                    if ($payments[$pack->getId()]->viewing_period->isExpired()) {
-                        continue;
-                    }
-
-                    // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、次のパックのオファーをする
-                    if ($payments[$pack->getId()]->viewing_period->aboutToExpire() === TRUE) {
-                        continue;
-                    }
-
-                    break;
-                }
-
-                $offer = $this->createOffer($pack, $discount_period);
+            if ($offer !== NULL) {
                 $this->offers[] = $offer;
-                break;
             }
         }
     }
 
-    function createOffer($pack, $discount_period) {
-        return new MovieViewerDealPackOffer(
-                    $this->user
-                  , $pack
-                  , $discount_period
-              );
+    function createOffer($user, $box, $payment_confirmations) {
+        $payments = array();
+        foreach($payment_confirmations as $payment_confirmation) {
+            $payments[$payment_confirmation->pack_id] = $payment_confirmation;
+        }
+
+        foreach($box->packs as $pack) {
+            if (isset($payments[$pack->getId()]) && $payments[$pack->getId()] !== NULL) {
+                // 直近に買ったパックの視聴期限が切れている場合はオファーの可能性があるので次に行く
+                if ($payments[$pack->getId()]->viewing_period->isExpired()) {
+                    continue;
+                }
+
+                // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、次のパックのオファーをする
+                if ($payments[$pack->getId()]->viewing_period->aboutToExpire() === TRUE) {
+                    continue;
+                }
+
+                break;
+            }
+
+            return new MovieViewerDealPackOffer(
+                        $user
+                      , $pack
+                      , $discount_period
+                  );
+        }
+
+        return NULL;
     }
 }
 

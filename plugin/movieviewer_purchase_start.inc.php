@@ -127,7 +127,7 @@ TEXT;
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
       <tr><th>振込先</th><td>ほげふが銀行 なんとか支店 (普) 12345678</td></tr>
-      <tr><th>振込期限</th><td>2015年10月31日まで</td></tr>
+      <tr><th>振込期限</th><td>{$offer->getTransferDeadline()->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>
 TEXT;

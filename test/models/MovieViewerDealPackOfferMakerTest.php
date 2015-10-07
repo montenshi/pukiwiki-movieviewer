@@ -56,6 +56,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $offer = $maker->getOffer();
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
+        $this->assertTrue($offer->canDiscount());
     }
 
     public function testGetOfferShouldReturnsOfferAlreadyExpired() {
@@ -71,6 +72,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $offer = $maker->getOffer();
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
+        $this->assertFalse($offer->canDiscount());
     }
 
     public function testGetOffersShouldReturnsNoOfferRemainsMoreThan1Month() {
@@ -85,7 +87,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $maker = new MovieViewerDealPackOfferMaker($user);
         $offers = $maker->getOffers();
 
-        $this->assertEquals(1, count($offers));
+        $this->assertCount(1, $offers);
         $this->assertEquals("K2Kiso-1", $offers[0]->getPackId());
     }
 
@@ -101,7 +103,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $maker = new MovieViewerDealPackOfferMaker($user);
         $offers = $maker->getOffers();
 
-        $this->assertEquals(2, count($offers));
+        $this->assertCount(2, $offers);
         $this->assertEquals("K1Kiso-2", $offers[0]->getPackId());
         $this->assertEquals("K2Kiso-1", $offers[1]->getPackId());
     }

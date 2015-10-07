@@ -1,5 +1,12 @@
 <?php
 
+class MovieViewerTransferDeadline extends DateTime {
+
+    function __construct($params) {
+        parent::__construct($params);
+    }
+}
+
 class MovieViewerFixedPrice {
     public $amount;
 
@@ -16,18 +23,20 @@ class MovieViewerDiscountPrice {
     }
 }
 
-class MovieViewerDiscountPeriod {
-    public $date_begin;
-    public $date_end;
-
+class MovieViewerDiscountPeriod extends MovieViewerPeriod {
     function __construct($date_begin, $date_end) {
-        $this->date_begin = $date_begin;
-        $this->date_end = $date_end;
+        parent::__construct($date_begin, $date_end);
+    }
+
+    public function canDiscount($date_target = null) {
+        return $this->isBetween($date_target);
     }
 }
 
-class MovieViewerDiscountRule {
-
+class MovieViewerNeverDiscountPeriod {
+    public function canDiscount($date_target = null) {
+        return FALSE;
+    }
 }
 
 class MovieViewerDealPack {
@@ -92,7 +101,7 @@ class MovieViewerDealBox {
     public function getPackById($id) {
         return $this->packs[$id];
     }
-    
+
     function addPack($pack_id, $session_ids, $fixed_price, $discount_price) {
         $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price);
         $this->packs[$pack->getId()] = $pack;
@@ -102,18 +111,18 @@ class MovieViewerDealBox {
 class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K1Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 4500, 4750);
-        $this->addPack(2, array("05", "06", "07", "08"), 4500, 4750);
-        $this->addPack(3, array("09", "10", "11", "12"), 4500, 4750);
+        $this->addPack(1, array("01", "02", "03", "04"), 4750, 4500);
+        $this->addPack(2, array("05", "06", "07", "08"), 4750, 4500);
+        $this->addPack(3, array("09", "10", "11", "12"), 4750, 4500);
     }
 }
 
 class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K2Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 4500, 4750);
-        $this->addPack(2, array("05", "06", "07", "08"), 4500, 4750);
-        $this->addPack(3, array("09", "10", "11", "12"), 4500, 4750);
+        $this->addPack(1, array("01", "02", "03", "04"), 4750, 4500);
+        $this->addPack(2, array("05", "06", "07", "08"), 4750, 4500);
+        $this->addPack(3, array("09", "10", "11", "12"), 4750, 4500);
     }
 }
 

@@ -25,7 +25,11 @@ function plugin_movieviewer_purchase_start_convert() {
     $offer_maker = new MovieViewerDealPackOfferMaker($user);
 
     if (!$offer_maker->canOffer()) {
-        return '';
+        $content =<<<TEXT
+        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
+TEXT;
+        return $content;
     }
 
     $offer = $offer_maker->getOffer();
@@ -33,7 +37,7 @@ function plugin_movieviewer_purchase_start_convert() {
     if ($offer->getPackId() !== $deal_pack_id) {
         $content =<<<TEXT
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースは購入できなくなりました。</p>
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
 TEXT;
         return $content;
     }
@@ -56,7 +60,7 @@ TEXT;
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
       <tr><th>振込先</th><td>ほげふが銀行 なんとか支店 (普) 12345678</td></tr>
-      <tr><th>振込期限</th><td>2015年10月31日まで</td></tr>
+      <tr><th>振込期限</th><td>{$offer->getTransferDeadline()->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>
     <form action="index.php?cmd=movieviewer_purchase_start" METHOD="POST">

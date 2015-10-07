@@ -209,6 +209,22 @@ class MovieViewerPeriod {
         $this->date_end = $date_end;
     }
 
+    public function isBefore($date_target = null) {
+        if ($date_target === null) {
+            $date_target = plugin_movieviewer_now();
+        }
+
+        return ($this->date_begin > $date_target);
+    }
+
+    public function isBetween($date_target = null) {
+        if ($date_target === null) {
+            $date_target = plugin_movieviewer_now();
+        }
+
+        return ($this->date_begin <= $date_target && $date_target <= $this->date_end);
+    }
+
     public function isExpired($date_target = null) {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();

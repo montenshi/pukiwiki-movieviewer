@@ -22,7 +22,8 @@ function plugin_movieviewer_purchase_start_convert() {
 
     $page = plugin_movieviewer_get_current_page();
 
-    $offer_maker = new MovieViewerDealPackOfferMaker($user);
+    $settings = plugin_movieviewer_get_global_settings();
+    $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
     if (!$offer_maker->canOffer()) {
         $content =<<<TEXT
@@ -59,8 +60,8 @@ TEXT;
     <table>
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
-      <tr><th>振込先</th><td>ほげふが銀行 なんとか支店 (普) 12345678</td></tr>
-      <tr><th>振込期限</th><td>{$offer->getTransferDeadline()->format("Y年m月d日")}まで</td></tr>
+      <tr><th>振込先</th><td>{$offer->getBankTransfer()->bank_account}</td></tr>
+      <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>
     <form action="index.php?cmd=movieviewer_purchase_start" METHOD="POST">
@@ -94,7 +95,8 @@ TEXT;
 
     $page = plugin_movieviewer_get_current_page();
 
-    $offer_maker = new MovieViewerDealPackOfferMaker($user);
+    $settings = plugin_movieviewer_get_global_settings();
+    $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
     if (!$offer_maker->canOffer()) {
         $content =<<<TEXT
@@ -126,8 +128,8 @@ TEXT;
     <table>
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
-      <tr><th>振込先</th><td>ほげふが銀行 なんとか支店 (普) 12345678</td></tr>
-      <tr><th>振込期限</th><td>{$offer->getTransferDeadline()->format("Y年m月d日")}まで</td></tr>
+      <tr><th>振込先</th><td>{$offer->getBankTransfer()->bank_account}</td></tr>
+      <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>
 TEXT;

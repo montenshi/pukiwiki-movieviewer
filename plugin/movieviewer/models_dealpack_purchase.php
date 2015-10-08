@@ -1,18 +1,29 @@
 <?php
 
+class MovieViewerBankTransfer {
+    public $bank_account;
+    public $deadline;
+
+    function __construct($bank_account, $deadline) {
+        $this->bank_account = $bank_account;
+        $this->deadline = $deadline;
+    }
+}
+
 class MovieViewerDealPackOffer {
 
     private $user;
     private $pack;
     private $discount_period;
-    private $transfer_deadline;
+    private $bank_transfer;
     private $purchase_request = null;
 
-    function __construct($user, $pack, $discount_period, $date_transfer_deadline) {
+    function __construct($user, $pack, $discount_period, $bank_transfer) {
         $this->user = $user;
         $this->pack = $pack;
         $this->discount_period = $discount_period;
-        $this->transfer_deadline = new MovieViewerTransferDeadline($date_transfer_deadline->format("Y-m-d H:i:sP"));
+
+        $this->bank_transfer = $bank_transfer;
 
         try {
             $purchase_request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findBy($user->id, $pack->getId());
@@ -46,8 +57,8 @@ class MovieViewerDealPackOffer {
         }
     }
 
-    public function getTransferDeadline() {
-        return $this->transfer_deadline;
+    public function getBankTransfer() {
+        return $this->bank_transfer;
     }
 
     public function canDiscount() {
@@ -72,12 +83,14 @@ class MovieViewerDealPackOffer {
 }
 
 class MovieViewerDealPackOfferMaker {
+    private $payment_settings;
     private $user;
     private $s4_packs;
 
     private $offers = array();
 
-    function __construct($user) {
+    function __construct($payment_settings, $user) {
+        $this->payment_settings = $payment_settings;
         $this->user = $user;
         $this->s4_container = new MovieViewerS4DealContainer();
 
@@ -119,11 +132,16 @@ class MovieViewerDealPackOfferMaker {
             return NULL;
         }
 
+        $bank_transfer = new MovieViewerBankTransfer(
+                                  $this->payment_settings["bank_account_to_transfer"]
+                                , $offer_params["transfer_deadline"]
+                            );
+
         $offer = new MovieViewerDealPackOffer(
               $user
             , $offer_params["next_pack"]
             , $offer_params["discount_period"]
-            , $offer_params["date_transfer_deadline"]
+            , $bank_transfer
         );
 
         if ($offer->isAccepted()) {
@@ -145,12 +163,12 @@ class MovieViewerDealPackOfferMaker {
 
         // 振込期限は当月月末まで
         $year_month = date('Y-m');
-        $date_transfer_deadline =  new DateTime("last day of $year_month");
+        $transfer_deadline =  new MovieViewerTransferDeadline("last day of $year_month");
 
         foreach($box->packs as $pack) {
             // 購入していないパックがあればそれを返す
             if (!isset($maped_confirmations[$pack->getId()])) {
-                return array("next_pack" => $pack, "discount_period" => $discount_period, "date_transfer_deadline" => $date_transfer_deadline);
+                return array("next_pack" => $pack, "discount_period" => $discount_period, "transfer_deadline" => $transfer_deadline);
             }
 
             // 直近に買ったパックの視聴期限が切れている場合は、割引なしで次のパックをオファーする

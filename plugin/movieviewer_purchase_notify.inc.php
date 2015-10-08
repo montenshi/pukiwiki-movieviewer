@@ -18,7 +18,8 @@ function plugin_movieviewer_purchase_notify_convert(){
         return '';
     }
 
-    $offer_maker = new MovieViewerDealPackOfferMaker($user);
+    $settings = plugin_movieviewer_get_global_settings();
+    $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
     if (!$offer_maker->canOffer()) {
         return '';

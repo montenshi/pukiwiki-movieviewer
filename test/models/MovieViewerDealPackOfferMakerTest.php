@@ -22,7 +22,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offer = $maker->getOffer();
 
         $this->assertEquals(NULL, $offer);
@@ -37,7 +38,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offer = $maker->getOffer();
 
         $this->assertEquals(NULL, $offer);
@@ -52,7 +54,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offer = $maker->getOffer();
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
@@ -68,7 +71,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offer = $maker->getOffer();
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
@@ -84,7 +88,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso", "K2Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offers = $maker->getOffers();
 
         $this->assertCount(1, $offers);
@@ -100,7 +105,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $user->id = "aaa@bbb.ccc";
         $user->selected_courses = array("K1Kiso", "K2Kiso");
 
-        $maker = new MovieViewerDealPackOfferMaker($user);
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
         $offers = $maker->getOffers();
 
         $this->assertCount(2, $offers);

@@ -5,3 +5,5 @@ settings:
     path:          /vagrant/resources/aws/settings.yml
   mail:
     path:          /vagrant/resources/mail.yml
+  payment:
+    bank_account_to_transfer: ほげふが銀行 なんとか支店 (普) 12345678

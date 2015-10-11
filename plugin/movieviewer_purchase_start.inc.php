@@ -90,6 +90,14 @@ TEXT;
         return array("msg"=>$page, "body"=>$content);
     }
 
+    if ($user->mailAddress === NULL || $user->mailAddress === "") {
+        $content =<<<TEXT
+        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+        <p class="caution">メールアドレスが登録されていません。</p>
+TEXT;
+        return array("msg"=>$page, "body"=>$content);
+    }
+
     $deal_pack_id = $_POST["deal_pack_id"];
     $purchase_method = $_POST["purchase_method"];
 
@@ -118,11 +126,15 @@ TEXT;
 
     $offer->accept();
 
+    $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
+    $mail = $mail_builder->build($user->mailAddress, $offer->getPrice()->amount, $offer->getBankTransfer());
+    $result = $mail->send();
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>銀行振り込みで申し込み(案内通知)</h2>
     <p>
-    申し込み案内を登録しているメールアドレスに送りました。
+    登録しているメールアドレスに、申し込み案内を送りました。
     </p>
     <p>
     <table>

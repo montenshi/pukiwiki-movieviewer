@@ -2,9 +2,6 @@
 
 require_once("movieviewer.ini.php");
 
-require_once(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "lib/qdmail.php");
-require_once(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "lib/qdsmtp.php");
-
 function plugin_movieviewer_reset_password_init() {
     plugin_movieviewer_set_global_settings();
 }
@@ -120,10 +117,9 @@ function plugin_movieviewer_reset_password_action_request(){
     }
 
     $settings = plugin_movieviewer_get_global_settings();
-    $builder = new MovieViewerMailBuilder($settings->mail);
+    $builder = new MovieViewerResetPasswordMailBuilder($settings->mail);
 
     $reset_uri = get_script_uri() . "?cmd=movieviewer_reset_password&page=${page}&ope_type=confirm&token=" . $token->id;
-
     $mail = $builder->build($user->mailAddress, $reset_uri);
     $result = $mail->send();
 

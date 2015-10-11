@@ -61,11 +61,11 @@ class MovieViewerLogger {
 
 class MovieViewerMailSettings {
     public $smtp;
-    public $mail;
+    public $template;
 
-    function __construct($smtp, $mail) {
+    function __construct($smtp, $template) {
         $this->smtp = $smtp;
-        $this->mail = $mail;
+        $this->template = $template;
     }
 }
 
@@ -82,7 +82,7 @@ class MovieViewerSettings {
         $mail = Spyc::YAMLLoad($data['settings']['mail']['path']);
         $object->data = $data['settings']['data'];
         $object->aws = $aws;
-        $object->mail = new MovieViewerMailSettings($mail['smtp'], $mail['mail']);
+        $object->mail = new MovieViewerMailSettings($mail['smtp'], $mail['template']);
         $object->payment = $data['settings']['payment'];
 
         return $object;
@@ -372,14 +372,25 @@ class MovieViewerViewingPeriodsByUser {
 }
 
 class MovieViewerMailBuilder {
-    private $settings;
+    protected $settings;
 
     function __construct($settings) {
         $this->settings = $settings;
     }
 
-    public function build($mail_to, $reset_url) {
-        $param = array(
+    function createMail($mail_to) {
+        $params = $this->createParams();
+        $mail = new Qdmail();
+        $mail->smtp(true);
+        $mail->smtpServer($params);
+        $mail->to($mail_to);
+        $mail->from($this->settings->smtp["from"]);
+
+        return $mail;
+    }
+
+    function createParams() {
+        $params = array(
               'host'     => $this->settings->smtp["host"]
             , 'port'     => $this->settings->smtp["port"]
             , 'from'     => $this->settings->smtp["from"]
@@ -387,21 +398,10 @@ class MovieViewerMailBuilder {
             , 'user' => $this->settings->smtp["user"]
             , 'pass' => $this->settings->smtp["password"]
         );
-        $mail = new Qdmail();
-        $mail->smtp(true);
-        $mail->smtpServer($param);
-        $mail->to($mail_to);
-        $mail->from($this->settings->smtp["from"]);
-        $mail->subject($this->settings->mail["subject"]);
-
-        $body = $this->renderBody(array('reset_url' => $reset_url));
-
-        $mail->text($body);
-        return $mail;
+        return $params;
     }
 
-    function renderBody($params) {
-        $source = $this->settings->mail["body"];
+    function renderBody($template, $params) {
         $regex = '/{{\s*([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s*}}/s';
         return preg_replace_callback($regex, function ($m) use ($params) {
             if (!isset($params[$m[1]])) {
@@ -409,8 +409,50 @@ class MovieViewerMailBuilder {
             }
 
             return $params[$m[1]];
-        }, $source);
+        }, $template);
 
+    }
+}
+
+class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerMailBuilder {
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+
+    public function build($mail_to, $price, $bank_transfer) {
+
+        $settings_local = $this->settings->template["transfer_information"];
+        $mail = $this->createMail($mail_to);
+
+        $body = $this->renderBody($settings_local["body"], array(
+              "bank_account" => $bank_transfer->bank_account
+            , "deadline" => $bank_transfer->deadline->format("Y年m月d日")
+            , "price" => $price
+        ));
+
+        $mail->subject($settings_local["subject"]);
+        $mail->text($body);
+        return $mail;
+    }
+
+}
+
+class MovieViewerResetPasswordMailBuilder extends MovieViewerMailBuilder {
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+    public function build($mail_to, $reset_url) {
+
+        $settings_local = $this->settings->template["transfer_information"];
+        $mail = $this->createMail($mail_to);
+
+        $body = $this->renderBody($settings_local["body"], array('reset_url' => $reset_url));
+
+        $mail->subject($settings_local["subject"]);
+        $mail->text($body);
+        return $mail;
     }
 }
 

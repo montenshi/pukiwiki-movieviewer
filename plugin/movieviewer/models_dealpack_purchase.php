@@ -193,6 +193,7 @@ class MovieViewerDealPackOfferMaker {
 }
 
 class MovieViewerDealPackPurchaseRequest {
+
     public $user_id;
     public $pack_id;
     public $date_requested;
@@ -212,7 +213,11 @@ class MovieViewerDealPackPurchaseRequest {
     }
 
     public function getPack() {
-        return plugin_movieviewer_get_deal_pack_repository()->findById($this->pack_id);
+        static $s4_container;
+        if ($s4_container === NULL) {
+            $s4_container = new MovieViewerS4DealContainer();
+        }
+        return $s4_container->getPack($this->pack_id);
     }
 
     public function getDateRequested() {
@@ -220,19 +225,35 @@ class MovieViewerDealPackPurchaseRequest {
     }
 
     public function getPaymentConfirmation() {
-        return $this->payment_confirmation;
+        if ($this->payment_confirmation !== NULL) {
+            return $this->payment_confirmation;
+        }
+
+        return plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->find($this->user_id, $this->pack_id);
     }
 
     public function getId() {
         return "{$this->user_id}###{$this->pack_id}";
     }
 
+    public function isPaymentConfirmed() {
+        if ($this->payment_confirmation !== NULL) {
+            return TRUE;
+        }
+
+        return plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->exists($this->user_id, $this->pack_id);
+    }
+
+    public function preConfirmPayment() {
+        $payment_confirmation = new MovieViewerDealPackPaymentConfirmation($this->user_id, $this->pack_id);
+        return $payment_confirmation;
+    }
+
     public function confirmPayment() {
-        $this->payment_confirmation = new MovieViewerDealPackPaymentConfirmation($this->user_id, $this->pack_id);
+        $this->payment_confirmation = $this->preConfirmPayment();
         $periods = $this->addViewingPeriods($this->payment_confirmation);
 
         plugin_movieviewer_get_viewing_periods_by_user_repository()->store($periods);
-
         plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->store($this->payment_confirmation);
 
         return $this->payment_confirmation;

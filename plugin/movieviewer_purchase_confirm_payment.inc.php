@@ -28,9 +28,27 @@ TEXT;
 
     $requests = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findAll();
 
+    $requestsNotConfirmed = array();
+    foreach($requests as $request) {
+        if ($request->isPaymentConfirmed()) {
+            continue;
+        }
+
+        $requestsNotConfirmed[] = $request;
+    }
+
+    if (count($requestsNotConfirmed) === 0) {
+        $content = <<<TEXT
+        <h2>入金確認</h2>
+        <p>入金確認が必要なデータはありません。</p>
+TEXT;
+        return $content;
+    }
+
     $content_rows = "";
 
-    foreach($requests as $request) {
+    foreach($requestsNotConfirmed as $request) {
+
         $ctrl_value = "{$request->getId()}";
         $ctrl_id = "pr_{$ctrl_value}";
 
@@ -118,15 +136,15 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
     }
 
     foreach($requests as $request) {
-        $request->confirmPayment();
-    }
-
-    foreach($requests as $request) {
 
         $ctrl_value = "{$request->getId()}";
         $ctrl_id = "pr_{$ctrl_value}";
 
-        $confirmation = $request->getPaymentConfirmation();
+        if (!$request->isPaymentConfirmed()) {
+            $confirmation = $request->preConfirmPayment();
+        } else {
+            $confirmation = $request->getPaymentConfirmation();
+        }
 
         $content_row =<<<TEXT
         <tr>

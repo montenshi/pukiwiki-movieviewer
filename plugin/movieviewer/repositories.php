@@ -588,6 +588,12 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         parent::__construct($settings);
     }
 
+    public function exists($user_id, $pack_id) {
+        $file_path = $this->getFilePath($user_id, $pack_id);
+
+        return file_exists($file_path);
+    }
+
     public function findById($confirmation_id) {
         list($user_id, $pack_id) = mb_split("###", $confirmation_id, 2);
 
@@ -664,7 +670,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
 
     function getFilePath($user_id, $pack_id) {
         $base_dir = $this->settings->data['dir'];
-        return "${base_dir}/purchase/deal_pack/{$pack_id}/{$user_id}_purchase_confirm_payment.yml";
+        return "${base_dir}/purchase/deal_pack/{$pack_id}/confirmed/{$user_id}_purchase_confirm_payment.yml";
     }
 
     function getGlobPath($pack_id) {
@@ -672,7 +678,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
             $pack_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
-        return "${base_dir}/purchase/deal_pack/${pack_id}/*_purchase_confirm_payment.yml";
+        return "${base_dir}/purchase/deal_pack/${pack_id}/confirmed/*_purchase_confirm_payment.yml";
     }
 
     function getGlobPathByCourse($user_id, $course_id) {
@@ -683,7 +689,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
             $course_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
-        return "${base_dir}/purchase/deal_pack/${course_id}-*/{$user_id}_purchase_confirm_payment.yml";
+        return "${base_dir}/purchase/deal_pack/${course_id}-*/confirmed/{$user_id}_purchase_confirm_payment.yml";
     }
 }
 

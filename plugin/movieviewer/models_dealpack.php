@@ -138,6 +138,16 @@ class MovieViewerS4DealContainer {
         return $this->boxes[$course_id];
     }
 
+    public function getPack($pack_id) {
+        foreach ($this->boxes as $box) {
+            $pack = $box->getPackById($pack_id);
+            if ($pack !== NULL) {
+                return $pack;
+            }
+        }
+        return NULL;
+    }
+
     public function addBox($box) {
         $this->boxes[$box->course_id] = $box;
     }

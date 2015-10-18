@@ -1,3 +1,4 @@
-app/pukiwiki/plugins/*/composer.phar
-app/pukiwiki/plugins/*/vendor
+app/pukiwiki/plugin/*/composer.phar
+app/pukiwiki/plugin/*/vendor
+tests/app/pukiwiki/plugin/*/vendor
 *.log

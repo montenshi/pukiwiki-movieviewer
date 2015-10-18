@@ -1,5 +1,9 @@
 {
     "require-dev": {
         "phpunit/phpunit": "4.8.*"
+        , "behat/behat": "3.*"
+        , "behat/mink": "1.*"
+        , "behat/mink-extension": "*"
+        , "behat/mink-selenium2-driver": "*"
     }
 }

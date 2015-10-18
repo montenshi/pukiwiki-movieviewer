@@ -1,0 +1,13 @@
+default:
+  suites:
+    default:
+      path: %paths.base%/features
+      contexts:
+        - FeatureContext
+        - Behat\MinkExtension\Context\MinkContext
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://172.16.1.84
+      sessions:
+        default:
+          selenium2: ~

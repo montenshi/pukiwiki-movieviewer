@@ -44,7 +44,7 @@ function plugin_movieviewer_purchase_notify_convert(){
         $content =<<<TEXT
         <div>
         <p>
-        {$offer->describePack()}の購入が可能になりました。<br>
+        {$offer->describePack()}の受講ができるようになりました。<br>
         お得な継続割引は{$discount_period->date_end->format("m月d日")}までになります。この機会にぜひ継続ください。
         </p>
         <p>
@@ -58,7 +58,7 @@ TEXT;
         $content =<<<TEXT
         <div>
         <p>
-        {$offer->describePack()}の購入が可能です。<br>
+        {$offer->describePack()}の受講ができます。<br>
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>

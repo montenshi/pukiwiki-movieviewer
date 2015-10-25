@@ -166,7 +166,7 @@ class MovieViewerDealPackOfferMaker {
         $transfer_deadline =  new MovieViewerTransferDeadline("last day of $year_month");
 
         foreach($box->packs as $pack) {
-            // 購入していないパックがあればそれを返す
+            // 受講していないパックがあればそれを返す
             if (!isset($maped_confirmations[$pack->getId()])) {
                 return array("next_pack" => $pack, "discount_period" => $discount_period, "transfer_deadline" => $transfer_deadline);
             }

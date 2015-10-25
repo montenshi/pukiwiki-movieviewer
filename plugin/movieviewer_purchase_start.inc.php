@@ -28,7 +28,7 @@ function plugin_movieviewer_purchase_start_convert() {
     if (!$offer_maker->canOffer()) {
         $content =<<<TEXT
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
 TEXT;
         return $content;
     }
@@ -38,7 +38,7 @@ TEXT;
     if ($offer->getPackId() !== $deal_pack_id) {
         $content =<<<TEXT
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
 TEXT;
         return $content;
     }
@@ -109,7 +109,7 @@ TEXT;
     if (!$offer_maker->canOffer()) {
         $content =<<<TEXT
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
 TEXT;
         return array("msg"=>$page, "body"=>$content);
     }
@@ -119,7 +119,7 @@ TEXT;
     if ($offer->getPackId() !== $deal_pack_id) {
         $content =<<<TEXT
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、購入できなくなりました。</p>
+        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
 TEXT;
         return array("msg"=>$page, "body"=>$content);
     }

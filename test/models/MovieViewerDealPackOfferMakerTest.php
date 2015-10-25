@@ -113,6 +113,21 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         $this->assertEquals("K1Kiso-2", $offers[0]->getPackId());
         $this->assertEquals("K2Kiso-1", $offers[1]->getPackId());
     }
+
+    public function testGetOffersShouldReturnsOfferFirstTime() {
+
+        $user = new MovieViewerUser();
+        $user->id = "bbb@bbb.ccc";
+        $user->selected_courses = array("K1Kiso");
+
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+        $offers = $maker->getOffers();
+
+        $this->assertCount(1, $offers);
+        $this->assertEquals("K1Kiso-1", $offers[0]->getPackId());
+        $this->assertTrue($offers[0]->canDiscount());
+    }
 }
 
 ?>

@@ -62,6 +62,10 @@ class MovieViewerDealPackOffer {
     }
 
     public function canDiscount() {
+        // 基礎1を買う場合は必ず割引価格にする
+        if ($this->getPackId() === "K1Kiso-1") {
+            return true;
+        }
         return $this->discount_period->canDiscount();
     }
 

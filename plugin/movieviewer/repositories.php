@@ -126,11 +126,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
     public function findById($id) {
 
         if ($this->isAdmin($id)) {
-            $object = new MovieViewerAdmin();
-            $object->id = $id;
-            $object->firstName = "Admin";
-            $object->lastName = "Commu";
-            return $object;
+            return $this->createAdmin();
         }
 
         $db = new CTextDB("commu/data/user.txt");
@@ -145,7 +141,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
 
         $data = $result[0];
 
-        $object = new MovieViewerUser();
+        $object = new MovieViewerCommuUser();
         $object->id = $data["email"];
         $object->firstName = $data["firstname"];
         $object->lastName = $data["lastname"];
@@ -170,6 +166,23 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         $adminId = $result[0]['value'];
 
         return ($adminId === $id);
+    }
+
+    function createAdmin() {
+        $db = new CTextDB("commu/data/admin.txt");
+        $result = $db->select('$id==\'1\'');
+        $id = $result[0]['value'];
+
+        $result = $db->select('$id==\'2\'');
+        $hashedPassword = $result[0]['value'];
+
+        $object = new MovieViewerCommuAdmin();
+        $object->id = $id;
+        $object->firstName = "Admin";
+        $object->lastName = "Commu";
+        $object->hashedPassword = $hashedPassword;
+
+        return $object;
     }
 }
 

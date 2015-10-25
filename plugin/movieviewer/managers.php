@@ -24,8 +24,8 @@ class MovieViewerAuthManager {
         $this->session_varname = $settings["session_varname"];
     }
 
-    public function login($user_id) {
-        $_SESSION[$this->session_varname] = $user_id;
+    public function login($user) {
+        $_SESSION[$this->session_varname] = $user->id;
     }
 
     public function logout() {
@@ -50,6 +50,11 @@ class MovieViewerDefaultAuthManager extends MovieViewerAuthManager {
 class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
     function __construct() {
         parent::__construct(array("session_varname" => "commu_user"));
+    }
+
+    public function login($user) {
+        // コミュ管理者をmovieviewer_authでログインできるようにするための仮実装
+        $_SESSION[$this->session_varname] = array("name" => $user->id);
     }
 
     public function getUserId() {

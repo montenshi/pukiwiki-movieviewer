@@ -27,7 +27,7 @@ function plugin_movieviewer_auth_convert(){
            return plugin_movieviewer_auth_move_to_authpage(TRUE);
        }
 
-       $manager->login($user_id);
+       $manager->login($maybe_user);
 
        return '';
     }

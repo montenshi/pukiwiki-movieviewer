@@ -89,13 +89,6 @@ class MovieViewerSettings {
     }
 }
 
-class MovieViewerAdmin extends MovieViewerUser {
-
-    public function isAdmin() {
-        return TRUE;
-    }
-}
-
 class MovieViewerUser {
     public $id = '';
     public $firstName = '';
@@ -124,8 +117,33 @@ class MovieViewerUser {
         return new MovieViewerUserResetPasswordToken($this->id);
     }
 
-    function hashPassword($raw_password) {
+    protected function hashPassword($raw_password) {
         return hash("sha512", $raw_password);
+    }
+}
+
+class MovieViewerAdmin extends MovieViewerUser {
+
+    public function isAdmin() {
+        return TRUE;
+    }
+}
+
+class MovieViewerCommuUser extends MovieViewerUser {
+
+    public function isAdmin() {
+        return FALSE;
+    }
+
+    protected function hashPassword($raw_password) {
+        return hash("sha1", trim(hash("md5", $raw_password)));
+    }
+}
+
+class MovieViewerCommuAdmin extends MovieViewerCommuUser {
+
+    public function isAdmin() {
+        return TRUE;
     }
 }
 

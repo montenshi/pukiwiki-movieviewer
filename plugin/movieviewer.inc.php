@@ -120,25 +120,29 @@ TEXT;
         }
 
         $action = <<<TEXT
-                  <button class="movieviewer-cource-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="margin-left:1em;">
+                  <button class="movieviewer-cource-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="position:absolute;right:1em;">
                     <span>再視聴の申込</span>
                   </button>
 TEXT;
+        $action = ""; // 再視聴の申し込みが実装できたらここを外す
+
         if ($isValid) {
             $action = <<<TEXT
-                  <button class="movieviewer-cource-text-download" id="{$hsc($course->id)}_{$hsc($session->id)}_text_download" style="margin-left:1em;">
+                  <button class="movieviewer-cource-text-download" id="{$hsc($course->id)}_{$hsc($session->id)}_text_download" style="position:absolute;right:1em;">
                     <span>テキストダウンロード</span>
                   </button>
 TEXT;
         }
 
         $body_session = <<<TEXT
-            <div>
+            <div style="position: relative;">
                 <h4 class="movieviewer-course-title" id="{$hsc($course->id)}_{$hsc($session->id)}_title">
                   {$hsc($session->describe())}
 
+                  <button class="movieviewer-course-show-chapters" id="{$hsc($course->id)}_{$hsc($session->id)}_show_chapters">
+                    <span>チャプター一覧</span>
+                  </button>
                   {$action}
-                  <span style="margin-left:1em;font-size:80%;">詳細を見る >></span>
                 </h4>
                 <ul id="{$hsc($course->id)}_{$hsc($session->id)}_list" class="list1" style="display:none;">
                     {$body_chapters}

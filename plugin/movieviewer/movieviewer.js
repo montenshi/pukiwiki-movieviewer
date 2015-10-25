@@ -32,9 +32,10 @@ $(document).ready(function(){
         return false;
     };
 
-    $('.movieviewer-course-title').click(function(){
-        var listId = $(this).attr('id').replace(/title/, "list");
+    $('.movieviewer-course-show-chapters').click(function(){
+        var listId = $(this).attr('id').replace(/show_chapters/, "list");
         $("#" + listId).toggle();
+        return false;
     });
 
     $('.movieviewer-cource-text-download').click(function(){

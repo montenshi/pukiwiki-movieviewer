@@ -116,6 +116,9 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
     public function testGetOffersShouldReturnsOfferFirstTime() {
 
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
         $user = new MovieViewerUser();
         $user->id = "bbb@bbb.ccc";
         $user->selected_courses = array("K1Kiso");
@@ -126,6 +129,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
         $this->assertCount(1, $offers);
         $this->assertEquals("K1Kiso-1", $offers[0]->getPackId());
+        $this->assertEquals("2015-10-15 00:00:00+09:00", $offers[0]->getDiscountPeriod()->date_begin->format("Y-m-d H:i:sP"));
+        $this->assertEquals("2015-10-31 23:59:59+09:00", $offers[0]->getDiscountPeriod()->date_end->format("Y-m-d H:i:sP"));
         $this->assertTrue($offers[0]->canDiscount());
     }
 }

@@ -62,10 +62,6 @@ class MovieViewerDealPackOffer {
     }
 
     public function canDiscount() {
-        // 基礎1を買う場合は必ず割引価格にする
-        if ($this->getPackId() === "K1Kiso-1") {
-            return true;
-        }
         return $this->discount_period->canDiscount();
     }
 
@@ -162,16 +158,31 @@ class MovieViewerDealPackOfferMaker {
             $maped_confirmations[$payment_confirmation->pack_id] = $payment_confirmation;
         }
 
-        // 基本は割引なし
-        $discount_period = new MovieViewerNeverDiscountPeriod();
+        $today = new DateTime();
+        $tmp = new DateTime();
+        $last_day_of_this_month = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
+
+        // 割引期限(割引なし)
+        $never_discount = new MovieViewerNeverDiscountPeriod();
+
+        // 割引期限(割引あり)
+        $year_month = date('Y-m');
+        $do_discount = new MovieViewerDiscountPeriod($today, $last_day_of_this_month);
+
+        // デフォルトは割引なし
+        $discount_period = $never_discount;
 
         // 振込期限は当月月末まで
-        $year_month = date('Y-m');
-        $transfer_deadline =  new MovieViewerTransferDeadline("last day of $year_month");
+        $transfer_deadline = new MovieViewerTransferDeadline($last_day_of_this_month->format("Y-m-d H:i:sP"));
 
         foreach($box->packs as $pack) {
             // 受講していないパックがあればそれを返す
             if (!isset($maped_confirmations[$pack->getId()])) {
+                // 基礎1を買う場合は必ず割引価格にする
+                if ($pack->getId() === "K1Kiso-1") {
+                    $discount_period = $do_discount;
+                }
+
                 return array("next_pack" => $pack, "discount_period" => $discount_period, "transfer_deadline" => $transfer_deadline);
             }
 
@@ -182,8 +193,7 @@ class MovieViewerDealPackOfferMaker {
 
             // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、割引ありで次のパックをオファーする
             if ($maped_confirmations[$pack->getId()]->viewing_period->aboutToExpire()) {
-                $year_month = date('Y-m');
-                $discount_period = new MovieViewerDiscountPeriod(new DateTime(), new DateTime("last day of $year_month"));
+                $discount_period = $do_discount;
                 continue;
             }
 

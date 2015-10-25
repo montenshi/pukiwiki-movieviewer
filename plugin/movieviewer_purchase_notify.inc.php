@@ -49,7 +49,6 @@ function plugin_movieviewer_purchase_notify_convert(){
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
-        <a href="${start_uri_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
         </p>
         </div>
 TEXT;
@@ -62,7 +61,6 @@ TEXT;
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
-        <a href="${start_uri_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
         </p>
         </div>
 TEXT;

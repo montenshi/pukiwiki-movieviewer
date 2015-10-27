@@ -15,9 +15,10 @@ function plugin_movieviewer_auth_convert(){
     if (isset($_POST['movieviewer_user']) && $_POST['movieviewer_user'] != "") {
        $user_id = $_POST['movieviewer_user'];
 
-       $maybe_user = plugin_movieviewer_get_user_repository()->findById($user_id);
-
-       if ($maybe_user == null){
+       $maybe_user = NULL;
+       try {
+           $maybe_user = plugin_movieviewer_get_user_repository()->findById($user_id);
+       } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
            plugin_movieviewer_auth_move_to_authpage(TRUE);
        }
 

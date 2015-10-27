@@ -13,7 +13,18 @@ function plugin_movieviewer_get_current_page() {
 }
 
 function plugin_movieviewer_get_auth_manager() {
-    return new MovieViewerAuthManagerInCommu();
+    $settings = plugin_movieviewer_get_global_settings();
+    return MovieViewerAuthManagerFactory::createInstance($settings->auth_module);
+}
+
+class MovieViewerAuthManagerFactory {
+    public static function createInstance($auth_module) {
+        if ($auth_module === PLUGIN_MOVIEVIEWER_AUTH_MODULE_COMMU) {
+            return new MovieViewerAuthManagerInCommu();
+        } else {
+            return new MovieViewerDefaultAuthManager();
+        }
+    }
 }
 
 class MovieViewerAuthManager {

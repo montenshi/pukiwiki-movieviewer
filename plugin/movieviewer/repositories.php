@@ -5,7 +5,7 @@ require_once(PLUGIN_MOVIEVIEWER_COMMU_DIR . '/cheetan/db/textsql.php');
 
 function plugin_movieviewer_get_user_repository() {
     $settings = plugin_movieviewer_get_global_settings();
-    return new MovieViewerUserRepositoryInCommuDb($settings);
+    return MovieViewerUserRepositoryFactory::createInstance($settings->auth_module, $settings);
 }
 
 function plugin_movieviewer_get_courses_repository() {
@@ -115,6 +115,16 @@ class MovieViewerRepositoryInFile {
         $date_target = new DateTime(null, $this->settings->timezone);
         $date_target->setTimestamp(strtotime($yaml_value));
         return $date_target;
+    }
+}
+
+class MovieViewerUserRepositoryFactory {
+    public static function createInstance($auth_module, $settings) {
+        if ($auth_module === PLUGIN_MOVIEVIEWER_AUTH_MODULE_COMMU) {
+            return new MovieViewerUserRepositoryInCommuDb($settings);
+        } else {
+            return new MovieViewerUserRepositoryInFile($settings);
+        }
     }
 }
 

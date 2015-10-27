@@ -76,3 +76,4 @@ TEXT;
 
     return $title . $content;
 }
+?>

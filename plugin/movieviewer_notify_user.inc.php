@@ -25,6 +25,8 @@ function plugin_movieviewer_notify_user_convert(){
 
     $purchase_offer = plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pages);
 
+    $purchase_status = plugin_movieviewer_notify_user_convert_purchase_status($user);
+
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -32,6 +34,7 @@ function plugin_movieviewer_notify_user_convert(){
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>お知らせ</h2>
     $purchase_offer
+    $purchase_status
 TEXT;
 
     return $content;
@@ -57,8 +60,7 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pag
 
     if ($offer->canDiscount()) {
         $discount_period = $offer->getDiscountPeriod();
-        $content =<<<TEXT
-        <div>
+        $offer_message =<<<TEXT
         <p>
         {$offer->describePack()}の受講ができるようになりました。<br>
         お得な継続割引は{$discount_period->date_end->format("m月d日")}までになります。この機会にぜひ継続ください。
@@ -66,23 +68,30 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pag
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
         </p>
-        </div>
 TEXT;
 
     } else {
-        $content =<<<TEXT
-        <div>
+        $offer_message =<<<TEXT
         <p>
         {$offer->describePack()}の受講ができます。<br>
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
         </p>
-        </div>
 TEXT;
     }
 
+    $content =<<<TEXT
+    <div class="movieviewer-notice movieviewer-notice-purchase-offer">
+      $offer_message
+    </div>
+TEXT;
+
     return $content;
+}
+
+function plugin_movieviewer_notify_user_convert_purchase_status($user) {
+    return "";
 }
 
 ?>

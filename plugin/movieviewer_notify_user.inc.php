@@ -25,15 +25,16 @@ function plugin_movieviewer_notify_user_convert(){
 
     $purchase_notice = plugin_movieviewer_notify_user_convert_purchase_notice($user, $start_pages);
 
-    $title =<<<TEXT
+    $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>お知らせ</h2>
+    $purchase_notice
 TEXT;
 
-    return $title . $purchase_notice;
+    return $content;
 }
 
 function plugin_movieviewer_notify_user_convert_purchase_notice($user, $start_pages) {

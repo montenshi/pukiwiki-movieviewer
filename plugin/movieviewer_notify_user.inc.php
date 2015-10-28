@@ -2,11 +2,11 @@
 
 require_once("movieviewer.ini.php");
 
-function plugin_movieviewer_purchase_notify_init() {
+function plugin_movieviewer_notify_user_init() {
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_purchase_notify_convert(){
+function plugin_movieviewer_notify_user_convert(){
 
     try {
         $user = plugin_movieviewer_get_current_user();
@@ -17,6 +17,26 @@ function plugin_movieviewer_purchase_notify_convert(){
     if ($user->isAdmin()) {
         return '';
     }
+
+    $page_args = func_get_args();
+    $start_pages = array();
+    $start_pages['bank']   = $page_args[0];
+    $start_pages['credit'] = $page_args[1];
+
+    $purchase_notice = plugin_movieviewer_notify_user_convert_purchase_notice($user, $start_pages);
+
+    $title =<<<TEXT
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <h2>お知らせ</h2>
+TEXT;
+
+    return $title . $purchase_notice;
+}
+
+function plugin_movieviewer_notify_user_convert_purchase_notice($user, $start_pages) {
 
     $settings = plugin_movieviewer_get_global_settings();
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -30,11 +50,6 @@ function plugin_movieviewer_purchase_notify_convert(){
     if ($offer->isAccepted()) {
         return '';
     }
-
-    $page_args = func_get_args();
-    $start_pages = array();
-    $start_pages['bank']   = $page_args[0];
-    $start_pages['credit'] = $page_args[1];
 
     $start_uri_bank = get_script_uri() . "?${start_pages['bank']}&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
     $start_uri_credit = get_script_uri() . "?${start_pages['credit']}&purchase_method=credit&deal_pack_id={$offer->getPackId()}";
@@ -66,14 +81,7 @@ TEXT;
 TEXT;
     }
 
-    $title =<<<TEXT
-    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <h2>お知らせ</h2>
-TEXT;
-
-    return $title . $content;
+    return $content;
 }
+
 ?>

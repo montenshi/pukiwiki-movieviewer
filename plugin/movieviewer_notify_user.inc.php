@@ -27,6 +27,10 @@ function plugin_movieviewer_notify_user_convert(){
 
     $purchase_status = plugin_movieviewer_notify_user_convert_purchase_status($user);
 
+    if ($purchase_offer === "" && $purchase_status === "") {
+        return '';
+    }
+
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -91,7 +95,37 @@ TEXT;
 }
 
 function plugin_movieviewer_notify_user_convert_purchase_status($user) {
-    return "";
+    $repo_req = plugin_movieviewer_get_deal_pack_purchase_request_repository();
+
+    $objects = $repo_req->findRequestingByUser($user->id);
+
+    if (count($objects) === 0) {
+        return '';
+    }
+
+    $list = "";
+    foreach ($objects as $object) {
+        $list .= <<<TEXT
+        <li>{$object->getPack()->describe()}</li>
+TEXT;
+    }
+
+    $message =<<<TEXT
+    <p>
+    以下の単元を申し込んでいます。
+    <ul>
+        $list
+    </ul>
+    </p>
+TEXT;
+
+    $content =<<<TEXT
+    <div class="movieviewer-notice movieviewer-notice-purchase-status">
+      $message
+    </div>
+TEXT;
+
+    return $content;
 }
 
 ?>

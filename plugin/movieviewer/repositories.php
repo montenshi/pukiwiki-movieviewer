@@ -559,6 +559,26 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         return $object;
     }
 
+    public function findRequestingByUser($user_id) {
+
+        $objects = array();
+
+        $repo_conf = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
+
+        $data_dir = $this->getGlobPathByUser($user_id);
+        foreach( glob($data_dir) as $file_path ) {
+            $object = $this->createObject($file_path);
+
+            if ($repo_conf->exists($object->user_id, $object->pack_id)) {
+                continue;
+            }
+
+            $objects[] = $object;
+        }
+
+        return $objects;
+    }
+
     public function findAll() {
 
         $objects = array();
@@ -586,7 +606,7 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
     function createObject($file_path) {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
-        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested);
+        $object = new ,nbvmn n uy6t5hjk($yaml["user_id"], $yaml["pack_id"], $date_requested);  
 
         return $object;
     }
@@ -602,6 +622,14 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         }
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/deal_pack/${pack_id}/*_purchase_request.yml";
+    }
+
+    function getGlobPathByUser($user_id) {
+        if ($user_id === "" || $user_id === NULL) {
+            $user_id = "*";
+        }
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/deal_pack/*/${user_id}_purchase_request.yml";
     }
 }
 

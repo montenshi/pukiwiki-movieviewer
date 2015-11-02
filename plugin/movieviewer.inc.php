@@ -128,7 +128,7 @@ TEXT;
 
         if ($isValid) {
             $action = <<<TEXT
-                  <button class="movieviewer-cource-text-download" id="{$hsc($course->id)}_{$hsc($session->id)}_text_download" style="position:absolute;right:1em;">
+                  <button class="movieviewer-course-text-download" id="{$hsc($course->id)}_{$hsc($session->id)}_text_download" style="position:absolute;right:1em;">
                     <span>テキストダウンロード</span>
                   </button>
 TEXT;

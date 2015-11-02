@@ -38,7 +38,7 @@ $(document).ready(function(){
         return false;
     });
 
-    $('.movieviewer-cource-text-download').click(function(){
+    $('.movieviewer-course-text-download').click(function(){
         var textIdStr = $(this).attr('id').replace(/_text_download/, "");
         var textIdParams = textIdStr.split('_');
 

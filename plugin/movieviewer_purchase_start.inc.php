@@ -45,6 +45,8 @@ TEXT;
 
     $hsc = "htmlspecialchars";
 
+    $bank_account = nl2br($offer->getBankTransfer()->bank_account);
+
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -57,10 +59,10 @@ TEXT;
     登録しているメールアドレスに銀行振り込み手続きのご案内メールが届きます。
     </p>
     <p>
-    <table>
+    <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
-      <tr><th>振込先</th><td>{$offer->getBankTransfer()->bank_account}</td></tr>
+      <tr><th>振込先</th><td>{$bank_account}</td></tr>
       <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>
@@ -130,6 +132,8 @@ TEXT;
     $mail = $mail_builder->build($user->mailAddress, $offer->getPrice()->amount, $offer->getBankTransfer());
     $result = $mail->send();
 
+    $bank_account = nl2br($offer->getBankTransfer()->bank_account);
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>銀行振り込みで申し込み(案内通知)</h2>
@@ -137,10 +141,10 @@ TEXT;
     登録しているメールアドレスに、申し込み案内を送りました。
     </p>
     <p>
-    <table>
+    <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
       <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
-      <tr><th>振込先</th><td>{$offer->getBankTransfer()->bank_account}</td></tr>
+      <tr><th>振込先</th><td>{$bank_account}</td></tr>
       <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
     </table>
     </p>

@@ -23,6 +23,11 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     public function __construct() {
     }
 
+    /** @BeforeScenario */
+    public function before(BeforeScenarioScope $scope) {
+        $this->rmrf("/Users/and/development/projects/montenshi/web/resources-test/purchase/deal_pack/K1Kiso-3");
+    }
+
     /**
      * @Then お知らせに以下の内容が表示されていること:
      */
@@ -47,6 +52,25 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         $this->以下の単元が表示されていること($table, '.movieviewer-sessions-attended');
     }
 
+    /**
+     * @Then 申し込み内容に以下が表示されていること:
+     */
+    public function 申し込み内容に以下が表示されていること(TableNode $table) {
+        $page = $this->getSession()->getPage();
+
+        $detail = $page->find('css', '.movieviewer-purchase-request-details');
+
+        $actual = array();
+        foreach($detail->findAll('css', 'tr') as $row) {
+            $head = $row->find('css', 'th');
+            $data = $row->find('css', 'td');
+
+            $actual[$head->getText()] = $data->getText();
+        }
+
+        assertEquals($table->getRowsHash(), $actual);
+    }
+
     function 以下の単元が表示されていること(TableNode $table, $css_sessions) {
         $page = $this->getSession()->getPage();
 
@@ -64,5 +88,14 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         }
 
         assertEquals($table->getHash(), $actual);
+    }
+
+    /* qiita.com/kumazo@github/items/e0797004513d9029613e より */
+    function rmrf($dir) {
+        if (is_dir($dir) and !is_link($dir)) {
+            array_map(array($this, 'rmrf'),   glob($dir.'/*', GLOB_ONLYDIR));
+            array_map('unlink', glob($dir.'/*'));
+            rmdir($dir);
+        }
     }
 }

@@ -606,7 +606,7 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
     function createObject($file_path) {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
-        $object = new ,nbvmn n uy6t5hjk($yaml["user_id"], $yaml["pack_id"], $date_requested);  
+        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested);
 
         return $object;
     }

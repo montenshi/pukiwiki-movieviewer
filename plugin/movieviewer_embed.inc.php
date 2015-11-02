@@ -26,6 +26,9 @@ function plugin_movieviewer_embed_convert(){
     <video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="550" height="319" data-setup=''>
         <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
     </video>
+    <p>
+    最大化ボタン <img src="/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+    </p>
 EOC;
 
     return $embed;

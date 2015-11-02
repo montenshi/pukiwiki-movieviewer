@@ -297,6 +297,9 @@ EOC;
        data-setup=''>
     <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
 </video>
+<p>
+最大化ボタン <img src="/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+</p>
 EOC;
     exit();
 }

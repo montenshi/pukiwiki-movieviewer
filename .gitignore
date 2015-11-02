@@ -2,3 +2,4 @@ app/pukiwiki/plugin/*/composer.phar
 app/pukiwiki/plugin/*/vendor
 tests/app/pukiwiki/plugin/*/vendor
 *.log
+.DS_Store

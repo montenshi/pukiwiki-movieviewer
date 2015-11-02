@@ -24,10 +24,19 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @Then お知らせに以下の内容が表示されていること:
+     */
+     public function お知らせに以下の内容が表示されていること(PyStringNode $markdown) {
+         $page = $this->getSession()->getPage();
+         $notices = $page->find('css', '.movieviewer-notices');
+
+         assertContains($markdown->getRaw(), $notices->getText());
+     }
+
+    /**
      * @Then 視聴可能な単元に以下が表示されていること:
      */
-    public function 視聴可能な単元に以下が表示されていること(TableNode $table)
-    {
+    public function 視聴可能な単元に以下が表示されていること(TableNode $table) {
         $this->以下の単元が表示されていること($table, '.movieviewer-sessions-viewable');
     }
 

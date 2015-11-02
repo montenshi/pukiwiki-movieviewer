@@ -37,8 +37,10 @@ function plugin_movieviewer_notify_user_convert(){
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>お知らせ</h2>
+    <div class="movieviewer-notices">
     $purchase_offer
     $purchase_status
+    </div>
 TEXT;
 
     return $content;

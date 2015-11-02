@@ -1,0 +1,34 @@
+smtp:
+  host: tls://smtp.gmail.com
+  port: 465
+  from: hogehogehoge
+  protocol: SMTP_AUTH
+  user: hogehogehoge
+  password: hogehogehoge
+template:
+  reset_password:
+    subject: てんしのおうち：動画配信会員 パスワード再設定手続きのお知らせ
+    body: |
+      以下のURLにアクセスし、パスワードの再設定をしてください。
+
+      {{reset_url}}
+
+      なお、URLの有効期限は1時間です。ご注意ください。
+      有効期限が過ぎた場合は、あらためてパスワード再設定のお手続きをお願いします。
+
+      ※  このメールは自動送信されたものです。
+         このメールにご返信いただいてもお答えすることができません。
+         ご了承ください。
+  transfer_information:
+    subject: てんしのおうち：動画配信会員 振込のご案内
+    body: |
+      ○○様
+
+      このたびはモンテッソーリIT勉強会「てんしのおうち」に
+      御入会のお申込みをいただき、ありがとうございました。
+
+      次の奇数月１５日が開講日となっておりますので、
+      偶数月末日までに必ずお振込をお願いいたします。
+
+      金額　：  {{price}}円
+      振込期限：{{deadline}}

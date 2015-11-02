@@ -1,0 +1,727 @@
+courses:
+  - id: K1Kiso
+    name: 基礎1
+    sessions:
+      - id:  "01"
+        name: 第１回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリ教育の目的と目標
+            time: 12
+          - id: "02"
+            name: 提示１：　豆の空け移し
+            time: 16
+          - id: "03"
+            name: 日常生活の練習の意義と目的
+            time: 09
+          - id: "04"
+            name: 提示２：　物の運び方・置き方
+            time: 09
+          - id: "05"
+            name: 提示３：　シール貼り
+            time: 07
+          - id: "06"
+            name: 感覚教育の意義と目的
+            time: 08
+          - id: "07"
+            name: 提示４：　はめこみ円柱（円柱さし）
+            time: 14
+      - id:  "02"
+        name: 第２回
+        chapters:
+          - id: "01"
+            name: モンテッソーリ教育の5分野と敏感期
+            time: 13
+          - id: "02"
+            name: 日常生活の練習のグループについて
+            time: 07
+          - id: "03"
+            name: 提示１：　先のとがったものの受け渡し
+            time: 05
+          - id: "04"
+            name: 提示２：　はさみで切る
+            time: 14
+          - id: "05"
+            name: 感覚教具の特性と視覚３教具
+            time: 16
+          - id: "06"
+            name: 提示３：　色板
+            time: 21
+      - id:  "03"
+        name: 第３回
+        chapters:
+          - id: "01"
+            name: 提示と誤りの訂正について
+            time: 26
+          - id: "02"
+            name: 日常生活の練習における環境への配慮と 環境の整え方
+            time: 15
+          - id: "03"
+            name: 提示１：　じゅうたんの広げ方・巻き方
+            time: 09
+          - id: "04"
+            name: 感覚教具の扱い方と知性の働き
+            time: 08
+          - id: "05"
+            name: 実体認識袋（ひみつ袋）
+            time: 24
+      - id:  "04"
+        name: 第４回
+        chapters:
+          - id: "01"
+            name: モンテッソーリ教育でたどる正常化への道筋
+            time: 16
+          - id: "02"
+            name: 日常生活の練習における基本運動とは
+            time: 14
+          - id: "03"
+            name: 提示１：　絞る　（スポンジ･布巾）　布巾で拭く
+            time: 26
+          - id: "04"
+            name: 感覚教具の分類と系統性
+            time: 08
+          - id: "05"
+            name: 提示２：　雑音筒
+            time: 18
+      - id:  "05"
+        name: 第５回
+        chapters:
+          - id: "01"
+            name: 家庭におけるモンテッソーリ教育を成功させるために
+            time: 25
+          - id: "02"
+            name: 日常生活の練習における事故への配慮とは
+            time: 06
+          - id: "03"
+            name: 提示１　着衣枠
+            time: 22
+          - id: "04"
+            name: 秩序感（秩序の敏感期)
+            time: 05
+          - id: "05"
+            name: 幾何たんすとカード
+            time: 24
+      - id:  "06"
+        name: 第６回
+        chapters:
+          - id: "01"
+            name: ０歳から３歳のモンテッソーリ教育
+            time: 36
+          - id: "02"
+            name: 提示１　のり貼り
+            time: 20
+          - id: "03"
+            name: 触覚の教具の展開
+            time: 03
+          - id: "04"
+            name: 提示２　触覚板と布地合わせ（布合わせ）
+            time: 21
+      - id:  "07"
+        name: 第７回
+        chapters:
+          - id: "01"
+            name: 良きモンテッソーリ教師となるために（モンテッソーリ教師の実践上の心得１２カ条）
+            time: 18
+          - id: "02"
+            name: 日常生活の練習における総合的なお仕事とは
+            time: 06
+          - id: "03"
+            name: 提示１　洗濯
+            time: 27
+          - id: "04"
+            name: 鉤の手の原理について
+            time: 04
+          - id: "05"
+            name: 提示２　味覚瓶と嗅覚筒
+            time: 28
+      - id:  "08"
+        name: 第８回
+        chapters:
+          - id: "01"
+            name: モンテッソーリの自由と規律
+            time: 20
+          - id: "02"
+            name: 提示１　縫い刺し
+            time: 29
+          - id: "03"
+            name: 提示２　ごますり
+            time: 21
+          - id: "04"
+            name: 提示３　音感ベル
+            time: 16
+      - id:  "09"
+        name: 第９回
+        chapters:
+          - id: "01"
+            name: モンテッソーリの生涯と業績
+            time: 20
+          - id: "02"
+            name: 提示１　自宅で作る手作り教材
+            time: 22
+          - id: "03"
+            name: 日常生活の練習における運動の調整とは
+            time: 06
+          - id: "04"
+            name: 提示２　線上歩行
+            time: 10
+          - id: "05"
+            name: 提示３　幾何学立体（幾何立体の籠）
+            time: 28
+      - id:  "10"
+        name: 第１０回
+        chapters:
+          - id: "01"
+            name: モンテッソーリとシュタイナー
+            time: 12
+          - id: "02"
+            name: 提示１　お茶のサービス
+            time: 25
+          - id: "03"
+            name: 二項式・三項式
+            time: 37
+          - id: "04"
+            name: 日常生活の練習のまとめ
+            time: 11
+      - id:  "11"
+        name: 第１１回
+        chapters:
+          - id: "01"
+            name: モンテッソーリ教育で育った子の特徴と脳科学
+            time: 20
+          - id: "02"
+            name: 提示１　金属磨き
+            time: 25
+          - id: "03"
+            name: 感覚教育のまとめ
+            time: 10
+          - id: "04"
+            name: 提示２　構成三角形
+            time: 34
+      - id:  "12"
+        name: 第１２回
+        chapters:
+          - id: "01"
+            name: モンテッソーリ教育で育つ「生きる力」
+            time: 13
+          - id: "02"
+            name: 提示１　静粛練習
+            time: 19
+          - id: "03"
+            name: 提示２　花の水替え（水切り）
+            time: 23
+          - id: "04"
+            name: 言語･算数教育に入る前に
+            time: 06
+          - id: "05"
+            name: 提示３　１２枚の青い三角形（星作り）
+            time: 18
+          - id: "06"
+            name: 総まとめ
+            time: 08
+  - id: K2Kiso
+    name: 基礎2
+    sessions:
+      - id:  "01"
+        name: 第１回
+        chapters:
+          - id: "01"
+            name: オープニング、言語教育の意義と目的
+            time: 13
+          - id: "02"
+            name: 提示１　語彙の拡充
+            time: 13
+          - id: "03"
+            name: 提示２　３つの絵カード合わせ
+            time: 22
+          - id: "04"
+            name: 算数教育の意義と目的
+            time: 07
+          - id: "05"
+            name: 提示３　カレンダー
+            time: 13
+          - id: "06"
+            name: 提示４　算数棒（数の棒）
+            time: 14
+          - id: "07"
+            name: 提示5　砂数字板
+            time: 10
+      - id:  "02"
+        name: 第２回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリの言語教育の特徴
+            time: 08
+          - id: "02"
+            name: 提示１　音節遊び（拍遊び）
+            time: 10
+          - id: "03"
+            name: 提示２　メタルインセッツ（鉄製はめこみ）
+            time: 15
+          - id: "04"
+            name: 提示３　砂文字板
+            time: 10
+          - id: "05"
+            name: モンテッソーリの算数教育の特徴
+            time: 06
+          - id: "06"
+            name: 提示４　算数棒と数字カード
+            time: 13
+          - id: "07"
+            name: 提示５　錐形棒（つむ棒箱）
+            time: 14
+          - id: "08"
+            name: 提示６　数字と玉(奇数と偶数)
+            time: 22
+      - id:  "03"
+        name: 第３回
+        chapters:
+          - id: "01"
+            name: オープニング、言語教育の系統性と順序
+            time: 14
+          - id: "02"
+            name: 提示１　文字さがし・５０音ならべ・移動５０音
+            time: 25
+          - id: "03"
+            name: 提示２　小さい黒板・なぞり文字板・升目のある紙
+            time: 17
+          - id: "04"
+            name: 他の算数教育との決定的な違い
+            time: 10
+          - id: "05"
+            name: 提示３　数の記憶遊び（０遊び)
+            time: 17
+          - id: "06"
+            name: 提示４　算数棒による合成と分解
+            time: 14
+      - id:  "04"
+        name: 第４回
+        chapters:
+          - id: "01"
+            name: オープニング、言語教育に必要な精神的準備
+            time: 15
+          - id: "02"
+            name: 提示１　清音･濁音・半濁音の紹介
+            time: 12
+          - id: "03"
+            name: 提示２　魔法のてんてん遊び
+            time: 06
+          - id: "04"
+            name: 算数教育と十進法
+            time: 08
+          - id: "05"
+            name: 提示３　色ビーズならべ
+            time: 25
+          - id: "06"
+            name: 提示４　お魚つりゲーム
+            time: 14
+          - id: "07"
+            name: 提示５　１，１０，１００，１０００の紹介
+            time: 18
+      - id:  "05"
+        name: 第５回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリの言語教育と小学校の国語教育
+            time: 21
+          - id: "02"
+            name: 提示１　物と名前（カード）
+            time: 20
+          - id: "03"
+            name: 提示２　小さいバスケット（籠）　ⅠとⅡ
+            time: 16
+          - id: "04"
+            name: 提示３　１～１０００の配列と構成
+            time: 40
+      - id:  "06"
+        name: 第６回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリの算数教育と小学校の算数教育
+            time: 17
+          - id: "02"
+            name: 提示１　小さい本と小さい本作り
+            time: 23
+          - id: "03"
+            name: 提示２　赤いカードあそび（行動あそび）
+            time: 13
+          - id: "04"
+            name: 提示３　セガン板　ⅠとⅡ
+            time: 27
+          - id: "05"
+            name: 提示４　数字の配列（消却・並べ・埋め込み）
+            time: 17
+      - id:  "07"
+        name: 第７回
+        chapters:
+          - id: "01"
+            name: オープニング、発達の４段階
+            time: 19
+          - id: "02"
+            name: 提示１　ふうとうパズル
+            time: 12
+          - id: "03"
+            name: 提示２　特殊音節の紹介１　促音と拗音
+            time: 25
+          - id: "04"
+            name: 提示３　１００の鎖・１０００の鎖
+            time: 28
+          - id: "05"
+            name: 提示４　両替あそび（銀行あそび）
+            time: 16
+      - id:  "08"
+        name: 第８回
+        chapters:
+          - id: "01"
+            name: オープニング、幼児期から児童期へ
+            time: 23
+          - id: "02"
+            name: 提示１　特殊音節の紹介２　長音
+            time: 28
+          - id: "03"
+            name: 提示２　金ビーズとカード　足し算
+            time: 25
+          - id: "04"
+            name: 提示３　カレンダーと1年の日数
+            time: 20
+      - id:  "09"
+        name: 第９回
+        chapters:
+          - id: "01"
+            name: オープニング、言語教育と文化教育のつながり
+            time: 15
+          - id: "02"
+            name: 提示１　特殊音節の紹介３　拗促音
+            time: 14
+          - id: "03"
+            name: 提示２　特殊音節の紹介４　拗長音
+            time: 15
+          - id: "04"
+            name: 提示３　金ビーズとカード　掛け算
+            time: 14
+          - id: "05"
+            name: 提示４　金ビーズとカード　引き算
+            time: 36
+      - id:  "10"
+        name: 第１０回
+        chapters:
+          - id: "01"
+            name: オープニング、算数教育と文化教育のつながり
+            time: 11
+          - id: "02"
+            name: 提示１　名詞の役割
+            time: 18
+          - id: "03"
+            name: 提示２　金ビーズとカード　割り算
+            time: 25
+          - id: "04"
+            name: 提示３　切手あそび　足し算
+            time: 35
+          - id: "05"
+            name: 提示４　切手あそび　掛け算
+            time: 07
+      - id:  "11"
+        name: 第１１回
+        chapters:
+          - id: "01"
+            name: オープニング、文化教育と上級算数（言語）への導入
+            time: 17
+          - id: "02"
+            name: 提示１　形容詞の役割
+            time: 15
+          - id: "03"
+            name: 提示２　形容詞のゲーム
+            time: 32
+          - id: "04"
+            name: 提示３　わかりにくい反対語　（形容詞）
+            time: 13
+          - id: "05"
+            name: 提示４　切手あそび　引き算
+            time: 17
+      - id:  "12"
+        name: 第１２回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　動詞の役割
+            time: 24
+          - id: "02"
+            name: 提示２　助詞の役割
+            time: 24
+          - id: "03"
+            name: 提示３　切手あそび　割り算
+            time: 18
+          - id: "04"
+            name: 提示４　へびあそび
+            time: 26
+          - id: "05"
+            name: 総まとめ（ご卒業にあたって）
+            time: 16
+  - id: OABunka
+    name: オプショナルA（文化教育）
+    sessions:
+      - id:  "01"
+        name: 第１回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリの文化教育とは
+            time: 25
+          - id: "02"
+            name: 提示１：　宇宙と太陽の家族 １、太陽と星の誕生
+            time: 14
+          - id: "03"
+            name: 提示１：　宇宙と太陽の家族 ２、太陽の家族
+            time: 21
+          - id: "04"
+            name: 提示１：　宇宙と太陽の家族 ３、絵カードと手作業
+            time: 20
+      - id:  "02"
+        name: 第２回
+        chapters:
+          - id: "01"
+            name: オープニング、モンテッソーリの文化教育の方法
+            time: 24
+          - id: "02"
+            name: 提示１：　陸と海の地球儀（白と青の地球儀） １、地球の紹介
+            time: 15
+          - id: "03"
+            name: 提示２：　土と水と空気 １、地球を構成する３大要素の紹介
+            time: "10"
+          - id: "04"
+            name: 提示２：　土と水と空気 ２、陸と海と空の生き物
+            time: 13
+      - id:  "03"
+        name: 第３回
+        chapters:
+          - id: "01"
+            name: オープニング、宇宙教育（Cosmic Education)
+            time: 29
+          - id: "02"
+            name: 提示１：　地球儀と平面地図 １、色付き地球儀の紹介 ２－１、陸と海の地球儀と平面地図
+            time: "10"
+          - id: "03"
+            name: 提示１：　地球儀と平面地図 ２－２、色付き地球儀と平面地図
+            time: 13
+          - id: "04"
+            name: 提示２：　地球の構造
+            time: 18
+      - id:  "04"
+        name: 第４回
+        chapters:
+          - id: "01"
+            name: オープニング、歴史を学ぶ意義
+            time: 21
+          - id: "02"
+            name: 提示１　時の流れ １年・季節・１週間
+            time: 38
+          - id: "03"
+            name: 提示２　時の流れ （時計）
+            time: 22
+      - id:  "05"
+        name: 第５回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　対照地形
+            time: 46
+          - id: "02"
+            name: 提示２　世界の大陸
+            time: 32
+      - id:  "06"
+        name: 第６回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　世界の国々
+            time: 39
+          - id: "02"
+            name: 提示２　世界の国旗
+            time: 40
+      - id:  "07"
+        name: 第７回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　日本の地方
+            time: 39
+          - id: "02"
+            name: 提示２　日本の都道府県
+            time: 35
+      - id:  "08"
+        name: 第８回
+        chapters:
+          - id: "01"
+            name: オープニング、生物分野への導入
+            time: 14
+          - id: "02"
+            name: 提示１　葉のたんすとカード
+            time: 21
+          - id: "03"
+            name: 提示２　分類された絵カード
+            time: 47
+      - id:  "09"
+        name: 第９回
+        chapters:
+          - id: "01"
+            name: オープニング、いのちの大切さの伝え方
+            time: 22
+          - id: "02"
+            name: 提示１　生物と無生物
+            time: 29
+          - id: "03"
+            name: 提示２　食物連鎖
+            time: 31
+      - id:  "10"
+        name: 第１０回
+        chapters:
+          - id: "01"
+            name: オープニング、大きな授業について
+            time: 26
+          - id: "02"
+            name: 提示１　生命の歴史 　（導入）
+            time: 46
+      - id:  "11"
+        name: 第１１回
+        chapters:
+          - id: "01"
+            name: オープニング、実験の紹介
+            time: 26
+          - id: "02"
+            name: 提示１　生命の歴史 　（発展）
+            time: 66
+      - id:  "12"
+        name: 第１２回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　戦争と平和
+            time: 58
+          - id: "02"
+            name: 平和を生きる人を育てる 育修了にあたって）
+            time: 38
+  - id: OBJyoSan
+    name: オプショナルB（上級算数教育）
+    sessions:
+      - id:  "01"
+        name: 第１回
+        chapters:
+          - id: "01"
+            name: オープニング、上級算数の意義と目的
+            time: 19
+          - id: "02"
+            name: 提示１　金ビーズによる掛け算 　（複数桁を掛ける）
+            time: 38
+          - id: "03"
+            name: 提示２　副詞の役割
+            time: 35
+      - id:  "02"
+        name: 第２回
+        chapters:
+          - id: "01"
+            name: オープニング、上級算数の特長
+            time: 33
+          - id: "02"
+            name: 提示１　切手遊びの掛け算 　（複数桁を掛ける）
+            time: 39
+          - id: "03"
+            name: 提示２　連体詞の役割
+            time: 18
+      - id:  "03"
+        name: 第３回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　金ビーズによる割り算（リボンの割り算）（複数桁で割る）
+            time: 37
+          - id: "02"
+            name: 提示２　切手遊びの割り算（複数桁で割る)
+            time: 48
+      - id:  "04"
+        name: 第４回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　チェッカーボード
+            time: 52
+          - id: "02"
+            name: 提示２　代名詞の役割とこそあど言葉
+            time: 42
+      - id:  "05"
+        name: 第５回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　ビーズのそろばん（ビーズフレーム)
+            time: 47
+          - id: "02"
+            name: 提示２　試験管ビーズの割り算
+            time: 49
+      - id:  "06"
+        name: 第６回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　茶色の階段の数値化
+            time: 44
+          - id: "02"
+            name: 提示２　ピンクタワーの数値化
+            time: 26
+          - id: "03"
+            name: 提示３　感動詞（感嘆詞）の役割
+            time: 19
+      - id:  "07"
+        name: 第７回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　色ビーズの掛け算
+            time: 36
+          - id: "02"
+            name: 提示２　累乗の紹介
+            time: 28
+          - id: "03"
+            name: 提示３　二項式・三項式の代数化
+            time: 38
+      - id:  "08"
+        name: 第８回
+        chapters:
+          - id: "01"
+            name: オープニング、提示1　２の累乗の立方体(ブロック)
+            time: 32
+          - id: "02"
+            name: 提示２　約数と倍数
+            time: 54
+          - id: "03"
+            name: 提示３　接続詞の役割
+            time: 16
+      - id:  "09"
+        name: 第９回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　十項式
+            time: 71
+          - id: "02"
+            name: 提示２　形容動詞の役割
+            time: 20
+      - id:  "10"
+        name: 第１０回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　平方根
+            time: 68
+          - id: "02"
+            name: 提示２　因数分解
+            time: 33
+      - id:  "11"
+        name: 第１１回
+        chapters:
+          - id: "01"
+            name: オープニング、人間の傾向性について
+            time: 23
+          - id: "02"
+            name: 提示１　分数
+            time: 77
+          - id: "03"
+            name: 提示２　助動詞の役割
+            time: 14
+      - id:  "12"
+        name: 第１２回
+        chapters:
+          - id: "01"
+            name: オープニング、提示１　文節パズル（５Ｗ１Ｈ）
+            time: 24
+          - id: "02"
+            name: 提示２　ピタゴラスの定理(三平方の定理）
+            time: 61
+          - id: "03"
+            name: 児童期の子どもへのまなざし 数教育修了にあたって）
+            time: 16

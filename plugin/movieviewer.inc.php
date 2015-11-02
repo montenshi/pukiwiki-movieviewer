@@ -56,13 +56,13 @@ function plugin_movieviewer_convert_show_contents(){
         <div>
             <h2>視聴可能な単元</h2>
         </div>
-        <div>
+        <div class="movieviewer-sessions movieviewer-sessions-viewable">
         {$body_valid_courses}
         </div>
         <div>
             <h2>受講済みの単元</h2>
         </div>
-        <div>
+        <div class="movieviewer-sessions movieviewer-sessions-attended">
         {$body_expired_courses}
         </div>
         <div id="myModal" title="View Movie">
@@ -120,7 +120,7 @@ TEXT;
         }
 
         $action = <<<TEXT
-                  <button class="movieviewer-cource-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="position:absolute;right:1em;">
+                  <button class="movieviewer-course-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="position:absolute;right:1em;">
                     <span>再視聴の申込</span>
                   </button>
 TEXT;
@@ -137,7 +137,7 @@ TEXT;
         $body_session = <<<TEXT
             <div style="position: relative;">
                 <h4 class="movieviewer-course-title" id="{$hsc($course->id)}_{$hsc($session->id)}_title">
-                  {$hsc($session->describe())}
+                  <span>{$hsc($session->describe())}</span>
 
                   <button class="movieviewer-course-show-chapters" id="{$hsc($course->id)}_{$hsc($session->id)}_show_chapters">
                     <span>チャプター一覧</span>
@@ -157,7 +157,7 @@ TEXT;
             }
 
             $body_course = <<<TEXT
-            <div style="margin-bottom:30px;">
+            <div class="movieviewer-course" style="margin-bottom:30px;">
             <h3>{$hsc($course->name)}コース</h3>
             {$body_session}
 TEXT;

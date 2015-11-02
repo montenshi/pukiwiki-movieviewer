@@ -1,0 +1,13 @@
+settings:
+  auth_module:     commu
+  data:
+    dir:           /vagrant/resources-test
+  aws:
+    path:          /vagrant/resources-test/aws/settings.yml
+  mail:
+    path:          /vagrant/resources-test/mail.yml
+  payment:
+    bank_account_to_transfer: |
+      ほげふが銀行 なんとか支店 (普) 12345678
+      フガフガ銀行 なんとか支店 (普) 12345679
+      ホゲホゲ銀行 なんとか支店 (普) 12345680

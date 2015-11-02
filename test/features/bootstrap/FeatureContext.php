@@ -25,6 +25,7 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
 
     /** @BeforeScenario */
     public function before(BeforeScenarioScope $scope) {
+        // テストで作成されたデータを削除
         $this->rmrf("/Users/and/development/projects/montenshi/web/resources-test/purchase/deal_pack/K1Kiso-3");
     }
 

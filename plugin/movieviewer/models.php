@@ -97,6 +97,7 @@ class MovieViewerUser {
     public $lastName = '';
     public $mailAddress = '';
     public $hashedPassword = '';
+    public $memberId = '';
     public $selected_courses = array('K1Kiso');
 
     public function setPassword($raw_password) {

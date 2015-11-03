@@ -526,7 +526,17 @@ class MovieViewerDealPackRepositoryInFile extends MovieViewerRepositoryInFile {
     }
 
     public function findById($pack_id) {
-        $pack = new MovieViewerDealPack("K1Kiso", 1, array("01", "02", "03", "04"), 4500, 4750);
+        //TODO: DealPackを永続化する方法を検討する
+        $container = new MovieViewerS4DealContainer();
+        $pack = $container->getPack($pack_id);
+
+        if ($pack === NULL) {
+            MovieViewerLogger::getLogger()->addError(
+                "パックが見つからない", array("pack_id" => $pack_id));
+
+            throw new MovieViewerRepositoryObjectCantStoreException();
+        }
+
         return $pack;
     }
 }

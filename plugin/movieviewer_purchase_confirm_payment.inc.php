@@ -45,7 +45,8 @@ TEXT;
         return $content;
     }
 
-    $content_rows = "";
+    $content_rows_notified = "";
+    $content_rows_unnotified = "";
 
     foreach($requestsNotConfirmed as $request) {
 
@@ -55,17 +56,71 @@ TEXT;
         $content_row =<<<TEXT
         <tr>
           <td><input type="checkbox" name="purchase_requests[]" value="{$ctrl_value}" id="{$ctrl_id}"></td>
+          <td><label for="{$ctrl_id}">{$request->getUser()->memberId}</label></td>
           <td><label for="{$ctrl_id}">{$request->getUser()->lastName} {$request->getUser()->firstName}</label></td>
           <td><label for="{$ctrl_id}">{$request->getUser()->id}</label></td>
           <td><label for="{$ctrl_id}">{$request->getPack()->describe()}</label></td>
           <td><label for="{$ctrl_id}">{$request->getDateRequested()->format("Y/m/d H:m:s")}</label></td>
         </tr>
 TEXT;
-        $content_rows .= $content_row;
+
+        if ($request->isNotified()) {
+            $content_rows_notified .= $content_row;
+        } else {
+            $content_rows_unnotified .= $content_row;
+        }
     }
 
     $page = plugin_movieviewer_get_current_page();
     $action_url = get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment&page=$page";
+
+    $content_notified = "";
+    if ($content_rows_notified !== "") {
+        $content_notified =<<<TEXT
+        <div>
+            <h3>通知あり</h3>
+            <table class="table purchase-requests purchase-requests-notified">
+              <thead>
+              <tr>
+                <th></th>
+                <th>会員番号</th>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>受講対象</th>
+                <th>申込日</th>
+              </tr>
+              </thead>
+              <tbody>
+                {$content_rows_notified}
+              <tbody>
+            </table>
+        </div>
+TEXT;
+    }
+
+    $content_unnotified = "";
+    if ($content_rows_unnotified !== "") {
+        $content_unnotified =<<<TEXT
+        <div>
+            <h3>通知なし</h3>
+            <table class="table purchase-requests purchase-requests-unnotified">
+              <thead>
+              <tr>
+                <th></th>
+                <th>会員番号</th>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>受講対象</th>
+                <th>申込日</th>
+              </tr>
+              </thead>
+              <tbody>
+                {$content_rows_unnotified}
+              <tbody>
+            </table>
+        </div>
+TEXT;
+    }
 
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
@@ -76,20 +131,8 @@ TEXT;
     <p>
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="confirm">
-    <table class="table purchase-requests">
-      <thead>
-      <tr>
-        <th></th>
-        <th>名前</th>
-        <th>メールアドレス</th>
-        <th>受講対象</th>
-        <th>申込日</th>
-      </tr>
-      </thead>
-      <tbody>
-        {$content_rows}
-      <tbody>
-    </table>
+    $content_notified
+    $content_unnotified
     </p>
     <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確認</button>
     </form>

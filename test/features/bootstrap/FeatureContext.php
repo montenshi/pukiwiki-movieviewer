@@ -26,7 +26,24 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     /** @BeforeScenario */
     public function before(BeforeScenarioScope $scope) {
         // テストで作成されたデータを削除
-        $this->rmrf("/Users/and/development/projects/montenshi/web/resources-test/purchase/deal_pack/K1Kiso-3");
+        exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/purchase");
+        exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/users");
+        // コピー
+        exec("cp -pr ./features/resources/* /Users/and/development/projects/montenshi/web/resources-test");
+    }
+
+    /**
+     * @When ログアウトする
+     */
+    public function ログアウトする() {
+        $this->visitPath('/index.php?cmd=movieviewer_logout');
+    }
+
+    /**
+     * @When :page_name ページに移動する
+     */
+    public function ページに移動する($page_name) {
+        $this->visitPath("/index.php?{$page_name}");
     }
 
     /**
@@ -81,6 +98,20 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         assertEquals($table->getRowsHash(), $actual);
     }
 
+    /**
+     * @Then 入金確認一覧 通知あり に以下の内容が表示されていること:
+     */
+    public function 入金確認一覧_通知あり_に以下の内容が表示されていること(TableNode $table) {
+        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-notified');
+    }
+
+    /**
+     * @Then 入金確認一覧 通知なし に以下の内容が表示されていること:
+     */
+    public function 入金確認一覧_通知なし_に以下の内容が表示されていること(TableNode $table) {
+        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-unnotified');
+    }
+
     function 以下の単元が表示されていること(TableNode $table, $css_sessions) {
         $page = $this->getSession()->getPage();
 
@@ -95,6 +126,27 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
                 $session_name = $session->find('css', 'span')->getText();
                 $actual[] = array('コース'=>$course_name, '単元'=>$session_name);
             }
+        }
+
+        assertEquals($table->getHash(), $actual);
+    }
+
+    function 入金確認一覧に以下の内容が表示されていること(TableNode $table, $css_requests) {
+        $page = $this->getSession()->getPage();
+
+        $detail = $page->find('css', $css_requests);
+
+        $actual = array();
+        foreach($detail->find('css', 'tbody')->findAll('css', 'tr') as $row) {
+            $columns = $row->findAll('css', 'td');
+
+            $actual_row = array();
+            $actual_row["会員番号"] = $columns[1]->getText();
+            $actual_row["名前"] = $columns[2]->getText();
+            $actual_row["メールアドレス"] = $columns[3]->getText();
+            $actual_row["受講対象"] = $columns[4]->getText();
+
+            $actual[] = $actual_row;
         }
 
         assertEquals($table->getHash(), $actual);

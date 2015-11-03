@@ -18,7 +18,7 @@ function plugin_movieviewer_auth_convert(){
         try {
             plugin_movieviewer_validate_user_id($req_user_id);
         } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
+            return plugin_movieviewer_auth_move_to_authpage(TRUE);
         }
 
         try {

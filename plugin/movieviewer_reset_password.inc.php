@@ -17,7 +17,7 @@ function plugin_movieviewer_reset_password_generate_request_page($messages){
     global $vars, $defaultpage;
 
     $page = isset($vars['page']) ? $vars['page'] : $defultpage;
-    $show_messages = isset($_GET['messages']) ? htmlspecialchars($_GET['messages']) : '';
+    $show_messages = isset($_GET['messages']) ? plugin_movieviewer_hsc(filter_input(INPUT_GET, 'messages')) : '';
 
     $messages = "";
     if ($show_messages) {
@@ -82,9 +82,9 @@ function plugin_movieviewer_reset_password_action(){
 function plugin_movieviewer_reset_password_action_get_ope_type(){
     $ope_type = 'unknown';
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $ope_type = $_GET['ope_type'];
+        $ope_type = filter_input(INPUT_GET, 'ope_type');
     } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $ope_type = $_POST['ope_type'];
+        $ope_type = filter_input(INPUT_POST, 'ope_type');
     }
 
     return $ope_type;
@@ -96,7 +96,7 @@ function plugin_movieviewer_reset_password_action_request(){
 
     $page = isset($vars['page']) ? $vars['page'] : $defultpage;
 
-    $user_id = $_POST['movieviewer_user'];
+    $user_id = filter_iput(INPUT_POST, 'movieviewer_user');
 
     try {
         $user = plugin_movieviewer_get_user_repository()->findById($user_id);
@@ -140,7 +140,7 @@ function plugin_movieviewer_reset_password_action_confirm(){
 
     $page = isset($vars['page']) ? $vars['page'] : $defultpage;
 
-    $token_id = $_GET['token'];
+    $token_id = filter_input(INPUT_GET, 'token');
 
     try {
         $token = plugin_movieviewer_get_user_reset_password_token_repository()->findById($token_id);
@@ -221,7 +221,7 @@ function plugin_movieviewer_reset_password_action_reset(){
 
     $page = isset($vars['page']) ? $vars['page'] : $defultpage;
 
-    $token_id = $_POST['token'];
+    $token_id = filter_input(INPUT_POST, 'token');
 
     try {
         $token = plugin_movieviewer_get_user_reset_password_token_repository()->findById($token_id);
@@ -241,8 +241,8 @@ function plugin_movieviewer_reset_password_action_reset(){
         return plugin_movieviewer_reset_password_error("パスワードの再設定ができませんでした。");
     }
 
-    $password = $_POST['movieviewer_password'];
-    $password_confirm = $_POST['movieviewer_password_confirm'];
+    $password = filter_input(INPUT_POST, 'movieviewer_password');
+    $password_confirm = filter_input(INPUT_POST, 'movieviewer_password_confirm');
 
     if ($password !== $password_confirm) {
         $content = plugin_movieviewer_reset_password_action_confirm_generate_page($token, $user, "入力したパスワードとパスワード(確認)が一致しません。");

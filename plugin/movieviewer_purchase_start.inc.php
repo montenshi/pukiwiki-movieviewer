@@ -11,11 +11,23 @@ function plugin_movieviewer_purchase_start_convert() {
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        return 'notfound';
+        return plugin_movieviewer_convert_error_response("ログインが必要です。");
     }
 
-    $deal_pack_id = $_GET["deal_pack_id"];
-    $purchase_method = $_GET["purchase_method"];
+    $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
+    $purchase_method = filter_input(INPUT_GET, "purchase_method");
+
+    try {
+        plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_purchase_method($purchase_method);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
+    }
 
     $action_uri = get_script_uri() . "cmd=movieviewer_purchase_start";
     $start_uri_credit = get_script_uri() . "?${pages[1]}&purchase_pack_id=1_2";
@@ -26,21 +38,13 @@ function plugin_movieviewer_purchase_start_convert() {
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
     if (!$offer_maker->canOffer()) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
-TEXT;
-        return $content;
+        return plugin_movieviewer_convert_error_response("ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
     $offer = $offer_maker->getOffer();
 
     if ($offer->getPackId() !== $deal_pack_id) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
-TEXT;
-        return $content;
+        return plugin_movieviewer_convert_error_response("ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);
@@ -85,43 +89,39 @@ function plugin_movieviewer_purchase_start_action() {
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ログインが必要です。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
     }
 
     if ($user->mailAddress === NULL || $user->mailAddress === "") {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">メールアドレスが登録されていません。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
     }
 
-    $deal_pack_id = $_POST["deal_pack_id"];
-    $purchase_method = $_POST["purchase_method"];
+    $deal_pack_id = filter_input(INPUT_POST, "deal_pack_id");
+    $purchase_method = filter_input(INPUT_POST, "purchase_method");
+
+    try {
+        plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_purchase_method($purchase_method);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
 
     $settings = plugin_movieviewer_get_global_settings();
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
     if (!$offer_maker->canOffer()) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
     $offer = $offer_maker->getOffer();
 
     if ($offer->getPackId() !== $deal_pack_id) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースはすでに申し込み済み、または、受講できなくなりました。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
     $offer->accept();
@@ -135,11 +135,7 @@ TEXT;
             "案内通知エラー", array("error_statement"=>$mail->errorStatment())
         );
 
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">メールの送信に失敗しました。スタッフに問い合わせしてください。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。スタッフに問い合わせしてください。");
     }
 
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);

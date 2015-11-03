@@ -198,32 +198,20 @@ function plugin_movieviewer_action(){
 function plugin_movieviewer_action_get_ope_type(){
     $ope_type = 'unknown';
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $ope_type = $_GET['ope_type'];
+        $ope_type = filter_input(INPUT_GET, 'ope_type');
     } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $ope_type = $_POST['ope_type'];
+        $ope_type = filter_input(INPUT_POST, 'ope_type');
     }
 
     return $ope_type;
 }
 
 function plugin_movieviewer_action_invalid_request(){
-    pkwk_common_headers();
-    header('Content-type: text/html');
-    print <<<EOC
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <p class="caution">リクエストの内容に誤りがあります。</p>
-EOC;
-    exit();
+    plugin_movieviewer_abort("リクエストの内容に誤りがあります。");
 }
 
 function plugin_movieviewer_action_access_denied(){
-    pkwk_common_headers();
-    header('Content-type: text/html');
-    print <<<EOC
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <p class="caution">動画を見るにはログインが必要です。</p>
-EOC;
-    exit();
+    plugin_movieviewer_abort("動画を見るにはログインが必要です。");
 }
 
 function plugin_movieviewer_action_download_text(){
@@ -233,9 +221,21 @@ function plugin_movieviewer_action_download_text(){
     $cf_settings = $settings->aws['cloud_front'];
 
     $target = array(
-        "course" => htmlspecialchars($_GET["course"], ENT_QUOTES),
-        "session" => htmlspecialchars($_GET["session"], ENT_QUOTES),
+        "course" => filter_input(INPUT_GET, "course"),
+        "session" => filter_input(INPUT_GET, "session"),
     );
+
+    try {
+        plugin_movieviewer_validate_course_id($target["course"]);
+    } catch (MovieViewerValidationException $ex) {
+        plugin_movieviewer_abort("指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_session_id($target["session"]);
+    } catch (MovieViewerValidationException $ex) {
+        plugin_movieviewer_abort("指定した内容に誤りがあります。");
+    }
 
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
     $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
@@ -244,12 +244,7 @@ function plugin_movieviewer_action_download_text(){
     $canView = $viewing_periods->canView($target['course'], $target['session']);
 
     if (!$canView) {
-        header('Content-type: text/html');
-        print <<<EOC
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">このテキストはダウンロードできません。</p>
-EOC;
-        exit();
+        plugin_movieviewer_abort("このテキストはダウンロードできません。");
     }
 
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);
@@ -266,10 +261,28 @@ function plugin_movieviewer_action_show_movie(){
     $cf_settings = $settings->aws['cloud_front'];
 
     $target = array(
-        "course" => htmlspecialchars($_POST["course"], ENT_QUOTES, 'UTF-8'),
-        "session" => htmlspecialchars($_POST["session"], ENT_QUOTES, 'UTF-8'),
-        "chapter" => htmlspecialchars($_POST["chapter"], ENT_QUOTES, 'UTF-8')
+        "course" => filter_input(INPUT_POST, "course"),
+        "session" => filter_input(INPUT_POST, "session"),
+        "chapter" => filter_input(INPUT_POST, "chapter")
     );
+
+    try {
+        plugin_movieviewer_validate_course_id($target["course"]);
+    } catch (MovieViewerValidationException $ex) {
+        plugin_movieviewer_abort("指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_session_id($target["session"]);
+    } catch (MovieViewerValidationException $ex) {
+        plugin_movieviewer_abort("指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_chapter_id($target["chapter"]);
+    } catch (MovieViewerValidationException $ex) {
+        plugin_movieviewer_abort("指定した内容に誤りがあります。");
+    }
 
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
     $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
@@ -278,12 +291,7 @@ function plugin_movieviewer_action_show_movie(){
     $canView = $viewing_periods->canView($target['course'], $target['session']);
 
     if (!$canView) {
-        header('Content-type: text/html');
-        print <<<EOC
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">この動画は見ることができません。</p>
-EOC;
-        exit();
+        plugin_movieviewer_abort("この動画は見ることができません。");
     }
 
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);

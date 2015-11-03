@@ -11,23 +11,29 @@ function plugin_movieviewer_auth_convert(){
 
     $manager = plugin_movieviewer_get_auth_manager();
 
-    $req_user_id = htmlspecialchars($_POST['movieviewer_user'], ENT_QUOTES, 'UTF-8');
+    $req_user_id = filter_input(INPUT_POST, "movieviewer_user");
 
     // 認証開始
     if ($req_user_id !== NULL && $req_user_id !== "") {
-       try {
-           $maybe_user = plugin_movieviewer_get_user_repository()->findById($req_user_id);
-       } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-           plugin_movieviewer_auth_move_to_authpage(TRUE);
-       }
+        try {
+            plugin_movieviewer_validate_user_id($req_user_id);
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
+        }
 
-       $user_password = $_POST['movieviewer_password'];
+        try {
+            $maybe_user = plugin_movieviewer_get_user_repository()->findById($req_user_id);
+        } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+            plugin_movieviewer_auth_move_to_authpage(TRUE);
+        }
 
-       if (!$maybe_user->verifyPassword($user_password)) {
-           return plugin_movieviewer_auth_move_to_authpage(TRUE);
-       }
+        $user_password = filter_input(INPUT_POST, 'movieviewer_password');
 
-       $manager->login($maybe_user);
+        if (!$maybe_user->verifyPassword($user_password)) {
+            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+        }
+
+        $manager->login($maybe_user);
 
        return '';
     }
@@ -75,7 +81,7 @@ function plugin_movieviewer_auth_generate_signin_page($messages){
     global $vars, $defaultpage;
 
     $page = isset($vars['page']) ? $vars['page'] : $defultpage;
-    $show_messages = isset($_GET['messages']) ? htmlspecialchars($_GET['messages']) : '';
+    $show_messages = isset($_GET['messages']) ? plugin_movieviewer_hsc(filter_input(INPUT_GET, 'messages')) : '';
 
     $messages = "";
     if ($show_messages) {

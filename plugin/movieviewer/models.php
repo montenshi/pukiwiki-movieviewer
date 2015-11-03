@@ -42,6 +42,34 @@ function plugin_movieviewer_hsc($value) {
     return htmlspecialchars($value, ENT_QUOTES, "UTF-8");
 }
 
+// Convertで呼び出されたページのエラーレスポンスを生成する
+function plugin_movieviewer_convert_error_response($message) {
+    $hsc = "plugin_movieviewer_hsc";
+
+    $content =<<<TEXT
+    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <p class="caution">{$hsc($message)}</p>
+TEXT;
+
+    return $content;
+}
+
+// Actionで呼び出されたページのエラーレスポンスを生成する
+function plugin_movieviewer_action_error_response($page, $message) {
+    $content = plugin_movieviewer_convert_error_response($message);
+    return array("msg"=>$page, "body"=>$content);
+}
+
+// アボート(=勝手にメッセージ送信して終了する)
+function plugin_movieviewer_abort($message) {
+    header('Content-type: text/html');
+    print <<<EOC
+    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <p class="caution">{$hsc($message)}</p>
+EOC;
+    exit();
+}
+
 // ログの出力 plugins/movieviewer に出力される(10日分)
 class MovieViewerLogger {
     static $logger = null;

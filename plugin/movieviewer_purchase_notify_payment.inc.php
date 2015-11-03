@@ -13,33 +13,27 @@ function plugin_movieviewer_purchase_notify_payment_action() {
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ログインが必要です。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
     }
 
-    $deal_pack_id = $_GET["deal_pack_id"];
+    $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
+
+    try {
+        plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
 
     $repo = plugin_movieviewer_get_deal_pack_purchase_request_repository();
 
     try {
         $request = $repo->findBy($user->id, $deal_pack_id);
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ログインが必要です。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
     }
 
     if ($request->isPaymentConfirmed()) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">ご指定のコースは入金確認済みです。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "ご指定のコースは入金確認済みです。");
     }
 
     $settings = plugin_movieviewer_get_global_settings();
@@ -52,11 +46,7 @@ TEXT;
             "入金完了通知エラー", array("error_statement"=>$mail->errorStatment())
         );
 
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">メールの送信に失敗しました。スタッフに問い合わせしてください。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。スタッフに問い合わせしてください。");
     }
 
     $request->notifyPayment();
@@ -68,11 +58,7 @@ TEXT;
             "入金完了通知保存エラー", array("exeption", $ex)
         );
 
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">処理に失敗しました。スタッフに問い合わせしてください。</p>
-TEXT;
-        return array("msg"=>$page, "body"=>$content);
+        return plugin_movieviewer_action_error_response($page, "処理に失敗しました。スタッフに問い合わせしてください。");
     }
 
     $hsc = "plugin_movieviewer_hsc";

@@ -157,7 +157,7 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
         return array('msg'=>$page, 'body'=>"管理者でログインする必要があります。");
     }
 
-    $ope_type = htmlspecialchars($_POST['ope_type'], ENT_QUOTES, 'UTF-8');
+    $ope_type = filter_input(INPUT_POST, 'ope_type');
 
     if ($ope_type === 'confirm') {
         return plugin_movieviewer_purchase_confirm_payment_action_confirm();
@@ -172,7 +172,15 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
 
 function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
 
-    $ids = $_POST['purchase_requests'];
+    $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+
+    foreach($ids as $req_id) {
+        try {
+            plugin_movieviewer_validate_deal_pack_request_id($req_id);
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+        }
+    }
 
     $requests = array();
     foreach($ids as $req_id) {
@@ -246,7 +254,15 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
 
     $page = plugin_movieviewer_get_current_page();
 
-    $ids = $_POST['purchase_requests'];
+    $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+
+    foreach($ids as $req_id) {
+        try {
+            plugin_movieviewer_validate_deal_pack_request_id($req_id);
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+        }
+    }
 
     $requests = array();
     foreach($ids as $req_id) {

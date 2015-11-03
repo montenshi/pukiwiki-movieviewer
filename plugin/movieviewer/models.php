@@ -405,6 +405,7 @@ class MovieViewerMailBuilder {
         $mail->smtpServer($params);
         $mail->to($mail_to);
         $mail->from($this->settings->smtp["from"]);
+        $mail->errorDisplay(false);
 
         return $mail;
     }
@@ -440,16 +441,20 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
         parent::__construct($settings);
     }
 
-    public function build($mail_to, $price, $bank_transfer) {
+    public function build($user, $deal_pack_name, $price, $bank_transfer) {
 
         $settings_local = $this->settings->template["transfer_information"];
-        $mail = $this->createMail($mail_to);
+        $mail = $this->createMail($user->mailAddress);
 
-        $body = $this->renderBody($settings_local["body"], array(
-              "bank_account" => $bank_transfer->bank_account
+        $params = array(
+              "user_name" => $user->describe()
+            , "deal_pack_name" => $deal_pack_name
+            , "bank_account" => $bank_transfer->bank_account
             , "deadline" => $bank_transfer->deadline->format("Y年m月d日")
             , "price" => $price
-        ));
+        );
+
+        $body = $this->renderBody($settings_local["body"], $params);
 
         $mail->subject($settings_local["subject"]);
         $mail->text($body);
@@ -458,14 +463,39 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
 
 }
 
+class MovieViewerDealPackNotifyPaymentMailBuilder extends MovieViewerMailBuilder {
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+
+    public function build($user, $deal_pack) {
+
+        $settings_local = $this->settings->template["notify_payment"];
+        $mail = $this->createMail($settings_local["to"]);
+
+        $params = array(
+              'user_name' => $user->describe()
+            , 'deal_pack_name' => $deal_pack->describe()
+        );
+
+        $body = $this->renderBody($settings_local["body"], $params);
+
+        $mail->subject($settings_local["subject"]);
+        $mail->text($body);
+        return $mail;
+    }
+}
+
 class MovieViewerResetPasswordMailBuilder extends MovieViewerMailBuilder {
 
     function __construct($settings) {
         parent::__construct($settings);
     }
+
     public function build($mail_to, $reset_url) {
 
-        $settings_local = $this->settings->template["transfer_information"];
+        $settings_local = $this->settings->template["reset_password"];
         $mail = $this->createMail($mail_to);
 
         $body = $this->renderBody($settings_local["body"], array('reset_url' => $reset_url));

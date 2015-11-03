@@ -103,8 +103,6 @@ TEXT;
     $deal_pack_id = $_POST["deal_pack_id"];
     $purchase_method = $_POST["purchase_method"];
 
-    $page = plugin_movieviewer_get_current_page();
-
     $settings = plugin_movieviewer_get_global_settings();
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
@@ -129,8 +127,20 @@ TEXT;
     $offer->accept();
 
     $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
-    $mail = $mail_builder->build($user->mailAddress, $offer->getPrice()->amount, $offer->getBankTransfer());
+    $mail = $mail_builder->build($user, $offer->getPackName(), $offer->getPrice()->amount, $offer->getBankTransfer());
     $result = $mail->send();
+
+    if (!$result) {
+        MovieViewerLogger::getLogger()->addError(
+            "案内通知エラー", array("error_statement"=>$mail->errorStatment())
+        );
+
+        $content =<<<TEXT
+        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+        <p class="caution">メールの送信に失敗しました。スタッフに問い合わせしてください。</p>
+TEXT;
+        return array("msg"=>$page, "body"=>$content);
+    }
 
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);
 

@@ -1,10 +1,10 @@
 smtp:
   host: tls://smtp.gmail.com
   port: 465
-  from: hogehogehoge
+  from: @@@EDIT_IT@@@
   protocol: SMTP_AUTH
-  user: hogehogehoge
-  password: hogehogehoge
+  user: @@@EDIT_IT@@@
+  password: @@@EDIT_IT@@@
 template:
   reset_password:
     subject: てんしのおうち：動画配信会員 パスワード再設定手続きのお知らせ
@@ -19,6 +19,13 @@ template:
       ※  このメールは自動送信されたものです。
          このメールにご返信いただいてもお答えすることができません。
          ご了承ください。
+  notify_payment:
+    to: couger@kt.rim.or.jp
+    subject: てんしのおうち：動画配信会員 入金完了通知
+    body: |
+      入金完了通知
+      名前: {{user_name}}
+      単元: {{deal_pack_name}}
   transfer_information:
     subject: てんしのおうち：動画配信会員 振込のご案内
     body: |

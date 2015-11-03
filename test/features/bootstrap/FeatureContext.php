@@ -30,6 +30,15 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @When 動画配信会員専用ページに移動する
+     */
+     public function 動画配信会員専用ページに移動する() {
+         $this->visitPath('/');
+         $this->getSession()->getPage()->clickLink("会員専用ページ");
+         $this->getSession()->getPage()->clickLink("動画配信会員専用");
+     }
+
+    /**
      * @Then お知らせに以下の内容が表示されていること:
      */
      public function お知らせに以下の内容が表示されていること(PyStringNode $markdown) {

@@ -62,7 +62,9 @@ function plugin_movieviewer_action_error_response($page, $message) {
 
 // アボート(=勝手にメッセージ送信して終了する)
 function plugin_movieviewer_abort($message) {
-    header('Content-type: text/html');
+    $hsc = "plugin_movieviewer_hsc";
+
+    header('Content-type: text/html; charset=UTF-8');
     print <<<EOC
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <p class="caution">{$hsc($message)}</p>

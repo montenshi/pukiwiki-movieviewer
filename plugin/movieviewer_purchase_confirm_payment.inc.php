@@ -13,19 +13,11 @@ function plugin_movieviewer_purchase_confirm_payment_convert() {
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        $content =<<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <p class="caution">管理者でログインする必要があります。</p>
-TEXT;
-        return $content;
+        return plugin_movieviewer_convert_error_response("管理者でログインする必要があります。");
     }
 
     if (!$user->isAdmin()) {
-      $content =<<<TEXT
-      <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-      <p class="caution">管理者でログインする必要があります。</p>
-TEXT;
-      return $content;
+        return plugin_movieviewer_convert_error_response("管理者でログインする必要があります。");
     }
 
     $requests = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findAll();
@@ -150,11 +142,11 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        return array('msg'=>$page, 'body'=>"ログインが必要です。");
+        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
     }
 
     if (!$user->isAdmin()) {
-        return array('msg'=>$page, 'body'=>"管理者でログインする必要があります。");
+        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
     }
 
     $ope_type = filter_input(INPUT_POST, 'ope_type');
@@ -167,7 +159,7 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
         return plugin_movieviewer_purchase_confirm_payment_action_execute();
     }
 
-    return array('msg'=>$page, 'body'=>"処理ができません。最初からやり直してください。");
+    return plugin_movieviewer_action_error_response($page, "処理ができません。最初からやり直してください。");
 }
 
 function plugin_movieviewer_purchase_confirm_payment_action_confirm() {

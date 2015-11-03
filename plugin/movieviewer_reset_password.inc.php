@@ -37,6 +37,7 @@ TEXT;
     }
 
     $hsc = "plugin_movieviewer_hsc";
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -49,6 +50,7 @@ TEXT;
     <form action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
         <input type="hidden" name="ope_type" value="request">
         <input type="hidden" name="page" value="$page">
+        {$input_csrf_token()}
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">ユーザ名</label>
             <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user">
@@ -61,8 +63,6 @@ TEXT;
 
 function plugin_movieviewer_reset_password_action(){
     plugin_movieviewer_set_global_settings();
-
-    global $vars;
 
     $ope_type = plugin_movieviewer_reset_password_action_get_ope_type();
 
@@ -92,9 +92,13 @@ function plugin_movieviewer_reset_password_action_get_ope_type(){
 
 function plugin_movieviewer_reset_password_action_request(){
 
-    global $vars, $defaultpage;
+    $page = plugin_movieviewer_get_current_page();
 
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_reset_password_error("不正なリクエストです。");
+    }
 
     $user_id = filter_iput(INPUT_POST, 'movieviewer_user');
 
@@ -136,9 +140,7 @@ TEXT;
 
 function plugin_movieviewer_reset_password_action_confirm(){
 
-    global $vars, $defaultpage;
-
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    $page = plugin_movieviewer_get_current_page();
 
     $token_id = filter_input(INPUT_GET, 'token');
 
@@ -173,9 +175,7 @@ function plugin_movieviewer_reset_password_action_confirm_generate_page($token, 
     $manager = plugin_movieviewer_get_auth_manager();
     $manager->logout();
 
-    global $vars, $defaultpage;
-
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    $page = plugin_movieviewer_get_current_page();
 
     $body_messages = "";
     if ($messages !== null && $messages !== "") {
@@ -190,6 +190,7 @@ TEXT;
     }
 
     $hsc = "plugin_movieviewer_hsc";
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -203,6 +204,7 @@ TEXT;
         <input type="hidden" name="ope_type" value="reset">
         <input type="hidden" name="page" value="$hsc($page)">
         <input type="hidden" name="token" value="$hsc($token->id)">
+        {$input_csrf_token()}
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">パスワード</label>
             <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
@@ -217,9 +219,13 @@ TEXT;
 
 function plugin_movieviewer_reset_password_action_reset(){
 
-    global $vars, $defaultpage;
+    $page = plugin_movieviewer_get_current_page();
 
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_reset_password_error("不正なリクエストです。");
+    }
 
     $token_id = filter_input(INPUT_POST, 'token');
 
@@ -271,8 +277,7 @@ function plugin_movieviewer_reset_password_action_invalid_request(){
 }
 
 function plugin_movieviewer_reset_password_error($custom_message){
-    global $vars, $defaultpage;
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    $page = plugin_movieviewer_get_current_page();
     $message = plugin_movieviewer_reset_password_generate_error_message($page, $custom_message);
     return array("msg" => $page, "body" => $message);
 }

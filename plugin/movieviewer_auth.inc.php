@@ -15,6 +15,13 @@ function plugin_movieviewer_auth_convert(){
 
     // 認証開始
     if ($req_user_id !== NULL && $req_user_id !== "") {
+
+        try {
+            plugin_movieviewer_validate_csrf_token();
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+        }
+
         try {
             plugin_movieviewer_validate_user_id($req_user_id);
         } catch (MovieViewerValidationException $ex) {
@@ -101,6 +108,7 @@ TEXT;
     }
 
     $hsc = "plugin_movieviewer_hsc";
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -116,6 +124,7 @@ TEXT;
             <label for="movieviewer_password">パスワード</label>
             <input class="ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
         </fieldset>
+        {$input_csrf_token()}
         <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">ログインする</button>
     </form>
 TEXT;

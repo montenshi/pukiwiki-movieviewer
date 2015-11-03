@@ -116,6 +116,8 @@ TEXT;
 TEXT;
     }
 
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金確認</h2>
@@ -125,6 +127,7 @@ TEXT;
     <p>
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="confirm">
+    {$input_csrf_token()}
     $content_notified
     $content_unnotified
     </p>
@@ -138,6 +141,12 @@ TEXT;
 function plugin_movieviewer_purchase_confirm_payment_action() {
 
     $page = plugin_movieviewer_get_current_page();
+
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+    }
 
     try {
         $user = plugin_movieviewer_get_current_user();
@@ -209,6 +218,8 @@ TEXT;
 
     $action_url = get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment";
 
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金確認(最終確認)</h2>
@@ -218,6 +229,7 @@ TEXT;
     <p>
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="execute">
+    {$input_csrf_token()}
     <table class="table purchase-requests">
       <thead>
       <tr>
@@ -245,6 +257,12 @@ TEXT;
 function plugin_movieviewer_purchase_confirm_payment_action_execute() {
 
     $page = plugin_movieviewer_get_current_page();
+
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+    }
 
     $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
 

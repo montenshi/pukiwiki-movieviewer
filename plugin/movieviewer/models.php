@@ -23,6 +23,9 @@ function plugin_movieviewer_set_global_settings() {
 
     // $GLOBALSに値が保存される
     set_plugin_messages($cfg);
+
+    // CSRF対策用トークンを生成し、セッションに登録する
+    plugin_movieviewer_set_csrf_token();
 }
 
 // グローバルから設定を取り出す
@@ -70,6 +73,28 @@ function plugin_movieviewer_abort($message) {
     <p class="caution">{$hsc($message)}</p>
 EOC;
     exit();
+}
+
+// csrf対策用tokenを生成する
+// http://qiita.com/yoh-nak/items/c264d29eb25f4df7f19e より
+function plugin_movieviewer_set_csrf_token() {
+    // すでに登録されている場合は何もしない
+    if (isset($_SESSION['csrf_token'])) {
+        return;
+    }
+    $_SESSION['csrf_token'] = rtrim(base64_encode(openssl_random_pseudo_bytes(32)),'=');
+}
+
+function plugin_movieviewer_generate_input_csrf_token() {
+    if (!isset($_SESSION['csrf_token'])) {
+        plugin_movieviewer_set_csrf_token();
+    }
+
+    $element =<<<TEXT
+    <input type="hidden" name="csrf_token" value="{$_SESSION['csrf_token']}">
+TEXT;
+
+    return $element;
 }
 
 // ログの出力 plugins/movieviewer に出力される(10日分)

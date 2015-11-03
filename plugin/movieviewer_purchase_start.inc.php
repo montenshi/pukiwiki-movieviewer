@@ -50,6 +50,7 @@ function plugin_movieviewer_purchase_start_convert() {
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);
 
     $hsc = "plugin_movieviewer_hsc";
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -75,6 +76,7 @@ function plugin_movieviewer_purchase_start_convert() {
         <input type="hidden" name="page" value="{$hsc($page)}">
         <input type="hidden" name="deal_pack_id" value="{$hsc($deal_pack_id)}">
         <input type="hidden" name="purchase_method" value="bank">
+        {$input_csrf_token()}
         <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">申し込みする</button>
     </form>
 TEXT;
@@ -85,6 +87,12 @@ TEXT;
 function plugin_movieviewer_purchase_start_action() {
 
     $page = plugin_movieviewer_get_current_page();
+
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+    }
 
     try {
         $user = plugin_movieviewer_get_current_user();

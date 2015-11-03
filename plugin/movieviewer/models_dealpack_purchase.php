@@ -324,7 +324,7 @@ class MovieViewerDealPackPaymentConfirmation {
 
         if ($viewing_period["date_end"] === null) {
             $viewing_period["date_end"] = new DateTime($viewing_period["date_begin"]->format("Y-m-d 00:00:00P"));
-            $viewing_period["date_end"]->modify('+4 months');
+            $viewing_period["date_end"]->modify('+4 months')->modify('-1 sec'); // 前日までを 23:59:59 までとする
         }
 
         $this->viewing_period = new MovieViewerPeriod($viewing_period["date_begin"], $viewing_period["date_end"]);

@@ -22,8 +22,6 @@ function plugin_movieviewer_convert(){
 function plugin_movieviewer_convert_show_alert($messages){
     plugin_movieviewer_get_auth_manager()->logout();
 
-    $hsc = "htmlspecialchars";
-
     $body =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <p class="caution">動画を見るにはログインが必要です。</p>
@@ -43,7 +41,8 @@ function plugin_movieviewer_convert_show_contents(){
     $body_valid_courses = plugin_movieviewer_convert_render_courses($viewing_periods->getValidPeriods());
     $body_expired_courses = plugin_movieviewer_convert_render_courses($viewing_periods->getExpiredPeriods());
 
-    $hsc = "htmlspecialchars";
+    $hsc = "plugin_movieviewer_hsc";
+
     $body = <<<TEXT
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -87,7 +86,7 @@ function plugin_movieviewer_convert_render_courses($viewing_periods) {
     $body_course = "";
     $current_course_id = "";
 
-    $hsc = "htmlspecialchars";
+    $hsc = "plugin_movieviewer_hsc";
 
     $courses = plugin_movieviewer_get_courses_repository()->find();
 
@@ -267,9 +266,9 @@ function plugin_movieviewer_action_show_movie(){
     $cf_settings = $settings->aws['cloud_front'];
 
     $target = array(
-        "course" => htmlspecialchars($_POST["course"], ENT_QUOTES),
-        "session" => htmlspecialchars($_POST["session"], ENT_QUOTES),
-        "chapter" => htmlspecialchars($_POST["chapter"], ENT_QUOTES)
+        "course" => htmlspecialchars($_POST["course"], ENT_QUOTES, 'UTF-8'),
+        "session" => htmlspecialchars($_POST["session"], ENT_QUOTES, 'UTF-8'),
+        "chapter" => htmlspecialchars($_POST["chapter"], ENT_QUOTES, 'UTF-8')
     );
 
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();

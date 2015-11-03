@@ -37,6 +37,11 @@ function plugin_movieviewer_now() {
     return new DateTime(null, $settings->timezone);
 }
 
+// htmlspecialcharsをかける
+function plugin_movieviewer_hsc($value) {
+    return htmlspecialchars($value, ENT_QUOTES, "UTF-8");
+}
+
 // ログの出力 plugins/movieviewer に出力される(10日分)
 class MovieViewerLogger {
     static $logger = null;
@@ -407,6 +412,10 @@ class MovieViewerMailBuilder {
         $mail->to($mail_to);
         $mail->from($this->settings->smtp["from"]);
         $mail->errorDisplay(false);
+
+        if (isset($this->settings->smtp["qdmail_debug"])) {
+            $mail->debug($this->settings->smtp["qdmail_debug"]);
+        }
 
         return $mail;
     }

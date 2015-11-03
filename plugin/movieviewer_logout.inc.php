@@ -12,7 +12,7 @@ function plugin_movieviewer_logout_convert() {
 
 function plugin_movieviewer_logout_action() {
     plugin_movieviewer_get_auth_manager()->logout();
-    return array("msg"=>"動画配信会員ログアウト", "body"=>"ログアウトが完了しました。");
+    return array("msg"=>"動画配信会員ログアウト", "body"=>"ログアウトしました。");
 }
 
 ?>

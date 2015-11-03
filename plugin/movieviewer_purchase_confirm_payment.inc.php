@@ -8,6 +8,8 @@ function plugin_movieviewer_purchase_confirm_payment_init() {
 
 function plugin_movieviewer_purchase_confirm_payment_convert() {
 
+    $hsc = "plugin_movieviewer_hsc";
+
     try {
         $user = plugin_movieviewer_get_current_user();
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
@@ -50,17 +52,17 @@ TEXT;
 
     foreach($requestsNotConfirmed as $request) {
 
-        $ctrl_value = "{$request->getId()}";
-        $ctrl_id = "pr_{$ctrl_value}";
+        $ctrl_value = $hsc($request->getId());
+        $ctrl_id = $hsc("pr_{$ctrl_value}");
 
         $content_row =<<<TEXT
         <tr>
           <td><input type="checkbox" name="purchase_requests[]" value="{$ctrl_value}" id="{$ctrl_id}"></td>
-          <td><label for="{$ctrl_id}">{$request->getUser()->memberId}</label></td>
-          <td><label for="{$ctrl_id}">{$request->getUser()->lastName} {$request->getUser()->firstName}</label></td>
-          <td><label for="{$ctrl_id}">{$request->getUser()->id}</label></td>
-          <td><label for="{$ctrl_id}">{$request->getPack()->describe()}</label></td>
-          <td><label for="{$ctrl_id}">{$request->getDateRequested()->format("Y/m/d H:m:s")}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getUser()->memberId)}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getUser()->lastName)} {$hsc($request->getUser()->firstName)}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getUser()->id)}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getPack()->describe())}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getDateRequested()->format("Y/m/d H:m:s"))}</label></td>
         </tr>
 TEXT;
 
@@ -155,7 +157,7 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
         return array('msg'=>$page, 'body'=>"管理者でログインする必要があります。");
     }
 
-    $ope_type = $_POST['ope_type'];
+    $ope_type = htmlspecialchars($_POST['ope_type'], ENT_QUOTES, 'UTF-8');
 
     if ($ope_type === 'confirm') {
         return plugin_movieviewer_purchase_confirm_payment_action_confirm();
@@ -178,10 +180,12 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
         $requests[] = $request;
     }
 
+    $hsc = "plugin_movieviewer_hsc";
+
     foreach($requests as $request) {
 
-        $ctrl_value = "{$request->getId()}";
-        $ctrl_id = "pr_{$ctrl_value}";
+        $ctrl_value = $hsc($request->getId());
+        $ctrl_id = $hsc("pr_{$ctrl_value}");
 
         if (!$request->isPaymentConfirmed()) {
             $confirmation = $request->preConfirmPayment();
@@ -192,12 +196,12 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
         $content_row =<<<TEXT
         <tr>
           <input type="hidden" name="purchase_requests[]" value="{$ctrl_value}" id="{$ctrl_id}">
-          <td>{$request->getUser()->lastName} {$request->getUser()->firstName}</td>
-          <td>{$request->getUser()->id}</td>
-          <td>{$request->getPack()->describe()}</td>
-          <td>{$request->getDateRequested()->format("Y/m/d H:m:s")}</td>
-          <td>{$confirmation->getViewingPeriod()->date_begin->format("Y/m/d")}</td>
-          <td>{$confirmation->getViewingPeriod()->date_end->format("Y/m/d")}</td>
+          <td>{$hsc($request->getUser()->lastName)} {$hsc($request->getUser()->firstName)}</td>
+          <td>{$hsc($request->getUser()->id)}</td>
+          <td>{$hsc($request->getPack()->describe())}</td>
+          <td>{$hsc($request->getDateRequested()->format("Y/m/d H:m:s"))}</td>
+          <td>{$hsc($confirmation->getViewingPeriod()->date_begin->format("Y/m/d"))}</td>
+          <td>{$hsc($confirmation->getViewingPeriod()->date_end->format("Y/m/d"))}</td>
         </tr>
 TEXT;
         $content_rows .= $content_row;
@@ -254,20 +258,19 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
         $request->confirmPayment();
     }
 
-    foreach($requests as $request) {
-        $ctrl_value = "{$request->getId()}";
-        $ctrl_id = "pr_{$ctrl_value}";
+    $hsc = "plugin_movieviewer_hsc";
 
+    foreach($requests as $request) {
         $confirmation = $request->getPaymentConfirmation();
 
         $content_row =<<<TEXT
         <tr>
-          <td>{$request->getUser()->lastName} {$request->getUser()->firstName}</td>
-          <td>{$request->getUser()->id}</td>
-          <td>{$request->getPack()->describe()}</td>
-          <td>{$request->getDateRequested()->format("Y/m/d H:m:s")}</td>
-          <td>{$confirmation->getViewingPeriod()->date_begin->format("Y/m/d")}</td>
-          <td>{$confirmation->getViewingPeriod()->date_end->format("Y/m/d")}</td>
+          <td>{$hsc($request->getUser()->lastName)} {$hsc($request->getUser()->firstName)}</td>
+          <td>{$hsc($request->getUser()->id)}</td>
+          <td>{$hsc($request->getPack()->describe())}</td>
+          <td>{$hsc($request->getDateRequested()->format("Y/m/d H:m:s"))}</td>
+          <td>{$hsc($confirmation->getViewingPeriod()->date_begin->format("Y/m/d"))}</td>
+          <td>{$hsc($confirmation->getViewingPeriod()->date_end->format("Y/m/d"))}</td>
         </tr>
 TEXT;
         $content_rows .= $content_row;

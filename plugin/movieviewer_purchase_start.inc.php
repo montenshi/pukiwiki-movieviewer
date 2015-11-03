@@ -43,9 +43,9 @@ TEXT;
         return $content;
     }
 
-    $hsc = "htmlspecialchars";
-
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);
+
+    $hsc = "plugin_movieviewer_hsc";
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -60,10 +60,10 @@ TEXT;
     </p>
     <p>
     <table class="movieviewer-purchase-request-details">
-      <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
-      <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
+      <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
+      <tr><th>金額</th><td>{$hsc($offer->getPrice()->amount)}円</td></tr>
       <tr><th>振込先</th><td>{$bank_account}</td></tr>
-      <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
+      <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>
     <form action="index.php?cmd=movieviewer_purchase_start" METHOD="POST">
@@ -144,6 +144,8 @@ TEXT;
 
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);
 
+    $hsc = "plugin_movieviewer_hsc";
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>銀行振り込みで申し込み(案内通知)</h2>
@@ -152,10 +154,10 @@ TEXT;
     </p>
     <p>
     <table class="movieviewer-purchase-request-details">
-      <tr><th>項目</th><td>{$offer->describePack()}</td></tr>
-      <tr><th>金額</th><td>{$offer->getPrice()->amount}円</td></tr>
+      <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
+      <tr><th>金額</th><td>{$hsc($offer->getPrice()->amount)}円</td></tr>
       <tr><th>振込先</th><td>{$bank_account}</td></tr>
-      <tr><th>振込期限</th><td>{$offer->getBankTransfer()->deadline->format("Y年m月d日")}まで</td></tr>
+      <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>
 TEXT;

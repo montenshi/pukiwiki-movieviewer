@@ -36,7 +36,7 @@ function plugin_movieviewer_reset_password_generate_request_page($messages){
 TEXT;
     }
 
-    $hsc = "htmlspecialchars";
+    $hsc = "plugin_movieviewer_hsc";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -51,7 +51,7 @@ TEXT;
         <input type="hidden" name="page" value="$page">
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">ユーザ名</label>
-            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user" value="{$hsc($_POST['movieviewer_user'])}">
+            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user">
         </fieldset>
         <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">メールを送る</button>
     </form>
@@ -123,8 +123,10 @@ function plugin_movieviewer_reset_password_action_request(){
     $mail = $builder->build($user->mailAddress, $reset_uri);
     $result = $mail->send();
 
+    $hsc = "plugin_movieviewer_hsc";
+
     $message = <<<TEXT
-    ユーザ ${user_id} のメールアドレスにパスワード再設定手続きのお知らせを送りました。<br>
+    ユーザ {$hsc($user_id)} のメールアドレスにパスワード再設定手続きのお知らせを送りました。<br>
     <br>
     有効期限は1時間です。ご注意ください。<br>
     有効期限を過ぎた場合は、あらためてパスワード再設定のお手続きをお願いします。<br>
@@ -187,7 +189,7 @@ function plugin_movieviewer_reset_password_action_confirm_generate_page($token, 
 TEXT;
     }
 
-    $hsc = "htmlspecialchars";
+    $hsc = "plugin_movieviewer_hsc";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -199,13 +201,13 @@ TEXT;
     ${body_messages}
     <form action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
         <input type="hidden" name="ope_type" value="reset">
-        <input type="hidden" name="page" value="$page">
-        <input type="hidden" name="token" value="$token->id">
+        <input type="hidden" name="page" value="$hsc($page)">
+        <input type="hidden" name="token" value="$hsc($token->id)">
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">パスワード</label>
-            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password" value="{$hsc($_POST['movieviewer_password'])}">
+            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
             <label for="movieviewer_user">パスワード(確認)</label>
-            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password_confirm" name="movieviewer_password_confirm" value="{$hsc($_POST['movieviewer_password_confirm'])}">
+            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password_confirm" name="movieviewer_password_confirm">
         </fieldset>
         <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">パスワードをリセットする</button>
     </form>

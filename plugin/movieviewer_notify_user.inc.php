@@ -64,12 +64,14 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pag
     $start_uri_bank = get_script_uri() . "?${start_pages['bank']}&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
     $start_uri_credit = get_script_uri() . "?${start_pages['credit']}&purchase_method=credit&deal_pack_id={$offer->getPackId()}";
 
+    $hsc = "plugin_movieviewer_hsc";
+
     if ($offer->canDiscount()) {
         $discount_period = $offer->getDiscountPeriod();
         $offer_message =<<<TEXT
         <p>
-        {$offer->describePack()}の受講ができるようになりました。<br>
-        お得な継続割引は{$discount_period->date_end->format("m月d日")}までになります。この機会にぜひ継続ください。
+        {$hsc($offer->describePack())}の受講ができるようになりました。<br>
+        お得な継続割引は{$hsc($discount_period->date_end->format("m月d日"))}までになります。この機会にぜひ継続ください。
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
@@ -79,7 +81,7 @@ TEXT;
     } else {
         $offer_message =<<<TEXT
         <p>
-        {$offer->describePack()}の受講ができます。<br>
+        {$hsc($offer->describePack())}の受講ができます。<br>
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>

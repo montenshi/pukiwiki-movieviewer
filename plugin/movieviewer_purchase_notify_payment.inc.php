@@ -75,12 +75,14 @@ TEXT;
         return array("msg"=>$page, "body"=>$content);
     }
 
+    $hsc = "plugin_movieviewer_hsc";
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金完了通知</h2>
     <p>
     スタッフに入金完了のメールを送りました。<br>
-    項目: {$request->getPack()->describe()}
+    項目: {$hsc($request->getPack()->describe())}
     </p>
 TEXT;
 

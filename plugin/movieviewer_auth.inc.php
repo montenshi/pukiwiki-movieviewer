@@ -11,13 +11,12 @@ function plugin_movieviewer_auth_convert(){
 
     $manager = plugin_movieviewer_get_auth_manager();
 
-    // 認証開始
-    if (isset($_POST['movieviewer_user']) && $_POST['movieviewer_user'] != "") {
-       $user_id = $_POST['movieviewer_user'];
+    $req_user_id = htmlspecialchars($_POST['movieviewer_user'], ENT_QUOTES, 'UTF-8');
 
-       $maybe_user = NULL;
+    // 認証開始
+    if ($req_user_id !== NULL && $req_user_id !== "") {
        try {
-           $maybe_user = plugin_movieviewer_get_user_repository()->findById($user_id);
+           $maybe_user = plugin_movieviewer_get_user_repository()->findById($req_user_id);
        } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
            plugin_movieviewer_auth_move_to_authpage(TRUE);
        }
@@ -95,7 +94,7 @@ function plugin_movieviewer_auth_generate_signin_page($messages){
 TEXT;
     }
 
-    $hsc = "htmlspecialchars";
+    $hsc = "plugin_movieviewer_hsc";
 
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -107,7 +106,7 @@ TEXT;
     <form action="index.php?{$page}" METHOD="POST">
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">ユーザ名</label>
-            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user" value="{$hsc($_POST['movieviewer_user'])}">
+            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user">
             <label for="movieviewer_password">パスワード</label>
             <input class="ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
         </fieldset>

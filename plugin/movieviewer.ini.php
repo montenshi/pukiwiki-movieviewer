@@ -1,5 +1,6 @@
 <?php
 
+#define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources-test/settings.yml');
 define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources/settings.yml');
 
 #--- 以下は変更しない

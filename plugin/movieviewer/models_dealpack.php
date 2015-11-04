@@ -111,18 +111,18 @@ class MovieViewerDealBox {
 class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K1Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 4750, 4500);
-        $this->addPack(2, array("05", "06", "07", "08"), 4750, 4500);
-        $this->addPack(3, array("09", "10", "11", "12"), 4750, 4500);
+        $this->addPack(1, array("01", "02", "03", "04"), 20520, 19440);
+        $this->addPack(2, array("05", "06", "07", "08"), 20520, 19440);
+        $this->addPack(3, array("09", "10", "11", "12"), 20520, 19440);
     }
 }
 
 class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K2Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 4750, 4500);
-        $this->addPack(2, array("05", "06", "07", "08"), 4750, 4500);
-        $this->addPack(3, array("09", "10", "11", "12"), 4750, 4500);
+        $this->addPack(1, array("01", "02", "03", "04"), 20520, 19440);
+        $this->addPack(2, array("05", "06", "07", "08"), 20520, 19440);
+        $this->addPack(3, array("09", "10", "11", "12"), 20520, 19440);
     }
 }
 

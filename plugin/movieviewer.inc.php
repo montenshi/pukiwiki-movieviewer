@@ -300,7 +300,7 @@ function plugin_movieviewer_action_show_movie(){
     pkwk_common_headers();
     header('Content-type: text/html');
     print <<<EOC
-<video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="800" height="464"
+<video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="800" height="500"
        data-setup=''>
     <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
 </video>

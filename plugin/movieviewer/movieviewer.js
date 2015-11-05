@@ -17,7 +17,7 @@ $(document).ready(function(){
 
         $("#myModal").dialog({
             title: description,
-            height: 600,
+            height: 650,
             width:  830,
             modal:  true,
             close: function(event) {

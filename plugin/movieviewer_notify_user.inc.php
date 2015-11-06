@@ -130,7 +130,7 @@ function plugin_movieviewer_notify_user_convert_purchase_status($user, $params) 
         if ($object->isNotified()) {
             $message = "<br>入金を確認中です。受講開始までお待ち下さい。";
         } else {
-            $link = plugin_movieviewer_get_script_uri() . "/index.php?cmd=movieviewer_purchase_notify_payment&deal_pack_id={$object->pack_id}";
+            $link = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_notify_payment&deal_pack_id={$object->pack_id}";
             $message = "<a href='{$link}' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>入金の完了を通知する</a>";
         }
 

@@ -1,3 +1,15 @@
+# 環境構築方法
+
+  1. QHMとQHMCommuをインストールする
+  2. 以下のページを作成する (名前は任意)
+     + 会員ページ
+       - movieviewer_auth, movieviewer_notify_user, movieviewer を呼び出す
+       - movieviewer_show_userinfo は任意
+     + 申し込み(銀行振込)ページ
+       - movieviewer_auth, movieviewer_purchase_start を呼び出す
+     + 入金確認ページ
+       - movieviewer_purchase_confirm_payment を呼び出す
+
 # テストの実行方法
 
   1. Commuの管理者のidをadmin パスワードをadminadminにする

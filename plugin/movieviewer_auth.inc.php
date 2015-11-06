@@ -114,18 +114,21 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>会員認証</h2>
     <p>以下に、ユーザー名、パスワードを入力し「ログインする」ボタンを押して下さい。</p>
     ${body_messages}
-    <form action="index.php?{$page}" METHOD="POST">
-        <fieldset style="margin-bottom:10px;">
+    <form class="movieviewer" action="index.php?{$page}" METHOD="POST">
+        <fieldset>
             <label for="movieviewer_user">ユーザ名</label>
-            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user">
+            <input type="text" id="movieviewer_user" name="movieviewer_user" size=50>
+        </fieldset>
+        <fieldset>
             <label for="movieviewer_password">パスワード</label>
-            <input class="ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
+            <input type="password" id="movieviewer_password" name="movieviewer_password" size=50>
         </fieldset>
         {$input_csrf_token()}
-        <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">ログインする</button>
+        <button class="movieviewer-button" type="submit">ログインする</button>
     </form>
 TEXT;
     return $body;

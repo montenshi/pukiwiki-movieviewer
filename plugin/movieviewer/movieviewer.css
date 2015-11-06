@@ -14,3 +14,16 @@ table, td, th {
   background: #FFF none repeat scroll 0% 0%;
   padding: 4px;
 }
+
+form.movieviewer fieldset {
+  border: none;
+}
+
+form.movieviewer fieldset label {
+  display: inline-block;
+  width: 7em;
+}
+
+form.movieviewer button {
+  font-size: 14px;
+}

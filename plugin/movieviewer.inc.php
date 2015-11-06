@@ -51,7 +51,6 @@ function plugin_movieviewer_convert_show_contents(){
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
         <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
         <script src="//vjs.zencdn.net/4.6/video.js"></script>
-        <div><span style="font-size:1.2em;font-weight:bold;">{$hsc($current_user->describe())}さん</span></div>
         <div>
             <h2>視聴可能な単元</h2>
         </div>

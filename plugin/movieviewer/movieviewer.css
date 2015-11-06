@@ -27,3 +27,8 @@ form.movieviewer fieldset label {
 form.movieviewer button {
   font-size: 14px;
 }
+
+.movieviewer-lead {
+  font-size: 1.2em;
+  font-weight: bold;
+}

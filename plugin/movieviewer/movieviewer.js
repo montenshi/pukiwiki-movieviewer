@@ -11,7 +11,7 @@ $(document).ready(function(){
         });
 
         var description =
-            course_title + "コース " +
+            course_title + " " +
             session_title + " " +
             chapter_title;
 

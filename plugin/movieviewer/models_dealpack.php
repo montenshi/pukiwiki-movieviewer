@@ -86,7 +86,7 @@ class MovieViewerDealPack {
     public function describe() {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
-        return "コース {$this->getCourse()->name} {$first_session->name}～{$last_session->name}";
+        return "{$this->getCourse()->name} {$first_session->name}～{$last_session->name}";
     }
 }
 

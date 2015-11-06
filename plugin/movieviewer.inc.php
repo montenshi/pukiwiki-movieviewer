@@ -156,7 +156,7 @@ TEXT;
 
             $body_course = <<<TEXT
             <div class="movieviewer-course" style="margin-bottom:30px;">
-            <h3>{$hsc($course->name)}コース</h3>
+            <h3>{$hsc($course->name)}</h3>
             {$body_session}
 TEXT;
 

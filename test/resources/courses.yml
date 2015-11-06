@@ -1,6 +1,6 @@
 courses:
   - id: K1Kiso
-    name: 基礎1
+    name: 基礎コース１年目
     sessions:
       - id:  "01"
         name: 第１回
@@ -219,7 +219,7 @@ courses:
             name: 総まとめ
             time: 08
   - id: K2Kiso
-    name: 基礎2
+    name: 基礎コース２年目
     sessions:
       - id:  "01"
         name: 第１回
@@ -456,7 +456,7 @@ courses:
             name: 総まとめ（ご卒業にあたって）
             time: 16
   - id: OABunka
-    name: オプショナルA（文化教育）
+    name: オプショナルＡコース 文化教育
     sessions:
       - id:  "01"
         name: 第１回
@@ -594,7 +594,7 @@ courses:
             name: 平和を生きる人を育てる 育修了にあたって）
             time: 38
   - id: OBJyoSan
-    name: オプショナルB（上級算数教育）
+    name: オプショナルＢコース 上級算数教育
     sessions:
       - id:  "01"
         name: 第１回

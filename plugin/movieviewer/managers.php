@@ -35,6 +35,10 @@ class MovieViewerAuthManager {
         $this->session_varname = $settings["session_varname"];
     }
 
+    public function getLabelForUserName() {
+        return "ユーザ名";
+    }
+
     public function login($user) {
         $_SESSION[$this->session_varname] = $user->id;
     }
@@ -61,6 +65,10 @@ class MovieViewerDefaultAuthManager extends MovieViewerAuthManager {
 class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
     function __construct() {
         parent::__construct(array("session_varname" => "commu_user"));
+    }
+
+    public function getLabelForUserName() {
+        return "メールアドレス";
     }
 
     public function login($user) {

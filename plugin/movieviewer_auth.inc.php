@@ -110,17 +110,20 @@ TEXT;
     $hsc = "plugin_movieviewer_hsc";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
+    $auth_manager = plugin_movieviewer_get_auth_manager();
+    $label_for_username = $hsc($auth_manager->getLabelForUserName());
+
     $body =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>会員認証</h2>
-    <p>以下に、ユーザー名、パスワードを入力し「ログインする」ボタンを押して下さい。</p>
+    <p>以下に、{$label_for_username}、パスワードを入力し「ログインする」ボタンを押して下さい。</p>
     ${body_messages}
     <form class="movieviewer" action="index.php?{$page}" METHOD="POST">
         <fieldset>
-            <label for="movieviewer_user">ユーザ名</label>
+            <label for="movieviewer_user">{$label_for_username}</label>
             <input type="text" id="movieviewer_user" name="movieviewer_user" size=50>
         </fieldset>
         <fieldset>

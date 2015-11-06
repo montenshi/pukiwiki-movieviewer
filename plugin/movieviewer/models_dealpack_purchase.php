@@ -81,6 +81,10 @@ class MovieViewerDealPackOffer {
         $this->purchase_request = $purhase_request;
     }
 
+    public function isFirstPurchase() {
+        return ($this->getPackId() === 'K1Kiso-1');
+    }
+
     public function describePack() {
         return $this->pack->describe();
     }

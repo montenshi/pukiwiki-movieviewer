@@ -79,10 +79,17 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
     if ($offer->canDiscount()) {
         $discount_period = $offer->getDiscountPeriod();
+
+        if ($offer->isFirstPurchase()) {
+            $discount_message = "新規特別割引は{$hsc($discount_period->date_end->format('m月d日'))}までになります。この機会にぜひお申し込みください。";
+        } else {
+            $discount_message = "お得な継続割引は{$hsc($discount_period->date_end->format('m月d日'))}までになります。この機会にぜひ継続ください。";
+        }
+
         $offer_message =<<<TEXT
         <p>
         {$hsc($offer->describePack())}の受講ができるようになりました。<br>
-        お得な継続割引は{$hsc($discount_period->date_end->format("m月d日"))}までになります。この機会にぜひ継続ください。
+        $discount_message
         </p>
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>

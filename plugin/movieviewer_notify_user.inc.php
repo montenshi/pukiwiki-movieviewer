@@ -1,6 +1,8 @@
 <?php
 
 require_once("movieviewer.ini.php");
+require_once("movieviewer_purchase_start.inc.php");
+require_once("movieviewer_purchase_notify_payment.inc.php");
 
 function plugin_movieviewer_notify_user_init() {
     plugin_movieviewer_set_global_settings();
@@ -19,13 +21,19 @@ function plugin_movieviewer_notify_user_convert(){
     }
 
     $page_args = func_get_args();
-    $start_pages = array();
-    $start_pages['bank']   = $page_args[0];
-    $start_pages['credit'] = $page_args[1];
+    $params = array();
+    $params['start_page_bank']   = $page_args[0];
+    $params['start_page_credit'] = $page_args[1];
+    $params['back_page'] = $page_args[2];
 
-    $purchase_offer = plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pages);
+    global $defaultpage;
+    if (!isset($params['back_page'])) {
+        $params['back_page'] = $defaultpage;
+    }
 
-    $purchase_status = plugin_movieviewer_notify_user_convert_purchase_status($user);
+    $purchase_offer = plugin_movieviewer_notify_user_convert_purchase_offer($user, $params);
+
+    $purchase_status = plugin_movieviewer_notify_user_convert_purchase_status($user, $params);
 
     if ($purchase_offer === "" && $purchase_status === "") {
         return '';
@@ -46,7 +54,7 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pages) {
+function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
     $settings = plugin_movieviewer_get_global_settings();
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -61,8 +69,11 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $start_pag
         return '';
     }
 
-    $start_uri_bank = get_script_uri() . "?${start_pages['bank']}&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
-    $start_uri_credit = get_script_uri() . "?${start_pages['credit']}&purchase_method=credit&deal_pack_id={$offer->getPackId()}";
+    plugin_movieviewer_purchase_start_set_back_page($params['back_page']);
+
+    $req_params = "&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
+    $start_uri_bank = get_script_uri() . "?{$params['start_page_bank']}{$req_params}";
+    $start_uri_credit = get_script_uri() . "?{$params['start_page_credit']}{$req_params}";
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -98,7 +109,7 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_notify_user_convert_purchase_status($user) {
+function plugin_movieviewer_notify_user_convert_purchase_status($user, $params) {
     $repo_req = plugin_movieviewer_get_deal_pack_purchase_request_repository();
 
     $objects = $repo_req->findRequestingByUser($user->id);
@@ -124,6 +135,8 @@ TEXT;
     if ($list === "") {
         return '';
     }
+
+    plugin_movieviewer_purchase_notify_payment_set_back_page($params['back_page']);
 
     $message =<<<TEXT
     <p>

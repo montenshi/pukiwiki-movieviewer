@@ -2,6 +2,14 @@
 
 require_once("movieviewer.ini.php");
 
+function plugin_movieviewer_purchase_start_set_back_page($page) {
+    $_SESSION['movieviewer_puarchase_start_back_page'] = $page;
+}
+
+function plugin_movieviewer_purchase_start_get_back_page() {
+    return $_SESSION['movieviewer_puarchase_start_back_page'];
+}
+
 function plugin_movieviewer_purchase_start_init() {
     plugin_movieviewer_set_global_settings();
 }
@@ -57,7 +65,7 @@ function plugin_movieviewer_purchase_start_convert() {
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <h2>銀行振り込みで申し込み</h2>
+    <h2>受講申し込み(銀行振込)</h2>
     <p>
     申し込み内容を確認してください。<br>
     「申し込みする」ボタンをクリックすると、
@@ -152,9 +160,11 @@ function plugin_movieviewer_purchase_start_action() {
 
     $hsc = "plugin_movieviewer_hsc";
 
+    $back_uri = get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <h2>銀行振り込みで申し込み(案内通知)</h2>
+    <h2>受講申し込み完了</h2>
     <p>
     登録しているメールアドレスに、申し込み案内を送りました。
     </p>
@@ -165,6 +175,9 @@ function plugin_movieviewer_purchase_start_action() {
       <tr><th>振込先</th><td>{$bank_account}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
+    </p>
+    <p>
+    <a href="{$back_uri}">会員ページに戻る</a>
     </p>
 TEXT;
 

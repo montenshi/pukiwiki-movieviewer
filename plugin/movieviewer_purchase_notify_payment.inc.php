@@ -2,6 +2,14 @@
 
 require_once("movieviewer.ini.php");
 
+function plugin_movieviewer_purchase_notify_payment_set_back_page($page) {
+    $_SESSION['movieviewer_puarchase_notify_payment_back_page'] = $page;
+}
+
+function plugin_movieviewer_purchase_notify_payment_get_back_page() {
+    return $_SESSION['movieviewer_puarchase_notify_payment_back_page'];
+}
+
 function plugin_movieviewer_purchase_notify_payment_init() {
     plugin_movieviewer_set_global_settings();
 }
@@ -63,12 +71,17 @@ function plugin_movieviewer_purchase_notify_payment_action() {
 
     $hsc = "plugin_movieviewer_hsc";
 
+    $back_uri = get_script_uri() . "?" . plugin_movieviewer_purchase_notify_payment_get_back_page();
+
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金完了通知</h2>
     <p>
     スタッフに入金完了のメールを送りました。<br>
     項目: {$hsc($request->getPack()->describe())}
+    </p>
+    <p>
+    <a href="{$back_uri}">会員ページに戻る</a>
     </p>
 TEXT;
 

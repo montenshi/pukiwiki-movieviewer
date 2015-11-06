@@ -66,7 +66,7 @@ function plugin_movieviewer_purchase_start_convert() {
     <p>
     <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc($offer->getPrice()->amount)}円</td></tr>
+      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
       <tr><th>振込先</th><td>{$bank_account}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
@@ -143,6 +143,8 @@ function plugin_movieviewer_purchase_start_action() {
             "案内通知エラー", array("error_statement"=>$mail->errorStatment())
         );
 
+        print_r($settings->mail);
+
         return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。スタッフに問い合わせしてください。");
     }
 
@@ -159,7 +161,7 @@ function plugin_movieviewer_purchase_start_action() {
     <p>
     <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc($offer->getPrice()->amount)}円</td></tr>
+      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
       <tr><th>振込先</th><td>{$bank_account}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>

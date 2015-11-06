@@ -66,7 +66,7 @@ TEXT;
     }
 
     $page = plugin_movieviewer_get_current_page();
-    $action_url = get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment&page=$page";
+    $action_url = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment&page=$page";
 
     $content_notified = "";
     if ($content_rows_notified !== "") {
@@ -216,7 +216,7 @@ TEXT;
         $content_rows .= $content_row;
     }
 
-    $action_url = get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment";
+    $action_url = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment";
 
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 

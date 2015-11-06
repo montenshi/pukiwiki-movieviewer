@@ -1,5 +1,21 @@
 <?php
 
+// PukiwikiのベースURIを取得する
+function plugin_movieviewer_get_base_uri() {
+    return dirname(plugin_movieviewer_get_script_uri());
+}
+
+function plugin_movieviewer_get_script_uri() {
+    $url  = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $url .= $_SERVER['HTTP_HOST'];
+    if ($_SERVER['SERVER_PORT'] !== 80) {
+        $url .= ':' . $_SERVER['SERVER_PORT'];
+    }
+    $uri_parts = explode('?', $_SERVER['REQUEST_URI'], 2);
+    $url .= $uri_parts[0];
+    return $url;
+}
+
 // カレント(=ログインしている)ユーザを取得する
 function plugin_movieviewer_get_current_user() {
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();

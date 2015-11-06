@@ -37,8 +37,8 @@ function plugin_movieviewer_purchase_start_convert() {
         return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
     }
 
-    $action_uri = get_script_uri() . "cmd=movieviewer_purchase_start";
-    $start_uri_credit = get_script_uri() . "?${pages[1]}&purchase_pack_id=1_2";
+    $action_uri = plugin_movieviewer_get_script_uri() . "cmd=movieviewer_purchase_start";
+    $start_uri_credit = plugin_movieviewer_get_script_uri() . "?${pages[1]}&purchase_pack_id=1_2";
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -160,7 +160,7 @@ function plugin_movieviewer_purchase_start_action() {
 
     $hsc = "plugin_movieviewer_hsc";
 
-    $back_uri = get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
+    $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
 
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">

@@ -20,6 +20,8 @@ function plugin_movieviewer_embed_convert(){
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);
     $signed_path = $builder->buildVideoUrl($videoopts[0], $videoopts[1], $videoopts[2], 24 * 60 * 60);
 
+    $base_uri = plugin_movieviewer_get_base_uri();
+
     $embed = <<<EOC
     <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
     <script src="//vjs.zencdn.net/4.6/video.js"></script>
@@ -27,7 +29,7 @@ function plugin_movieviewer_embed_convert(){
         <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
     </video>
     <p>
-    最大化ボタン <img src="/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+    最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
     </p>
 EOC;
 

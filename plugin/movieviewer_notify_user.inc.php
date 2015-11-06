@@ -72,8 +72,8 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
     plugin_movieviewer_purchase_start_set_back_page($params['back_page']);
 
     $req_params = "&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
-    $start_uri_bank = get_script_uri() . "?{$params['start_page_bank']}{$req_params}";
-    $start_uri_credit = get_script_uri() . "?{$params['start_page_credit']}{$req_params}";
+    $start_uri_bank = plugin_movieviewer_get_script_uri() . "?{$params['start_page_bank']}{$req_params}";
+    $start_uri_credit = plugin_movieviewer_get_script_uri() . "?{$params['start_page_credit']}{$req_params}";
 
     $hsc = "plugin_movieviewer_hsc";
 

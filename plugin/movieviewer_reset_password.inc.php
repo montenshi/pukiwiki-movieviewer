@@ -123,7 +123,7 @@ function plugin_movieviewer_reset_password_action_request(){
     $settings = plugin_movieviewer_get_global_settings();
     $builder = new MovieViewerResetPasswordMailBuilder($settings->mail);
 
-    $reset_uri = get_script_uri() . "?cmd=movieviewer_reset_password&page=${page}&ope_type=confirm&token=" . $token->id;
+    $reset_uri = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_reset_password&page=${page}&ope_type=confirm&token=" . $token->id;
     $mail = $builder->build($user->mailAddress, $reset_uri);
     $result = $mail->send();
 
@@ -293,7 +293,7 @@ TEXT;
 }
 
 function plugin_movieviewer_reset_password_get_script_uri($page){
-    $base_uri = get_script_uri();
+    $base_uri = plugin_movieviewer_get_script_uri();
     return "$base_uri?$page";
 }
 

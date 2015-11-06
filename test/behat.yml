@@ -8,6 +8,7 @@ default:
   extensions:
     Behat\MinkExtension:
       base_url: http://172.16.1.84
+#      base_url: http://172.16.1.84/montenshi
       show_cmd: firefox %s
       sessions:
         default:

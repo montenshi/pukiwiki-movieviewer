@@ -71,7 +71,7 @@ function plugin_movieviewer_purchase_notify_payment_action() {
 
     $hsc = "plugin_movieviewer_hsc";
 
-    $back_uri = get_script_uri() . "?" . plugin_movieviewer_purchase_notify_payment_get_back_page();
+    $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_notify_payment_get_back_page();
 
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">

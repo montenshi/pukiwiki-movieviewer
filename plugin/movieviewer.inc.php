@@ -296,6 +296,8 @@ function plugin_movieviewer_action_show_movie(){
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);
     $signed_path = $builder->buildVideoUrl($target['course'], $target['session'], $target['chapter']);
 
+    $base_uri = plugin_movieviewer_get_base_uri();
+
     pkwk_common_headers();
     header('Content-type: text/html');
     print <<<EOC
@@ -304,7 +306,7 @@ function plugin_movieviewer_action_show_movie(){
     <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
 </video>
 <p>
-最大化ボタン <img src="/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
 </p>
 EOC;
     exit();

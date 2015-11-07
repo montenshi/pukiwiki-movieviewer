@@ -516,7 +516,7 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
         $params = array(
               "user_name" => $user->describe()
             , "deal_pack_name" => $deal_pack_name
-            , "bank_account" => $bank_transfer->bank_account
+            , "bank_accounts_with_notes" => "{$bank_transfer->bank_accounts_with_notes}"
             , "deadline" => $bank_transfer->deadline->format("Y年m月d日")
             , "price" => number_format($price)
         );

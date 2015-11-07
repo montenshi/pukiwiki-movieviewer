@@ -52,8 +52,20 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
      public function 動画配信会員専用ページに移動する() {
          $this->visitPath('/');
          $this->getSession()->getPage()->clickLink("会員専用ページ");
-         $this->getSession()->getPage()->clickLink("動画配信会員専用");
+         $this->getSession()->getPage()->clickLink("動画配信会員専用MyAuth");
      }
+
+     /**
+      * @When 受講者 ユーザ :user_name パスワード :user_password でログインする
+      */
+    public function 受講者_ユーザ_パスワード_でログインする($user_name, $user_password) {
+        $this->visitPath('/');
+        $this->getSession()->getPage()->clickLink("会員専用ページ");
+        $this->getSession()->getPage()->clickLink("動画配信会員専用MyAuth");
+        $this->getSession()->getPage()->fillField("movieviewer_user", $user_name);
+        $this->getSession()->getPage()->fillField("movieviewer_password", $user_password);
+        $this->getSession()->getPage()->pressButton("ログインする");
+    }
 
     /**
      * @Then お知らせに以下の内容が表示されていること:
@@ -64,6 +76,25 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
 
          assertContains($markdown->getRaw(), $notices->getText());
      }
+
+     /**
+      * @Then お知らせに以下の振込情報が表示されていること:
+      */
+      public function お知らせに以下の振込情報が表示されていること(TableNode $table) {
+          $page = $this->getSession()->getPage();
+
+          $detail = $page->find('css', '.movieviewer-bank-transfer');
+
+          $actual = array();
+          foreach($detail->findAll('css', 'tr') as $row) {
+              $head = $row->find('css', 'th');
+              $data = $row->find('css', 'td');
+
+              $actual[$head->getText()] = $data->getText();
+          }
+
+          assertEquals($table->getRowsHash(), $actual);
+      }
 
     /**
      * @Then 視聴可能な単元に以下が表示されていること:

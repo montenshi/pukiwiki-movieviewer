@@ -55,8 +55,6 @@ function plugin_movieviewer_purchase_start_convert() {
         return plugin_movieviewer_convert_error_response("ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
-    $bank_account = nl2br($offer->getBankTransfer()->bank_account);
-
     $hsc = "plugin_movieviewer_hsc";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
@@ -74,11 +72,11 @@ function plugin_movieviewer_purchase_start_convert() {
         return plugin_movieviewer_convert_error_response("メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
     }
 
-    $bank_account = nl2br($offer->getBankTransfer()->bank_account);
-
     $hsc = "plugin_movieviewer_hsc";
 
     $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
+    $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
+    $notes =nl2br($offer->getBankTransfer()->notes);
 
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
@@ -92,7 +90,7 @@ function plugin_movieviewer_purchase_start_convert() {
     <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
       <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
-      <tr><th>振込先</th><td>{$bank_account}</td></tr>
+      <tr><th>振込先</th><td>{$bank_accounts_with_notes}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>

@@ -77,6 +77,18 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
     $hsc = "plugin_movieviewer_hsc";
 
+    $bank_names_with_notes = nl2br($offer->getBankTransfer()->bank_names_with_notes);
+    $bank_transfer_info =<<<TEXT
+    <p>
+    <table class="movieviewer-bank-transfer">
+      <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
+      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+      <tr><th>振込先</th><td>{$bank_names_with_notes}</td></tr>
+      <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
+    </table>
+    </p>
+TEXT;
+
     if ($offer->canDiscount()) {
         $discount_period = $offer->getDiscountPeriod();
 
@@ -88,7 +100,10 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
         $offer_message =<<<TEXT
         <p>
-        {$hsc($offer->describePack())}の受講ができるようになりました。<br>
+        {$hsc($offer->describePack())}の受講ができるようになりました。
+        </p>
+        $bank_transfer_info
+        <p>
         $discount_message
         </p>
         <p>
@@ -99,8 +114,9 @@ TEXT;
     } else {
         $offer_message =<<<TEXT
         <p>
-        {$hsc($offer->describePack())}の受講ができます。<br>
+        {$hsc($offer->describePack())}の受講ができます。
         </p>
+        $bank_transfer_info
         <p>
         <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
         </p>
@@ -117,6 +133,20 @@ TEXT;
 }
 
 function plugin_movieviewer_notify_user_convert_purchase_status($user, $params) {
+
+    $status = plugin_movieviewer_notify_user_convert_purchase_status_requesting($user, $params);
+
+    if ($status !== "") {
+        return $status;
+    }
+
+    $status = plugin_movieviewer_notify_user_convert_purchase_status_confirmed($user, $params);
+
+    return $status;
+}
+
+function plugin_movieviewer_notify_user_convert_purchase_status_requesting($user, $params) {
+
     $repo_req = plugin_movieviewer_get_deal_pack_purchase_request_repository();
 
     $objects = $repo_req->findRequestingByUser($user->id);
@@ -177,6 +207,39 @@ TEXT;
     $content =<<<TEXT
     <div class="movieviewer-notice movieviewer-notice-purchase-status">
       $message
+    </div>
+TEXT;
+
+    return $content;
+}
+
+function plugin_movieviewer_notify_user_convert_purchase_status_confirmed($user, $params) {
+
+    $repo_req = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
+
+    $objects = $repo_req->findByNotYetStartedUser($user->id);
+
+    if (count($objects) === 0) {
+        return '';
+    }
+
+    $list = "";
+    foreach ($objects as $object) {
+        $message = "<br>入金が確認できました。<br>受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')} までもうしばらくお待ちください。";
+        $list .= <<<TEXT
+        <li>{$object->getPack()->describe()} {$message}</li>
+TEXT;
+    }
+
+    if ($list === "") {
+        return '';
+    }
+
+    $content =<<<TEXT
+    <div class="movieviewer-notice movieviewer-notice-purchase-status">
+    <ul>
+      $list
+    </ul>
     </div>
 TEXT;
 

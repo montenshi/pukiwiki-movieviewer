@@ -699,6 +699,20 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
 
+    public function findByNotYetStartedUser($user_id) {
+
+        $candidates = $this->findByCourse($user_id, "*");
+
+        $objects = array();
+        foreach($candidates as $candidate) {
+            if ($candidate->getViewingPeriod()->isBefore()) {
+                $objects[] = $candidate;
+            }
+        }
+
+        return $objects;
+    }
+
     public function findAll() {
 
         $objects = array();

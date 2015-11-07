@@ -1,11 +1,19 @@
 <?php
 
 class MovieViewerBankTransfer {
-    public $bank_account;
+    public $bank_names;
+    public $bank_accounts;
+    public $notes;
+    public $bank_names_with_notes;
+    public $bank_accounts_with_notes;
     public $deadline;
 
-    function __construct($bank_account, $deadline) {
-        $this->bank_account = $bank_account;
+    function __construct($bank_names, $bank_accounts, $notes, $deadline) {
+        $this->bank_names = $bank_names;
+        $this->bank_accounts = $bank_accounts;
+        $this->notes = $notes;
+        $this->bank_names_with_notes = "{$this->bank_names}\n\n{$this->notes}";
+        $this->bank_accounts_with_notes = "{$this->bank_accounts}\n\n{$this->notes}";
         $this->deadline = $deadline;
     }
 }
@@ -141,7 +149,9 @@ class MovieViewerDealPackOfferMaker {
         }
 
         $bank_transfer = new MovieViewerBankTransfer(
-                                  $this->payment_settings["bank_account_to_transfer"]
+                                  $this->payment_settings["bank_transfer"]["bank_names"]
+                                , $this->payment_settings["bank_transfer"]["bank_accounts"]
+                                , $this->payment_settings["bank_transfer"]["notes"]
                                 , $offer_params["transfer_deadline"]
                             );
 

@@ -40,3 +40,9 @@ template:
 
       金額　：  {{price}}円
       振込期限：{{deadline}}
+
+      振込み先口座を下記にご案内いたします。
+
+      {{bank_accounts_with_notes}}
+
+      エンジェルズハウス研究所AHL　経理部

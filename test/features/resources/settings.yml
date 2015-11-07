@@ -6,6 +6,8 @@ settings:
     path:          /vagrant/resources-test/aws/settings.yml
   mail:
     path:          /vagrant/resources-test/mail.yml
+  contact:
+    name:          まるぺけ商会
   payment:
     bank_account_to_transfer: |
       ほげふが銀行 なんとか支店 (普) 12345678

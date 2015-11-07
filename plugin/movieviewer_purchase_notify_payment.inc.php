@@ -54,7 +54,7 @@ function plugin_movieviewer_purchase_notify_payment_action() {
             "入金完了通知エラー", array("error_statement"=>$mail->errorStatment())
         );
 
-        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。スタッフに問い合わせしてください。");
+        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
     }
 
     $request->notifyPayment();
@@ -66,7 +66,7 @@ function plugin_movieviewer_purchase_notify_payment_action() {
             "入金完了通知保存エラー", array("exeption", $ex)
         );
 
-        return plugin_movieviewer_action_error_response($page, "処理に失敗しました。スタッフに問い合わせしてください。");
+        return plugin_movieviewer_action_error_response($page, "処理に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
     }
 
     $hsc = "plugin_movieviewer_hsc";
@@ -77,7 +77,7 @@ function plugin_movieviewer_purchase_notify_payment_action() {
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金完了通知</h2>
     <p>
-    入金完了をエンジェルズハウス研究所(AHL)に通知しました。<br>
+    入金完了を{$hsc($settings->contact['name'])}に通知しました。<br>
     現在の状況を会員ページに戻って、ご確認ください。<br>
     </p>
     <p>

@@ -71,9 +71,7 @@ function plugin_movieviewer_purchase_start_convert() {
             "案内通知エラー", array("error_statement"=>$mail->errorStatment())
         );
 
-        print_r($settings->mail);
-
-        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。スタッフに問い合わせしてください。");
+        return plugin_movieviewer_convert_error_response("メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
     }
 
     $bank_account = nl2br($offer->getBankTransfer()->bank_account);

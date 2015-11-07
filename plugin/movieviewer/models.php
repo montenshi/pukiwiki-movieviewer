@@ -134,6 +134,7 @@ class MovieViewerSettings {
     public $data;
     public $aws;
     public $mail;
+    public $contact;
     public $payment;
 
     public static function loadFromYaml($file) {
@@ -145,6 +146,7 @@ class MovieViewerSettings {
         $object->data = $data['settings']['data'];
         $object->aws = $aws;
         $object->mail = new MovieViewerMailSettings($mail['smtp'], $mail['template']);
+        $object->contact = $data['settings']['contact'];
         $object->payment = $data['settings']['payment'];
 
         return $object;

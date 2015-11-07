@@ -77,8 +77,11 @@ function plugin_movieviewer_purchase_notify_payment_action() {
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金完了通知</h2>
     <p>
-    スタッフに入金完了のメールを送りました。<br>
-    項目: {$hsc($request->getPack()->describe())}
+    入金完了をエンジェルズハウス研究所(AHL)に通知しました。<br>
+    現在の状況を会員ページに戻って、ご確認ください。<br>
+    </p>
+    <p>
+    受講セット: {$hsc($request->getPack()->describe())}
     </p>
     <p>
     <a href="{$back_uri}">会員ページに戻る</a>

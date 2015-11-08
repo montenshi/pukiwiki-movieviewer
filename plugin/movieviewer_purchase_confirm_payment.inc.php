@@ -119,6 +119,9 @@ TEXT;
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $content =<<<TEXT
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金確認</h2>
     <p>
@@ -185,7 +188,11 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
 
     $requests = array();
     foreach($ids as $req_id) {
-        $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
+        try {
+            $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
+        } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+            return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+        }
         $requests[] = $request;
     }
 
@@ -221,6 +228,9 @@ TEXT;
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $content =<<<TEXT
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金確認(最終確認)</h2>
     <p>
@@ -276,7 +286,11 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
 
     $requests = array();
     foreach($ids as $req_id) {
-        $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
+        try {
+            $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
+        } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+            return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+        }
         $requests[] = $request;
     }
 
@@ -303,6 +317,9 @@ TEXT;
     }
 
     $content =<<<TEXT
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>入金確認完了</h2>
     <p>

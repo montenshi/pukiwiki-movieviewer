@@ -5,6 +5,8 @@ use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Behat\Hook\Scope\BeforeFeatureScope;
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 require_once('vendor/phpunit/phpunit/src/Framework/Assert/Functions.php');
@@ -21,6 +23,18 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
      * context constructor through behat.yml.
      */
     public function __construct() {
+    }
+
+    /** @BeforeFeature */
+    public static function setupFeature(BeforeFeatureScope $scope) {
+        // テスト中であることをプラグインに知らせる
+        exec("touch /Users/and/development/projects/montenshi/web/htdocs/.movieviewer_env_feature_test");
+    }
+
+    /** @AfterFeature */
+    public static function teardownFeature(AfterFeatureScope $scope) {
+        // テストが終わったことをプラグインに知らせる
+        exec("rm -f /Users/and/development/projects/montenshi/web/htdocs/.movieviewer_env_feature_test");
     }
 
     /** @BeforeScenario */

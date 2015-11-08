@@ -43,6 +43,14 @@ function plugin_movieviewer_convert_show_contents(){
 
     $hsc = "plugin_movieviewer_hsc";
 
+    $message_env = "";
+    if (PLUGIN_MOVIEVIEWER_ENV !== "") {
+        $env = PLUGIN_MOVIEVIEWER_ENV;
+        $message_env =<<<TEXT
+        <div style="position:fixed;top:0px;right:0px;"><p class="caution">環境変更中: $env</p></div>
+TEXT;
+    }
+
     $body = <<<TEXT
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -51,6 +59,7 @@ function plugin_movieviewer_convert_show_contents(){
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
         <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
         <script src="//vjs.zencdn.net/4.6/video.js"></script>
+        $message_env
         <div>
             <h2>視聴可能な単元</h2>
         </div>

@@ -1,7 +1,12 @@
 <?php
 
-#define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources-test/settings.yml');
-define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources/settings.yml');
+if (file_exists(".movieviewer_env_feature_test")) {
+    define('PLUGIN_MOVIEVIEWER_ENV', 'Feature Test');
+    define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources-test/settings.yml');
+} else {
+    define('PLUGIN_MOVIEVIEWER_ENV', '');
+    define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources/settings.yml');
+}
 
 #--- 以下は変更しない
 

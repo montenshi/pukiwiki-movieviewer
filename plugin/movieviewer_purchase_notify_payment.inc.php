@@ -16,7 +16,7 @@ function plugin_movieviewer_purchase_notify_payment_init() {
 
 function plugin_movieviewer_purchase_notify_payment_action() {
 
-    $page = ”入金完了通知”;
+    $page = '入金完了通知';
 
     try {
         $user = plugin_movieviewer_get_current_user();

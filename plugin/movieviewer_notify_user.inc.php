@@ -163,7 +163,7 @@ function plugin_movieviewer_notify_user_convert_purchase_status_requesting($user
         } else {
             $hasUnnotified = TRUE;
             $link = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_notify_payment&deal_pack_id={$object->pack_id}";
-            $message = "<a href='{$link}' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>入金の完了を通知する</a>";
+            $message = "<a href='{$link}' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>入金完了を通知する</a>";
         }
 
         $list .= <<<TEXT
@@ -180,8 +180,8 @@ TEXT;
     if ($hasUnnotified) {
         $guide_message =<<<TEXT
         <p>
-        以下の受講セットを申し込んでいますが、入金の通知をいただいておりません。<br>
-        入金が完了後、必ず以下のボタンを押して通知して下さい。<br>
+        以下の受講セットを申し込んでいますが、入金完了の通知をいただいておりません。<br>
+        入金完了後、必ず以下のボタンを押して通知して下さい。<br>
         通知がないと受講が開始されません。
         </p>
         <p>

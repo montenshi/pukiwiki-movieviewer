@@ -100,7 +100,7 @@ TEXT;
 
         $offer_message =<<<TEXT
         <p>
-        {$hsc($offer->describePack())}の受講ができるようになりました。
+        {$hsc($offer->describePack())}の受講申し込みができるようになりました。
         </p>
         $bank_transfer_info
         <p>
@@ -114,7 +114,7 @@ TEXT;
     } else {
         $offer_message =<<<TEXT
         <p>
-        {$hsc($offer->describePack())}の受講ができます。
+        {$hsc($offer->describePack())}の受講申し込みができます。
         </p>
         $bank_transfer_info
         <p>

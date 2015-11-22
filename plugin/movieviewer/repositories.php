@@ -157,6 +157,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         $object->lastName = $data["lastname"];
         $object->mailAddress = $data["email"];
         $object->hashedPassword = $data["password"];
+        $object->memberId = $data["custom1"];
 
         return $object;
     }
@@ -220,6 +221,7 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
         $object->lastName = $yaml["lastName"];
         $object->mailAddress = $yaml["mailAddress"];
         $object->hashedPassword = $yaml["hashedPassword"];
+        $object->memberId = $yaml["memberId"];
 
         return $object;
     }
@@ -251,6 +253,7 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
         $data["lastName"] = $object->lastName;
         $data["mailAddress"] = $object->mailAddress;
         $data["hashedPassword"] = $object->hashedPassword;
+        $data["memberId"] = $object->memberId;
 
         if (fputs($fp, Spyc::YAMLDump($data)) === FALSE) {
             MovieViewerLogger::getLogger()->addError(

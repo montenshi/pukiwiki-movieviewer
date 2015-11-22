@@ -3,6 +3,9 @@
 if (file_exists(".movieviewer_env_feature_test")) {
     define('PLUGIN_MOVIEVIEWER_ENV', 'Feature Test');
     define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources-test/settings.yml');
+    // 強制的に時間を固定する (要:timecopのインストール)
+    $date_freeze = new DateTime("2015-11-14 23:59:59+09:00", new DateTimeZone("Asia/Tokyo"));
+    timecop_freeze($date_freeze->getTimestamp());
 } else {
     define('PLUGIN_MOVIEVIEWER_ENV', '');
     define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', '/vagrant/resources/settings.yml');

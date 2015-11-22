@@ -175,7 +175,13 @@ class MovieViewerUser {
     }
 
     public function describe() {
-        return $this->lastName . " " . $this->firstName;
+        $value = "";
+        if (strlen($this->memberId) > 0) {
+            $value = "{$this->memberId} ";
+        }
+        $value .= "{$this->lastName} {$this->firstName}";
+
+        return $value;
     }
 
     public function generateResetPasswordToken() {

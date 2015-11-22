@@ -197,7 +197,7 @@ TEXT;
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <h2>パスワードのリセット</h2>
-    <div><span style="font-size:1.2em;font-weight:bold;">{$hsc($user->describe())}さん</span></div>
+    <div><span style="font-size:1.2em;font-weight:bold;">{$hsc($user->describe())}様</span></div>
     <p>以下に、パスワードを入力し「パスワードをリセットする」ボタンを押して下さい。</p>
     ${body_messages}
     <form action="index.php?cmd=movieviewer_reset_password" METHOD="POST">

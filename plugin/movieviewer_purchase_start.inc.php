@@ -115,7 +115,6 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
         $trading_id = $trading_id_base . $user->memberId;
     } else {
         $trading_id = $trading_id_base . uniqid();
-        $trading_id = $trading_id_base . "0002";
     }
 
     $id = "{$offer->getPrice()->amount}";

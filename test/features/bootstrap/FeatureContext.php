@@ -144,17 +144,29 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
-     * @Then 入金確認一覧 通知あり に以下の内容が表示されていること:
+     * @Then 入金確認一覧に以下の内容が表示されていること:
      */
-    public function 入金確認一覧_通知あり_に以下の内容が表示されていること(TableNode $table) {
-        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-notified');
-    }
+    public function 入金確認一覧に以下の内容が表示されていること(TableNode $table) {
 
-    /**
-     * @Then 入金確認一覧 通知なし に以下の内容が表示されていること:
-     */
-    public function 入金確認一覧_通知なし_に以下の内容が表示されていること(TableNode $table) {
-        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-unnotified');
+        $page = $this->getSession()->getPage();
+
+        $css_requests = ".purchase-requests";
+        $detail = $page->find('css', $css_requests);
+
+        $actual = array();
+        foreach($detail->find('css', 'tbody')->findAll('css', 'tr') as $row) {
+            $columns = $row->findAll('css', 'td');
+
+            $actual_row = array();
+            $actual_row["会員番号"] = $columns[1]->getText();
+            $actual_row["名前"] = $columns[2]->getText();
+            $actual_row["メールアドレス"] = $columns[3]->getText();
+            $actual_row["受講対象"] = $columns[4]->getText();
+
+            $actual[] = $actual_row;
+        }
+
+        assertEquals($table->getHash(), $actual);
     }
 
     function 以下の単元が表示されていること(TableNode $table, $css_sessions) {
@@ -171,27 +183,6 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
                 $session_name = $session->find('css', 'span')->getText();
                 $actual[] = array('コース'=>$course_name, '単元'=>$session_name);
             }
-        }
-
-        assertEquals($table->getHash(), $actual);
-    }
-
-    function 入金確認一覧に以下の内容が表示されていること(TableNode $table, $css_requests) {
-        $page = $this->getSession()->getPage();
-
-        $detail = $page->find('css', $css_requests);
-
-        $actual = array();
-        foreach($detail->find('css', 'tbody')->findAll('css', 'tr') as $row) {
-            $columns = $row->findAll('css', 'td');
-
-            $actual_row = array();
-            $actual_row["会員番号"] = $columns[1]->getText();
-            $actual_row["名前"] = $columns[2]->getText();
-            $actual_row["メールアドレス"] = $columns[3]->getText();
-            $actual_row["受講対象"] = $columns[4]->getText();
-
-            $actual[] = $actual_row;
         }
 
         assertEquals($table->getHash(), $actual);

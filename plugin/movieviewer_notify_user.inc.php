@@ -156,18 +156,9 @@ function plugin_movieviewer_notify_user_convert_purchase_status_requesting($user
     }
 
     $list = "";
-    $hasUnnotified = FALSE;
     foreach ($objects as $object) {
-        if ($object->isNotified()) {
-            $message = "<br>入金を確認中です。受講開始までお待ち下さい。";
-        } else {
-            $hasUnnotified = TRUE;
-            $link = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_notify_payment&deal_pack_id={$object->pack_id}";
-            $message = "<a href='{$link}' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>入金完了を通知する</a>";
-        }
-
         $list .= <<<TEXT
-        <li>{$object->getPack()->describe()} {$message}</li>
+        <li>{$object->getPack()->describe()}<br>入金を確認中です。受講開始までお待ち下さい。</li>
 TEXT;
     }
 
@@ -177,28 +168,10 @@ TEXT;
 
     plugin_movieviewer_purchase_notify_payment_set_back_page($params['back_page']);
 
-    if ($hasUnnotified) {
-        $guide_message =<<<TEXT
-        <p>
-        以下の受講セットを申し込んでいますが、入金完了の通知をいただいておりません。<br>
-        入金完了後、必ず以下のボタンを押して通知して下さい。<br>
-        通知がないと受講が開始されません。
-        </p>
-        <p>
-        入金完了前には、絶対に押さないで下さい。<br>
-        （申し込みが取り消しになる場合があります。）
-        </p>
-TEXT;
-    } else {
-        $guide_message =<<<TEXT
-        <p>
-        以下の受講セットを申し込んでいます。<br>
-        </p>
-TEXT;
-    }
-
     $message =<<<TEXT
-    $guide_message
+    <p>
+    以下の受講セットを申し込んでいます。<br>
+    </p>
     <ul>
         $list
     </ul>

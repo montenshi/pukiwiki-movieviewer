@@ -166,6 +166,10 @@ class MovieViewerUser {
         $this->hashedPassword = $this->hashPassword($raw_password);
     }
 
+    public function hasMemberId() {
+        return ($this->memberId !== "" && $this->memberId !== NULL);
+    }
+
     public function isAdmin() {
         return FALSE;
     }

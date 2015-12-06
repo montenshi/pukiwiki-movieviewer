@@ -612,10 +612,6 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         $data["pack_id"] = $object->pack_id;
         $data["date_requested"] = $object->date_requested->format(self::DEFAULT_DATETIME_FORMAT);
 
-        if ($object->date_notified !== NULL) {
-            $data["date_notified"] = $object->date_requested->format(self::DEFAULT_DATETIME_FORMAT);
-        }
-
         $file_path = $this->getFilePath($object->user_id, $object->pack_id);
         $this->storeToYaml($file_path, $data);
     }
@@ -623,11 +619,7 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
     function createObject($file_path) {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
-        $date_notified = NULL;
-        if ($yaml["date_notified"] !== "" && $yaml["date_notified"] !== NULL) {
-            $date_notified = $this->convertToDateTime($yaml["date_notified"]);
-        }
-        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested, $date_notified);
+        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested);
 
         return $object;
     }

@@ -170,6 +170,10 @@ class MovieViewerUser {
         return FALSE;
     }
 
+    public function hasMemberId() {
+        return ($this->memberId !== "" && $this->memberId !== NULL);
+    }
+
     public function verifyPassword($raw_password) {
         return strcmp($this->hashedPassword, $this->hashPassword($raw_password)) === 0;
     }
@@ -248,8 +252,24 @@ class MovieViewerCourse {
     public $name = '';
     public $sessions = array();
 
+    public function getId() {
+        return $this->id;
+    }
+
+    public function getIdShort() {
+        return substr($this->id, 0, 2);
+    }
+
     public function getSession($session_id) {
         return $this->sessions[$session_id];
+    }
+
+    public function describe() {
+        return $this->name;
+    }
+
+    public function describeShort() {
+        return $this->name;
     }
 
 }
@@ -278,6 +298,10 @@ class MovieViewerSession {
 
     public function describe() {
         return $this->name;
+    }
+
+    public function describeShort() {
+        return mb_substr($this->name, 1, mb_strrpos($this->name, "回")-1);
     }
 }
 

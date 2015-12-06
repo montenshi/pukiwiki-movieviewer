@@ -53,6 +53,18 @@ class MovieViewerDealPackOffer {
         return $this->pack->getCourse();
     }
 
+    public function getCourseId() {
+        return $this->pack->getCourseId();
+    }
+
+    public function getCourseIdShort() {
+        return $this->pack->getCourseIdShort();
+    }
+
+    public function getPackNumber() {
+        return $this->pack->getPackNumber();
+    }
+
     public function getSessions() {
         return $this->pack->getSessions();
     }
@@ -95,6 +107,10 @@ class MovieViewerDealPackOffer {
 
     public function describePack() {
         return $this->pack->describe();
+    }
+
+    public function describePackShort() {
+        return $this->pack->describeShort();
     }
 }
 

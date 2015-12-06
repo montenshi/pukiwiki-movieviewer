@@ -71,9 +71,9 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
     plugin_movieviewer_purchase_start_set_back_page($params['back_page']);
 
-    $req_params = "&purchase_method=bank&deal_pack_id={$offer->getPackId()}";
-    $start_uri_bank = plugin_movieviewer_get_script_uri() . "?{$params['start_page_bank']}{$req_params}";
-    $start_uri_credit = plugin_movieviewer_get_script_uri() . "?{$params['start_page_credit']}{$req_params}";
+    $req_params = "&deal_pack_id={$offer->getPackId()}";
+    $start_uri_bank = plugin_movieviewer_get_script_uri() . "?{$params['start_page_bank']}&purchase_method=bank{$req_params}";
+    $start_uri_credit = plugin_movieviewer_get_script_uri() . "?{$params['start_page_credit']}&purchase_method=credit{$req_params}";
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -88,6 +88,16 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
     </table>
     </p>
 TEXT;
+
+    $buttons_payment =<<<TEXT
+    <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
+TEXT;
+
+    if (in_array("credit", $settings->payment["extra_methods"])) {
+        $buttons_payment .=<<<TEXT
+        <a href="${start_uri_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
+TEXT;
+    }
 
     if ($offer->canDiscount()) {
         $discount_period = $offer->getDiscountPeriod();
@@ -107,7 +117,7 @@ TEXT;
         $discount_message
         </p>
         <p>
-        <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
+        $buttons_payment
         </p>
 TEXT;
 

@@ -37,11 +37,6 @@ function plugin_movieviewer_purchase_start_convert() {
         return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
     }
 
-    $action_uri = plugin_movieviewer_get_script_uri() . "cmd=movieviewer_purchase_start";
-    $start_uri_credit = plugin_movieviewer_get_script_uri() . "?${pages[1]}&purchase_pack_id=1_2";
-
-    $page = plugin_movieviewer_get_current_page();
-
     $settings = plugin_movieviewer_get_global_settings();
     $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
@@ -55,16 +50,33 @@ function plugin_movieviewer_purchase_start_convert() {
         return plugin_movieviewer_convert_error_response("ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
     }
 
-    $hsc = "plugin_movieviewer_hsc";
-    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
+    $page = plugin_movieviewer_get_current_page();
 
-    $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
+    if ($purchase_method === "bank") {
+        $content_body = plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer, $page);
+    } else if ($purchase_method === "credit") {
+        $content_body = plugin_movieviewer_purchase_start_convert_credit($settings, $user, $offer, $page);
+    }
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    $content_body
+TEXT;
+
+    return $content;
+}
+
+function plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer, $current_page) {
+
+    $hsc = "plugin_movieviewer_hsc";
+    $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
+
+    $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
+
+    $content =<<<TEXT
     <h2>受講申し込み</h2>
     <p>
     申し込み内容を確認してください。<br>
@@ -80,11 +92,68 @@ function plugin_movieviewer_purchase_start_convert() {
     </table>
     </p>
     <form action="index.php?cmd=movieviewer_purchase_start" METHOD="POST">
-        <input type="hidden" name="page" value="{$hsc($page)}">
-        <input type="hidden" name="deal_pack_id" value="{$hsc($deal_pack_id)}">
+        <input type="hidden" name="page" value="{$hsc($current_page)}">
+        <input type="hidden" name="deal_pack_id" value="{$hsc($offer->getPackId())}">
         <input type="hidden" name="purchase_method" value="bank">
         {$input_csrf_token()}
         <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確認する</button>
+    </form>
+TEXT;
+
+    return $content;
+}
+
+function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $offer, $current_page) {
+
+    $paygent_settings = $settings->payment["credit"]["paygent"];
+
+    $course_id_short = $offer->getCourseIdShort();
+    $pack_number = sprintf('%02d', $offer->getPackNumber());
+
+    $trading_id_base = "{$course_id_short}s{$pack_number}_";
+    if ($user->hasMemberId()) {
+        $trading_id = $trading_id_base . $user->memberId;
+    } else {
+        $trading_id = $trading_id_base . uniqid();
+        $trading_id = $trading_id_base . "0002";
+    }
+
+    $id = "{$offer->getPrice()->amount}";
+    $seq_merchant_id = $paygent_settings["merchant_id"];
+    $hash_key = $paygent_settings["hash_key"];
+    $payment_detail = mb_convert_kana($offer->describePackShort(), 'S');
+
+    $return_uri = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_start";
+
+    $org_str = $trading_id .
+               $id .
+               $seq_merchant_id .
+               $hash_key;
+    $hash_str = hash("sha256", $org_str);
+
+    $hsc = "plugin_movieviewer_hsc";
+
+    $content =<<<TEXT
+    <h2>受講申し込み</h2>
+    <p>
+    申し込み内容を確認してください。<br>
+    「申し込む」ボタンをクリックすると、クレジットカードの支払いページに移動します。<br>
+    支払いページは、提携の決済代行会社ペイジェントのページになります。<br>
+    </p>
+    <p>
+    <table class="movieviewer-purchase-request-details">
+      <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
+      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+    </table>
+    </p>
+    <form action="{$paygent_settings["request_uri"]}" method="post">
+        <input type="hidden" name="trading_id" value="$trading_id">
+        <input type="hidden" name="id" value="$id">
+        <input type="hidden" name="seq_merchant_id" value="$seq_merchant_id">
+        <input type="hidden" name="hc" value="$hash_str">
+        <input type="hidden" name="payment_detail" value="$payment_detail">
+        <input type="hidden" name="return_url" value="$return_uri">
+        <button type="submit" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>申し込む</button>
     </form>
 TEXT;
 

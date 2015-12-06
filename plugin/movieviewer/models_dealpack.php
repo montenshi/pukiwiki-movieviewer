@@ -41,15 +41,15 @@ class MovieViewerNeverDiscountPeriod {
 
 class MovieViewerDealPack {
     private $course_id = '';
-    private $pack_id;
+    private $pack_number;
     private $session_ids = array();
     private $fixed_price;
     private $discount_price;
     private $course;
 
-    function __construct($course_id, $pack_id, $session_ids, $fixed_price, $discount_price) {
+    function __construct($course_id, $pack_number, $session_ids, $fixed_price, $discount_price) {
         $this->course_id = $course_id;
-        $this->pack_id = $pack_id;
+        $this->pack_number = $pack_number;
         $this->session_ids = $session_ids;
         $this->fixed_price = new MovieViewerFixedPrice($fixed_price);
         $this->discount_price = new MovieViewerDiscountPrice($discount_price);
@@ -59,7 +59,19 @@ class MovieViewerDealPack {
     }
 
     public function getId() {
-        return "{$this->course_id}-{$this->pack_id}";
+        return "{$this->course_id}-{$this->pack_number}";
+    }
+
+    public function getCourseId() {
+        return $this->course->getId();
+    }
+
+    public function getCourseIdShort() {
+        return $this->course->getIdShort();
+    }
+
+    public function getPackNumber() {
+        return $this->pack_number;
     }
 
     public function getCourse() {
@@ -86,7 +98,13 @@ class MovieViewerDealPack {
     public function describe() {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
-        return "{$this->getCourse()->name} {$first_session->name}～{$last_session->name}";
+        return "{$this->getCourse()->describe()} {$first_session->describe()}～{$last_session->describe()}";
+    }
+
+    public function describeShort() {
+        $first_session = reset($this->getSessions());
+        $last_session = end($this->getSessions());
+        return "{$this->getCourse()->describeShort()} {$first_session->describeShort()}～{$last_session->describeShort()}";
     }
 }
 

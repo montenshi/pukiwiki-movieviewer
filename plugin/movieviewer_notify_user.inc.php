@@ -2,7 +2,6 @@
 
 require_once("movieviewer.ini.php");
 require_once("movieviewer_purchase_start.inc.php");
-require_once("movieviewer_purchase_notify_payment.inc.php");
 
 function plugin_movieviewer_notify_user_init() {
     plugin_movieviewer_set_global_settings();
@@ -165,8 +164,6 @@ TEXT;
     if ($list === "") {
         return '';
     }
-
-    plugin_movieviewer_purchase_notify_payment_set_back_page($params['back_page']);
 
     $message =<<<TEXT
     <p>

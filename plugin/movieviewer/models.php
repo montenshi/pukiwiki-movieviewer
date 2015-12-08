@@ -540,30 +540,6 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
 
 }
 
-class MovieViewerDealPackNotifyPaymentMailBuilder extends MovieViewerMailBuilder {
-
-    function __construct($settings) {
-        parent::__construct($settings);
-    }
-
-    public function build($user, $deal_pack) {
-
-        $settings_local = $this->settings->template["notify_payment"];
-        $mail = $this->createMail($settings_local["to"]);
-
-        $params = array(
-              'user_name' => $user->describe()
-            , 'deal_pack_name' => $deal_pack->describe()
-        );
-
-        $body = $this->renderBody($settings_local["body"], $params);
-
-        $mail->subject($settings_local["subject"]);
-        $mail->text($body);
-        return $mail;
-    }
-}
-
 class MovieViewerResetPasswordMailBuilder extends MovieViewerMailBuilder {
 
     function __construct($settings) {

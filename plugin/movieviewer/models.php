@@ -435,7 +435,7 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
             , "deal_pack_name" => $deal_pack_name
             , "bank_accounts_with_notes" => "{$bank_transfer->bank_accounts_with_notes}"
             , "deadline" => $bank_transfer->deadline->format("Y年m月d日")
-            , "price" => number_format($price)
+            , "price" => $price
         );
 
         $body = $this->renderBody($settings_local["body"], $params);

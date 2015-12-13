@@ -71,6 +71,12 @@ function plugin_movieviewer_now() {
     return new DateTime(null, $settings->timezone);
 }
 
+// <br>を改行に置き換える
+// http://hi.seseragiseven.com/archives/559
+function plugin_movieviewer_br2nl($value) {
+    return preg_replace('/<br[[:space:]]*\/?[[:space:]]*>/i', "\n", $value);
+}
+
 // htmlspecialcharsをかける
 function plugin_movieviewer_hsc($value) {
     return htmlspecialchars($value, ENT_QUOTES, "UTF-8");
@@ -133,7 +139,7 @@ TEXT;
     return $element;
 }
 
-function plugin_movieviewer_render_dealpack_offer_price($offer) {
+function plugin_movieviewer_render_dealpack_offer_price($offer, $text_only = FALSE) {
     $price = $offer->getPrice();
 
     $total_amount_with_tax = $price->getTotalAmountWithTax();
@@ -158,11 +164,16 @@ function plugin_movieviewer_render_dealpack_offer_price($offer) {
     $hsc = "plugin_movieviewer_hsc";
     $hsc_num = "plugin_movieviewer_hsc_number_format";
 
+    // 最初の行に空白がないのは、メールの文章に利用するため...
     $price_with_notes =<<<TEXT
-    {$hsc_num($total_amount_with_tax)}円<br>
+{$hsc_num($total_amount_with_tax)}円<br>
     （<span class="{$class_for_unit_amount}">{$hsc_num($unit_amount_without_tax)}</span>円×{$hsc_num($num_units)}ヶ月分＝{$hsc_num($total_amount_without_tax)}円　＋　消費税 {$hsc_num($tax_amount)}円）
     $note_for_unit_amount
 TEXT;
+
+    if ($text_only) {
+        $price_with_notes = strip_tags($price_with_notes);
+    }
 
     return $price_with_notes;
 }

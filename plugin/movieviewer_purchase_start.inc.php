@@ -142,8 +142,10 @@ function plugin_movieviewer_purchase_start_action() {
 
     $offer->accept();
 
+    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, TRUE);
+
     $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
-    $mail = $mail_builder->build($user, $offer->getPackName(), $offer->getPrice()->total_amount_with_tax, $offer->getBankTransfer());
+    $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getBankTransfer());
     $result = $mail->send();
 
     if (!$result) {

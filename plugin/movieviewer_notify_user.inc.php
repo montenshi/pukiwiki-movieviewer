@@ -77,11 +77,13 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
     $hsc = "plugin_movieviewer_hsc";
 
     $bank_names_with_notes = nl2br($offer->getBankTransfer()->bank_names_with_notes);
+    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
+
     $bank_transfer_info =<<<TEXT
     <p>
     <table class="movieviewer-bank-transfer">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
       <tr><th>振込先</th><td>{$bank_names_with_notes}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>

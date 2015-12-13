@@ -1,3 +1,7 @@
+span.caution {
+  color: red;
+}
+
 p.caution {
   padding: 1em;
   background-color: #fdd;

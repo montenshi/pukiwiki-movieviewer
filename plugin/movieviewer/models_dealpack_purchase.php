@@ -57,6 +57,10 @@ class MovieViewerDealPackOffer {
         return $this->pack->getSessions();
     }
 
+    public function getNumSessions() {
+        return $this->pack->getNumSessions();
+    }
+
     public function getDiscountPeriod() {
         return $this->discount_period;
     }

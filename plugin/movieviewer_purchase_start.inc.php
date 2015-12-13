@@ -59,6 +59,7 @@ function plugin_movieviewer_purchase_start_convert() {
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
+    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -74,7 +75,7 @@ function plugin_movieviewer_purchase_start_convert() {
     <p>
     <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
       <tr><th>振込先</th><td>{$bank_accounts_with_notes}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
@@ -142,7 +143,7 @@ function plugin_movieviewer_purchase_start_action() {
     $offer->accept();
 
     $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
-    $mail = $mail_builder->build($user, $offer->getPackName(), $offer->getPrice()->amount, $offer->getBankTransfer());
+    $mail = $mail_builder->build($user, $offer->getPackName(), $offer->getPrice()->total_amount_with_tax, $offer->getBankTransfer());
     $result = $mail->send();
 
     if (!$result) {

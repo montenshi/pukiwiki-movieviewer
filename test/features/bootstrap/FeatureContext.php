@@ -125,6 +125,20 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @Then 視聴可能な単元に何も表示されていないこと
+     */
+    public function 視聴可能な単元に何も表示されていないこと() {
+        $this->以下の単元に何も表示されていないこと('.movieviewer-sessions-viewable');
+    }
+
+    /**
+     * @Then 受講済みの単元に何も表示されていないこと
+     */
+    public function 受講済みの単元に何も表示されていないこと() {
+        $this->以下の単元に何も表示されていないこと('.movieviewer-sessions-attended');
+    }
+
+    /**
      * @Then 申し込み内容に以下が表示されていること:
      */
     public function 申し込み内容に以下が表示されていること(TableNode $table) {
@@ -186,6 +200,15 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         }
 
         assertEquals($table->getHash(), $actual);
+    }
+
+    function 以下の単元に何も表示されていないこと($css_sessions) {
+        $page = $this->getSession()->getPage();
+
+        $div = $page->find('css', $css_sessions);
+        $courses = $div->findAll('css', '.movieviewer-course');
+
+        assertCount(0, $courses);
     }
 
     /* qiita.com/kumazo@github/items/e0797004513d9029613e より */

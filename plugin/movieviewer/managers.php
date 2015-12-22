@@ -85,9 +85,18 @@ class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
     }
 
     public function login($user) {
-        // コミュ管理者をmovieviewer_authでログインできるようにするための仮実装
-        $_SESSION[$this->session_varname] = array("name" => $user->id);
+        $this->setUserInfoToSession($user, $this->session_varname);
+        if ($user->isAdmin()) {
+            $this->setUserInfoToSession($user, "commu_admin");
+        }
     }
+
+    public function logout() {
+        unset($_SESSION[$this->session_varname]);
+        unset($_SESSION["commu_admin"]);
+        unset($_SESSION["forum_user"]);
+    }
+
 
     public function getUserId() {
         $id = $_SESSION[$this->session_varname]["email"];
@@ -96,7 +105,24 @@ class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
         if ($id === NULL) {
             $id = $_SESSION[$this->session_varname]["name"];
         }
+
         return $id;
+    }
+
+    private function setUserInfoToSession($user, $session_varname) {
+        $_SESSION[$session_varname] = array(
+              "name" => $user->id // Commu管理者をログインできるようにするための項目
+            , "id" => $user->commuId
+            , "lastname" => $user->lastName
+            , "firstname" => $user->firstName
+            , "email" => $user->id
+            , "created" => NULL
+            , "state" => NULL
+            , "zip" => NULL
+            , "phone" => NULL
+            , "job" => NULL
+            , "custom1" => $user->memberId
+        );
     }
 }
 

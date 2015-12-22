@@ -2,7 +2,12 @@
 
 #--- 以下は変更しない
 
-define('PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR', getcwd());
+if (!plugin_movieviewer_endsWith(getcwd(), "forum")) {
+    define('PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR', getcwd());
+} else {
+    define('PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR', getcwd() . "/..");
+}
+
 define('PLUGIN_MOVIEVIEWER_COMMU_DIR', PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/commu");
 define('PLUGIN_MOVIEVIEWER_PLUGIN_DIR', PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/plugin");
 define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', PLUGIN_MOVIEVIEWER_PLUGIN_DIR . "/movieviewer");
@@ -37,16 +42,18 @@ require_once(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/lib/qdsmtp.php");
 
 // 設定ファイルから設定を読み込む
 function plugin_movieviewer_load_settings() {
-    return MovieViewerSettings::loadFromYaml(PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS);
+    $settings = MovieViewerSettings::loadFromYaml(PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS);
+
+    // カレントのTimezoneを設定に追加
+    $settings->timezone = new DateTimeZone("Asia/Tokyo");
+    date_default_timezone_set("Asia/Tokyo");
+
+    return $settings;
 }
 
 // 設定をグローバルに保存する
 function plugin_movieviewer_set_global_settings() {
     $settings = plugin_movieviewer_load_settings();
-
-    // カレントのTimezoneを設定に追加
-    $settings->timezone = new DateTimeZone("Asia/Tokyo");
-    date_default_timezone_set("Asia/Tokyo");
 
     $cfg = array(
         "movieviewer_settings"     => $settings,
@@ -59,6 +66,12 @@ function plugin_movieviewer_set_global_settings() {
     plugin_movieviewer_set_csrf_token();
 }
 
+// 設定をグローバルに保存する(forum利用時)
+function plugin_movieviewer_set_global_settings_forum() {
+    $settings = plugin_movieviewer_load_settings();
+    $GLOBALS['movieviewer_settings'] = $settings;
+}
+
 // グローバルから設定を取り出す
 function plugin_movieviewer_get_global_settings() {
     // set_plugin_messages で設定されたオブジェクトを返す
@@ -69,6 +82,26 @@ function plugin_movieviewer_get_global_settings() {
 function plugin_movieviewer_now() {
     $settings = plugin_movieviewer_get_global_settings();
     return new DateTime(null, $settings->timezone);
+}
+
+// この文字列が、指定された接頭辞で始まるかどうかを判定します。
+// http://b.0218.jp/20140514163237.html より。
+function plugin_movieviewer_startsWith($haystack, $needle)
+{
+     $length = strlen($needle);
+     return (substr($haystack, 0, $length) === $needle);
+}
+
+// この文字列が、指定された接尾辞で終るかどうかを判定します。
+// http://b.0218.jp/20140514163237.html より。
+function plugin_movieviewer_endsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
+
+    return (substr($haystack, -$length) === $needle);
 }
 
 // <br>を改行に置き換える

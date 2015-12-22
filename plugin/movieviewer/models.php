@@ -81,6 +81,11 @@ class MovieViewerUser {
         return FALSE;
     }
 
+    public function isMainte() {
+        // 会員番号がAから始まる人はメンテナンスロール
+        return plugin_movieviewer_startsWith($this->memberId, "A");
+    }
+
     public function verifyPassword($raw_password) {
         return strcmp($this->hashedPassword, $this->hashPassword($raw_password)) === 0;
     }
@@ -113,6 +118,8 @@ class MovieViewerAdmin extends MovieViewerUser {
 
 class MovieViewerCommuUser extends MovieViewerUser {
 
+    public $commuId;
+
     public function isAdmin() {
         return FALSE;
     }
@@ -126,6 +133,30 @@ class MovieViewerCommuAdmin extends MovieViewerCommuUser {
 
     public function isAdmin() {
         return TRUE;
+    }
+}
+
+class MovieViewerForumAccessRule {
+
+    public function allowView($user) {
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        if ($user->isMainte()) {
+            return TRUE;
+        }
+
+        $repos = plugin_movieviewer_get_viewing_periods_by_user_repository();
+        $viewing_periods = $repos->findById($user->id);
+
+        $valid_periods = $viewing_periods->getValidPeriods();
+
+        return (count($valid_periods) > 0);
+    }
+
+    public function allowPost($user) {
+        return $user->isAdmin() || $user->isMainte();
     }
 }
 

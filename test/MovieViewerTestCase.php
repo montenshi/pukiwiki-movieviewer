@@ -12,6 +12,7 @@ class MovieViewerTestCase extends PHPUnit_Framework_TestCase {
         $this->define('PLUGIN_MOVIEVIEWER_LOG_DIR', dirname(__FILE__) . "/logs");
 
         chdir('../../../../../app/pukiwiki');
+        require_once('plugin/movieviewer/functions.php');
         require_once('plugin/movieviewer/models.php');
         require_once('plugin/movieviewer/models_dealpack.php');
         require_once('plugin/movieviewer/models_dealpack_purchase.php');

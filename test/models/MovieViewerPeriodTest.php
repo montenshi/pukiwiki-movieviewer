@@ -8,7 +8,7 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
-        $settings->data["dir"] = dirname(__FILE__) . "/../resources";
+        $settings->data["dir"] = dirname(__FILE__) . "/resources";
         $settings->timezone = new DateTimeZone("Asia/Tokyo");
         $this->setGlobalSettings($settings);
     }

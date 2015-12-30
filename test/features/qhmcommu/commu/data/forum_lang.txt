@@ -1,0 +1,7 @@
+id,name,jname,value
+6
+1##SEP##prefix##SEP##利用形態##SEP##question
+2##SEP##top_description##SEP##フォーラムの説明##SEP##このフォーラムは、○×についてあつくディスカッションするフォーラムです
+3##SEP##post_description##SEP##投稿前の説明##SEP##
+4##SEP##use_top_description##SEP##カスタマイズの使用##SEP##1
+5##SEP##use_post_description##SEP##カスタマイズの使用##SEP##0

@@ -1,0 +1,5 @@
+id,name,post_num,post_ids
+4
+1##SEP##a##SEP##0##SEP##2
+2##SEP##b##SEP##0##SEP##2
+3##SEP##c##SEP##0##SEP##2

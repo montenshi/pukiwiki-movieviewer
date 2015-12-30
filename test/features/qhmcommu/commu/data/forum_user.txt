@@ -1,0 +1,6 @@
+id,created,user_id,icon,nickname,evaluation,notice
+6
+1##SEP####SEP####SEP####SEP##管理者##SEP####SEP##0
+3##SEP##2015-10-27 13:47:19##SEP##1##SEP####SEP##aaa##SEP####SEP##0
+4##SEP##2015-11-19 13:27:52##SEP##2##SEP####SEP##bbb##SEP####SEP##0
+5##SEP##2015-12-19 12:29:19##SEP##6##SEP####SEP##ファミリー1人目##SEP##13##SEP##0

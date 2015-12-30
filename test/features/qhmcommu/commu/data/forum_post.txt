@@ -1,0 +1,5 @@
+id,title,created,modified,category,keyword,notify,contents,forum_user_id,evaluation,metoo,mode,res,res_date,best_res
+4
+1##SEP##質問その1 コメントあり##SEP##2015-10-13 12:13:45##SEP##2015-10-13 12:13:45##SEP##1##SEP####SEP####SEP##あああ##SEP##2##SEP##1##SEP##0##SEP##1##SEP##1##SEP##2015-12-19 11:40:28##SEP##
+2##SEP##質問その2 コメントなし##SEP##2015-12-26 12:41:21##SEP##2015-12-26 12:43:32##SEP##1##SEP####SEP##0##SEP##aaa##SEP##5##SEP##0##SEP##0##SEP##0##SEP##0##SEP####SEP##
+3##SEP##質問その3 コメントなし##SEP##2015-12-30 17:03:43##SEP##2015-12-30 17:03:43##SEP##1##SEP####SEP####SEP##hogehoge##SEP##5##SEP##33##SEP##4##SEP##1##SEP##2##SEP##2015-12-30 17:58:57##SEP##

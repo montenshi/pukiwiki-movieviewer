@@ -28,7 +28,7 @@ define('PLUGIN_MOVIEVIEWER_LOG_DIR', PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR);
 # ユーザ設定ファイルを読み込む
 require_once(PLUGIN_MOVIEVIEWER_PLUGIN_DIR . '/movieviewer.ini.user.php');
 
-if (!file_exists(".movieviewer_env_feature_test")) {
+if (!file_exists(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/.movieviewer_env_feature_test")) {
     define('PLUGIN_MOVIEVIEWER_ENV', '');
     define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS', PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS_USER_DEFAULT);
 } else {

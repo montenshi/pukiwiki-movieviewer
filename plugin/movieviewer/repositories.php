@@ -163,8 +163,13 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         return $object;
     }
 
+    public function updateLastLogin($object) {        
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
+        $db->update(array("last_login" => gmdate('Y-m-d H:i:s')), '$id=='."'".$object->commuId."'");
+    }
+    
     public function store($object) {
-        return Exception("Not Implement");
+        throw new Exception("Not Implement");
     }
 
     function isAdmin($id) {

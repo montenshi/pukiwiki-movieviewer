@@ -89,6 +89,8 @@ class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
         if ($user->isAdmin()) {
             $this->setUserInfoToSession($user, "commu_admin");
         }
+        
+        $this->updateLastLogin($user);
     }
 
     public function logout() {
@@ -123,6 +125,11 @@ class MovieViewerAuthManagerInCommu extends MovieViewerAuthManager {
             , "job" => NULL
             , "custom1" => $user->memberId
         );
+    }
+    
+    private function updateLastLogin($user) {
+        $repo = plugin_movieviewer_get_user_repository();
+        $repo->updateLastLogin($user);
     }
 }
 

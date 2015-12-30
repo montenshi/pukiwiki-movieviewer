@@ -140,7 +140,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         }
 
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
-        $result = $db->select('$email=='."'".$id."'");
+        $result = $db->select("\$email=='{$id}'");
 
         if (count($result) !== 1) {
             MovieViewerLogger::getLogger()->addError(
@@ -165,7 +165,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
 
     public function updateLastLogin($object) {        
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
-        $db->update(array("last_login" => gmdate('Y-m-d H:i:s')), '$id=='."'".$object->commuId."'");
+        $db->update(array("last_login" => gmdate('Y-m-d H:i:s')), "\$id=='{$object->commuId}'");
     }
     
     public function store($object) {

@@ -136,30 +136,6 @@ class MovieViewerCommuAdmin extends MovieViewerCommuUser {
     }
 }
 
-class MovieViewerForumAccessRule {
-
-    public function allowView($user) {
-        if ($user->isAdmin()) {
-            return TRUE;
-        }
-
-        if ($user->isMainte()) {
-            return TRUE;
-        }
-
-        $repos = plugin_movieviewer_get_viewing_periods_by_user_repository();
-        $viewing_periods = $repos->findById($user->id);
-
-        $valid_periods = $viewing_periods->getValidPeriods();
-
-        return (count($valid_periods) > 0);
-    }
-
-    public function allowPost($user) {
-        return $user->isAdmin() || $user->isMainte();
-    }
-}
-
 class MovieViewerUserResetPasswordToken {
     public $id;
     public $user_id;

@@ -26,12 +26,6 @@ function plugin_movieviewer_set_global_settings() {
     plugin_movieviewer_set_csrf_token();
 }
 
-// 設定をグローバルに保存する(forum利用時)
-function plugin_movieviewer_set_global_settings_forum() {
-    $settings = plugin_movieviewer_load_settings();
-    $GLOBALS['movieviewer_settings'] = $settings;
-}
-
 // グローバルから設定を取り出す
 function plugin_movieviewer_get_global_settings() {
     // set_plugin_messages で設定されたオブジェクトを返す

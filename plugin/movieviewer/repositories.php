@@ -165,7 +165,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
 
     public function updateLastLogin($object) {        
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
-        $db->update(array("last_login" => gmdate('Y-m-d H:i:s')), "\$id=='{$object->commuId}'");
+        $db->update(array("last_login" => date(self::DEFAULT_DATETIME_FORMAT)), "\$id=='{$object->commuId}'");
     }
     
     public function store($object) {

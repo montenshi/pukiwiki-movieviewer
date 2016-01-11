@@ -169,9 +169,9 @@ class MovieViewerDealPackOfferMaker {
         }
 
         $bank_transfer = new MovieViewerBankTransfer(
-                                  $this->payment_settings["bank_transfer"]["bank_names"]
-                                , $this->payment_settings["bank_transfer"]["bank_accounts"]
-                                , $this->payment_settings["bank_transfer"]["notes"]
+                                  $this->payment_settings->bank_transfer["bank_names"]
+                                , $this->payment_settings->bank_transfer["bank_accounts"]
+                                , $this->payment_settings->bank_transfer["notes"]
                                 , $offer_params["transfer_deadline"]
                             );
 

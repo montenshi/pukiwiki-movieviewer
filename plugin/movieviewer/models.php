@@ -26,16 +26,6 @@ class MovieViewerLogger {
     }
 }
 
-class MovieViewerMailSettings {
-    public $smtp;
-    public $template;
-
-    function __construct($smtp, $template) {
-        $this->smtp = $smtp;
-        $this->template = $template;
-    }
-}
-
 class MovieViewerSettings {
     public $auth_module;
     public $data;
@@ -54,9 +44,43 @@ class MovieViewerSettings {
         $object->aws = $aws;
         $object->mail = new MovieViewerMailSettings($mail['smtp'], $mail['template']);
         $object->contact = $data['settings']['contact'];
-        $object->payment = $data['settings']['payment'];
+        $object->payment = new MovieViewerPaymentSettings($data['settings']['payment']);
 
         return $object;
+    }
+}
+
+class MovieViewerMailSettings {
+    public $smtp;
+    public $template;
+
+    function __construct($smtp, $template) {
+        $this->smtp = $smtp;
+        $this->template = $template;
+    }
+}
+
+class MovieViewerPaymentSettings {
+    public $bank_transfer;
+    public $credit;
+    private $extra_methods;
+    
+    function __construct($data) {
+        $this->bank_transfer = $data["bank_transfer"];
+        $this->extra_methods = $data["extra_methods"];
+        $this->credit = new MovieViewerPaymentCreditSettings($data["credit"]);
+    }
+    
+    public function isCreditEnabled() {
+        return in_array("credit", $this->extra_methods);
+    }
+}
+
+class MovieViewerPaymentCreditSettings {
+    public $paygent;
+    
+    function __construct($data) {
+        $this->paygent = $data["paygent"];
     }
 }
 

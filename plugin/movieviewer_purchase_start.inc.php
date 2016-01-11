@@ -21,6 +21,11 @@ function plugin_movieviewer_purchase_start_convert() {
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
         return plugin_movieviewer_convert_error_response("ログインが必要です。");
     }
+    
+    // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
+    if (!$user->hasMemberId()) {
+        return plugin_movieviewer_convert_error_response("クレジットカードの支払いには会員番号が必要です。");
+    }
 
     $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
     $purchase_method = filter_input(INPUT_GET, "purchase_method");
@@ -106,19 +111,19 @@ TEXT;
 
 function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $offer, $current_page) {
 
-    $paygent_settings = $settings->payment["credit"]["paygent"];
+    // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
+    if (!$user->hasMemberId()) {
+        return "";
+    }
+
+    $paygent_settings = $settings->payment->credit->paygent;
 
     $course_id_short = $offer->getCourseIdShort();
     $pack_number = sprintf('%02d', $offer->getPackNumber());
 
-    $trading_id_base = "{$course_id_short}s{$pack_number}_";
-    if ($user->hasMemberId()) {
-        $trading_id = $trading_id_base . $user->memberId;
-    } else {
-        $trading_id = $trading_id_base . uniqid();
-    }
+    $trading_id = "{$course_id_short}s{$pack_number}_" . mb_ereg_replace("[¥-]", "_", $user->memberId);
 
-    $id = "{$offer->getPrice()->amount}";
+    $price = $offer->getPrice()->getTotalAmountWithTax();
     $seq_merchant_id = $paygent_settings["merchant_id"];
     $hash_key = $paygent_settings["hash_key"];
     $payment_detail = mb_convert_kana($offer->describePackShort(), 'S');
@@ -126,10 +131,12 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
     $return_uri = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_start";
 
     $org_str = $trading_id .
-               $id .
+               $price .
                $seq_merchant_id .
                $hash_key;
     $hash_str = hash("sha256", $org_str);
+
+    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -143,12 +150,12 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
     <p>
     <table class="movieviewer-purchase-request-details">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
     </table>
     </p>
     <form action="{$paygent_settings["request_uri"]}" method="post">
         <input type="hidden" name="trading_id" value="$trading_id">
-        <input type="hidden" name="id" value="$id">
+        <input type="hidden" name="id" value="$price">
         <input type="hidden" name="seq_merchant_id" value="$seq_merchant_id">
         <input type="hidden" name="hc" value="$hash_str">
         <input type="hidden" name="payment_detail" value="$payment_detail">

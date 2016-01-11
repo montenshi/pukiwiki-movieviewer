@@ -94,7 +94,7 @@ TEXT;
     <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
 TEXT;
 
-    if (in_array("credit", $settings->payment["extra_methods"])) {
+    if ($settings->payment->isCreditEnabled()) {
         $buttons_payment .=<<<TEXT
         <a href="${start_uri_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
 TEXT;
@@ -129,7 +129,7 @@ TEXT;
         </p>
         $bank_transfer_info
         <p>
-        <a href="${start_uri_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
+        $buttons_payment
         </p>
 TEXT;
     }

@@ -248,6 +248,7 @@ class MovieViewerDealPackPurchaseRequest {
 
     public $user_id;
     public $pack_id;
+    public $purchase_method;
     public $date_requested;
     public $payment_confirmation;
 

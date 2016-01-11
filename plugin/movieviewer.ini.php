@@ -46,6 +46,7 @@ require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/functions.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models_dealpack.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models_dealpack_purchase.php");
+require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models_payment.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/repositories.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/validators.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/managers.php");

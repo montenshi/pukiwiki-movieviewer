@@ -113,28 +113,19 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
 
     // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
     if (!$user->hasMemberId()) {
-        return "";
+        return plugin_movieviewer_convert_error_response("クレジットカードの支払いには会員番号が必要です。");
     }
-
+    
     $paygent_settings = $settings->payment->credit->paygent;
+    $generator = new MovieViewerPaygentParameterGenerator($paygent_settings, $user, $offer);
 
-    $course_id_short = $offer->getCourseIdShort();
-    $pack_number = sprintf('%02d', $offer->getPackNumber());
-
-    $trading_id = "{$course_id_short}s{$pack_number}_" . mb_ereg_replace("[¥-]", "_", $user->memberId);
-
-    $price = $offer->getPrice()->getTotalAmountWithTax();
-    $seq_merchant_id = $paygent_settings["merchant_id"];
-    $hash_key = $paygent_settings["hash_key"];
-    $payment_detail = mb_convert_kana($offer->describePackShort(), 'S');
-
-    $return_uri = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_start";
-
-    $org_str = $trading_id .
-               $price .
-               $seq_merchant_id .
-               $hash_key;
-    $hash_str = hash("sha256", $org_str);
+    $return_params = array(
+          "cmd" => "movieviewer_purchase_start"
+        , "purchase_method" => "credit"
+        , "deal_pack_id" => $offer->getPackId()
+        //, "page" => $current_page
+    );
+    $return_uri = plugin_movieviewer_get_script_uri() . "?" . http_build_query($return_params);
 
     $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
 
@@ -154,11 +145,11 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
     </table>
     </p>
     <form action="{$paygent_settings["request_uri"]}" method="post">
-        <input type="hidden" name="trading_id" value="$trading_id">
-        <input type="hidden" name="id" value="$price">
-        <input type="hidden" name="seq_merchant_id" value="$seq_merchant_id">
-        <input type="hidden" name="hc" value="$hash_str">
-        <input type="hidden" name="payment_detail" value="$payment_detail">
+        <input type="hidden" name="trading_id" value="{$generator->getTradingId()}">
+        <input type="hidden" name="id" value="{$generator->getId()}">
+        <input type="hidden" name="seq_merchant_id" value="{$generator->getSeqMerchantId()}">
+        <input type="hidden" name="hc" value="{$generator->getHash()}">
+        <input type="hidden" name="payment_detail" value="{$generator->getPaymentDetail()}">
         <input type="hidden" name="return_url" value="$return_uri">
         <button type="submit" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>申し込む</button>
     </form>
@@ -171,10 +162,26 @@ function plugin_movieviewer_purchase_start_action() {
 
     $page = plugin_movieviewer_get_current_page();
 
-    try {
-        plugin_movieviewer_validate_csrf_token();
-    } catch (MovieViewerValidationException $ex) {
-        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+    $from_external_link = FALSE;
+    $test_var = filter_input(INPUT_POST, "purchase_method");
+    if (empty($test_var)) {
+        $from_external_link = TRUE;
+    }
+
+    if ($from_external_link) {
+        $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
+        $purchase_method = filter_input(INPUT_GET, "purchase_method");
+    } else {
+        $deal_pack_id = filter_input(INPUT_POST, "deal_pack_id");
+        $purchase_method = filter_input(INPUT_POST, "purchase_method");
+    }
+
+    if (!$from_external_link) {
+        try {
+            plugin_movieviewer_validate_csrf_token();
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+        }
     }
 
     try {
@@ -186,10 +193,7 @@ function plugin_movieviewer_purchase_start_action() {
     if ($user->mailAddress === NULL || $user->mailAddress === "") {
         return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
     }
-
-    $deal_pack_id = filter_input(INPUT_POST, "deal_pack_id");
-    $purchase_method = filter_input(INPUT_POST, "purchase_method");
-
+    
     try {
         plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
     } catch (MovieViewerValidationException $ex) {
@@ -219,30 +223,41 @@ function plugin_movieviewer_purchase_start_action() {
 
     $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, TRUE);
 
-    $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
-    $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getBankTransfer());
-    $result = $mail->send();
+    $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
+    $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
 
-    if (!$result) {
-        MovieViewerLogger::getLogger()->addError(
-            "案内通知エラー", array("error_statement"=>$mail->errorStatment())
-        );
+    if ($purchase_method === "bank") {
+        $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
+        $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getBankTransfer());
+        $result = $mail->send();
 
-        return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
+        if (!$result) {
+            MovieViewerLogger::getLogger()->addError(
+                "案内通知エラー", array("error_statement"=>$mail->errorStatment())
+            );
+
+            return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
+        }
+        
+        $messages =<<<TEXT
+        ご登録のアドレスに振込先等のご案内をお送りしています。<br>
+        ご確認の上、お振込を期限までに完了してください。<br>
+        現在の状況を会員ページに戻って、ご確認ください。
+TEXT;
+    } else if ($purchase_method === "credit") {
+        $messages =<<<TEXT
+        クレジットカードでの支払いが完了しました。
+        現在の状況を会員ページに戻って、ご確認ください。
+TEXT;
     }
 
     $hsc = "plugin_movieviewer_hsc";
-
-    $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
-    $bank_accounts_with_notes = nl2br($offer->getBankTransfer()->bank_accounts_with_notes);
 
     $content =<<<TEXT
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
     <h2>受講申し込み完了</h2>
     <p>
-    ご登録のアドレスに振込先等のご案内をお送りしています。<br>
-    ご確認の上、お振込を期限までに完了してください。<br>
-    現在の状況を会員ページに戻って、ご確認ください。
+    $messages
     </p>
     <p>
     <a href="{$back_uri}">会員ページに戻る</a>

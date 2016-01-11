@@ -1,0 +1,22 @@
+---
+viewing_periods:
+  -
+    course_id: K1Kiso
+    session_id: 01
+    date_begin: 2015-08-15 00:00:00+09:00
+    date_end: 2015-11-15 00:00:00+09:00
+  -
+    course_id: K1Kiso
+    session_id: 02
+    date_begin: 2015-08-15 00:00:00+09:00
+    date_end: 2015-11-15 00:00:00+09:00
+  -
+    course_id: K1Kiso
+    session_id: 03
+    date_begin: 2015-08-15 00:00:00+09:00
+    date_end: 2015-11-15 00:00:00+09:00
+  -
+    course_id: K1Kiso
+    session_id: 04
+    date_begin: 2015-08-15 00:00:00+09:00
+    date_end: 2015-11-15 00:00:00+09:00

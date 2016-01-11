@@ -16,12 +16,10 @@
 # テストの実行方法
 
   1. Commuの管理者のidをadmin パスワードをadminadminにする
-  2. Commuのユーザに以下を追加する
-     + メールアドレス: aaa@bbb.ccc 姓:動画配信会員 名:1人目　カスタム項目1:N1-151101
-     + メールアドレス: bbb@bbb.ccc 姓:動画配信会員 名:2人目
-     + メールアドレス: ccc@bbb.ccc 姓:動画配信会員 名:3人目
-  3. movieviewer.ini.phpの PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS を
-    テスト用のフォルダに切り替える
-  4. resources配下の設定ファイルをテスト用のフォルダにコピーする
-  5. mail.ymlの設定を変更する
-  6. vendor/bin/behat を実行する
+  2. Commuのユーザに以下を追加する パスワードは全て hogehoge にする
+     + メールアドレス: aaa@bbb.ccc 姓:動画配信会員 名:1人目 カスタム項目1:N1-151101 (正規会員 K1基礎セットの2つ目を受講中、3つ目が継続割引)
+     + メールアドレス: bbb@bbb.ccc 姓:動画配信会員 名:2人目 カスタム項目1:N0-151101 (正規会員 K1基礎セットの1つ目が終了、2つ目が定価)
+     + メールアドレス: ccc@bbb.ccc 姓:動画配信会員 名:3人目 カスタム項目1:(空白)     (仮会員 K1基礎セットの1つ目を申し込み中)
+     + メールアドレス: ddd@bbb.ccc 姓:動画配信会員 名:4人目 カスタム項目1:(空白)     (仮会員 申し込みまだ)
+  4. resources/mail.yml.sample をコピーし、from, user, password を修正、mail.yml を作成する
+  3. vendor/bin/behat を実行する

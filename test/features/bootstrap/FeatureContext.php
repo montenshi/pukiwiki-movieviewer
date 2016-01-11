@@ -44,6 +44,7 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/users");
         // コピー
         exec("cp -pr ./features/resources/* /Users/and/development/projects/montenshi/web/resources-test");
+        exec("cp -pr ./features/qhmcommu/commu/data/* /Users/and/development/projects/montenshi/web/htdocs/commu/data");
     }
 
     /**
@@ -125,6 +126,20 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @Then 視聴可能な単元に何も表示されていないこと
+     */
+    public function 視聴可能な単元に何も表示されていないこと() {
+        $this->以下の単元に何も表示されていないこと('.movieviewer-sessions-viewable');
+    }
+
+    /**
+     * @Then 受講済みの単元に何も表示されていないこと
+     */
+    public function 受講済みの単元に何も表示されていないこと() {
+        $this->以下の単元に何も表示されていないこと('.movieviewer-sessions-attended');
+    }
+
+    /**
      * @Then 申し込み内容に以下が表示されていること:
      */
     public function 申し込み内容に以下が表示されていること(TableNode $table) {
@@ -144,17 +159,29 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     }
 
     /**
-     * @Then 入金確認一覧 通知あり に以下の内容が表示されていること:
+     * @Then 入金確認一覧に以下の内容が表示されていること:
      */
-    public function 入金確認一覧_通知あり_に以下の内容が表示されていること(TableNode $table) {
-        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-notified');
-    }
+    public function 入金確認一覧に以下の内容が表示されていること(TableNode $table) {
 
-    /**
-     * @Then 入金確認一覧 通知なし に以下の内容が表示されていること:
-     */
-    public function 入金確認一覧_通知なし_に以下の内容が表示されていること(TableNode $table) {
-        $this->入金確認一覧に以下の内容が表示されていること($table, '.purchase-requests-unnotified');
+        $page = $this->getSession()->getPage();
+
+        $css_requests = ".purchase-requests";
+        $detail = $page->find('css', $css_requests);
+
+        $actual = array();
+        foreach($detail->find('css', 'tbody')->findAll('css', 'tr') as $row) {
+            $columns = $row->findAll('css', 'td');
+
+            $actual_row = array();
+            $actual_row["会員番号"] = $columns[1]->getText();
+            $actual_row["名前"] = $columns[2]->getText();
+            $actual_row["メールアドレス"] = $columns[3]->getText();
+            $actual_row["受講対象"] = $columns[4]->getText();
+
+            $actual[] = $actual_row;
+        }
+
+        assertEquals($table->getHash(), $actual);
     }
 
     function 以下の単元が表示されていること(TableNode $table, $css_sessions) {
@@ -176,25 +203,13 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         assertEquals($table->getHash(), $actual);
     }
 
-    function 入金確認一覧に以下の内容が表示されていること(TableNode $table, $css_requests) {
+    function 以下の単元に何も表示されていないこと($css_sessions) {
         $page = $this->getSession()->getPage();
 
-        $detail = $page->find('css', $css_requests);
+        $div = $page->find('css', $css_sessions);
+        $courses = $div->findAll('css', '.movieviewer-course');
 
-        $actual = array();
-        foreach($detail->find('css', 'tbody')->findAll('css', 'tr') as $row) {
-            $columns = $row->findAll('css', 'td');
-
-            $actual_row = array();
-            $actual_row["会員番号"] = $columns[1]->getText();
-            $actual_row["名前"] = $columns[2]->getText();
-            $actual_row["メールアドレス"] = $columns[3]->getText();
-            $actual_row["受講対象"] = $columns[4]->getText();
-
-            $actual[] = $actual_row;
-        }
-
-        assertEquals($table->getHash(), $actual);
+        assertCount(0, $courses);
     }
 
     /* qiita.com/kumazo@github/items/e0797004513d9029613e より */

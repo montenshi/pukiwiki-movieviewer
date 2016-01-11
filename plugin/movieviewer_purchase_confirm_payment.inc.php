@@ -39,9 +39,9 @@ TEXT;
         return $content;
     }
 
-    $content_rows_notified = "";
-    $content_rows_unnotified = "";
+    usort($requestsNotConfirmed, "MovieViewerDealPackPurchaseRequest::compareByMemberId");
 
+    $content_rows = "";
     foreach($requestsNotConfirmed as $request) {
 
         $ctrl_value = $hsc($request->getId());
@@ -58,64 +58,31 @@ TEXT;
         </tr>
 TEXT;
 
-        if ($request->isNotified()) {
-            $content_rows_notified .= $content_row;
-        } else {
-            $content_rows_unnotified .= $content_row;
-        }
+        $content_rows .= $content_row;
     }
+
+    $content_list =<<<TEXT
+    <div>
+        <table class="table purchase-requests">
+          <thead>
+          <tr>
+            <th></th>
+            <th>会員番号</th>
+            <th>名前</th>
+            <th>メールアドレス</th>
+            <th>受講対象</th>
+            <th>申込日</th>
+          </tr>
+          </thead>
+          <tbody>
+            {$content_rows}
+          <tbody>
+        </table>
+    </div>
+TEXT;
 
     $page = plugin_movieviewer_get_current_page();
     $action_url = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment&page=$page";
-
-    $content_notified = "";
-    if ($content_rows_notified !== "") {
-        $content_notified =<<<TEXT
-        <div>
-            <h3>通知あり</h3>
-            <table class="table purchase-requests purchase-requests-notified">
-              <thead>
-              <tr>
-                <th></th>
-                <th>会員番号</th>
-                <th>名前</th>
-                <th>メールアドレス</th>
-                <th>受講対象</th>
-                <th>申込日</th>
-              </tr>
-              </thead>
-              <tbody>
-                {$content_rows_notified}
-              <tbody>
-            </table>
-        </div>
-TEXT;
-    }
-
-    $content_unnotified = "";
-    if ($content_rows_unnotified !== "") {
-        $content_unnotified =<<<TEXT
-        <div>
-            <h3>通知なし</h3>
-            <table class="table purchase-requests purchase-requests-unnotified">
-              <thead>
-              <tr>
-                <th></th>
-                <th>会員番号</th>
-                <th>名前</th>
-                <th>メールアドレス</th>
-                <th>受講対象</th>
-                <th>申込日</th>
-              </tr>
-              </thead>
-              <tbody>
-                {$content_rows_unnotified}
-              <tbody>
-            </table>
-        </div>
-TEXT;
-    }
-
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
     $content =<<<TEXT
@@ -131,8 +98,7 @@ TEXT;
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="confirm">
     {$input_csrf_token()}
-    $content_notified
-    $content_unnotified
+    $content_list
     </p>
     <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確認</button>
     </form>

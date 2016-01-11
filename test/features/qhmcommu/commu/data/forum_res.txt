@@ -1,0 +1,4 @@
+id,created,post_id,forum_user_id,contents,evaluation
+3
+1##SEP##2015-12-19 11:40:28##SEP##1##SEP##5##SEP##コメントテストその1。##SEP##0
+2##SEP##2015-12-30 17:54:21##SEP##1##SEP##5##SEP##コメントテストその2。##SEP##1

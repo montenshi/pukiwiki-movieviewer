@@ -69,6 +69,10 @@ class MovieViewerDealPackOffer {
         return $this->pack->getSessions();
     }
 
+    public function getNumSessions() {
+        return $this->pack->getNumSessions();
+    }
+
     public function getDiscountPeriod() {
         return $this->discount_period;
     }
@@ -244,17 +248,31 @@ class MovieViewerDealPackPurchaseRequest {
 
     public $user_id;
     public $pack_id;
-    public $date_notified;
     public $date_requested;
     public $payment_confirmation;
 
-    function __construct($user_id, $pack_id, $date_requested = null, $date_notified = null) {
+    public static function compareByMemberId($a, $b) {
+        $aUser = $a->getUser();
+        $bUser = $b->getUser();
+        if (!$aUser->hasMemberId()) {
+            if ($bUser->hasMemberId()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        if ($aUser->memberId === $bUser->memberId) {
+            return 0;
+        }
+        return ($aUser->memberId < $bUser->memberId) ? -1 : 1;
+    }
+
+    function __construct($user_id, $pack_id, $date_requested = null) {
         $this->user_id = $user_id;
         $this->pack_id = $pack_id;
         if ($date_requested == null) {
             $date_requested = plugin_movieviewer_now();
         }
-        $this->date_notified = $date_notified;
         $this->date_requested = $date_requested;
     }
 
@@ -284,14 +302,6 @@ class MovieViewerDealPackPurchaseRequest {
 
     public function getId() {
         return "{$this->user_id}###{$this->pack_id}";
-    }
-
-    public function isNotified() {
-        return ($this->date_notified !== NULL);
-    }
-
-    public function notifyPayment() {
-        $this->date_notified = plugin_movieviewer_now();
     }
 
     public function isPaymentConfirmed() {

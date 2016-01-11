@@ -139,8 +139,8 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
             return $this->createAdmin();
         }
 
-        $db = new CTextDB("commu/data/user.txt");
-        $result = $db->select('$email=='."'".$id."'");
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
+        $result = $db->select("\$email=='{$id}'");
 
         if (count($result) !== 1) {
             MovieViewerLogger::getLogger()->addError(
@@ -158,16 +158,22 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         $object->mailAddress = $data["email"];
         $object->hashedPassword = $data["password"];
         $object->memberId = $data["custom1"];
+        $object->commuId = $data["id"];
 
         return $object;
     }
 
+    public function updateLastLogin($object) {        
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
+        $db->update(array("last_login" => date(self::DEFAULT_DATETIME_FORMAT)), "\$id=='{$object->commuId}'");
+    }
+    
     public function store($object) {
-        return Exception("Not Implement");
+        throw new Exception("Not Implement");
     }
 
     function isAdmin($id) {
-        $db = new CTextDB("commu/data/admin.txt");
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/admin.txt");
         $result = $db->select('$id==\'1\'');
 
         if (count($result) !== 1) {
@@ -180,7 +186,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
     }
 
     function createAdmin() {
-        $db = new CTextDB("commu/data/admin.txt");
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/admin.txt");
         $result = $db->select('$id==\'1\'');
         $id = $result[0]['value'];
 
@@ -612,10 +618,6 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         $data["pack_id"] = $object->pack_id;
         $data["date_requested"] = $object->date_requested->format(self::DEFAULT_DATETIME_FORMAT);
 
-        if ($object->date_notified !== NULL) {
-            $data["date_notified"] = $object->date_requested->format(self::DEFAULT_DATETIME_FORMAT);
-        }
-
         $file_path = $this->getFilePath($object->user_id, $object->pack_id);
         $this->storeToYaml($file_path, $data);
     }
@@ -623,11 +625,7 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
     function createObject($file_path) {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
-        $date_notified = NULL;
-        if ($yaml["date_notified"] !== "" && $yaml["date_notified"] !== NULL) {
-            $date_notified = $this->convertToDateTime($yaml["date_notified"]);
-        }
-        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested, $date_notified);
+        $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested);
 
         return $object;
     }

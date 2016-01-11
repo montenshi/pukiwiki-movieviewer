@@ -2,7 +2,6 @@
 
 require_once("movieviewer.ini.php");
 require_once("movieviewer_purchase_start.inc.php");
-require_once("movieviewer_purchase_notify_payment.inc.php");
 
 function plugin_movieviewer_notify_user_init() {
     plugin_movieviewer_set_global_settings();
@@ -78,11 +77,13 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
     $hsc = "plugin_movieviewer_hsc";
 
     $bank_names_with_notes = nl2br($offer->getBankTransfer()->bank_names_with_notes);
+    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
+
     $bank_transfer_info =<<<TEXT
     <p>
     <table class="movieviewer-bank-transfer">
       <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$hsc(number_format($offer->getPrice()->amount))}円</td></tr>
+      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
       <tr><th>振込先</th><td>{$bank_names_with_notes}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
@@ -166,18 +167,9 @@ function plugin_movieviewer_notify_user_convert_purchase_status_requesting($user
     }
 
     $list = "";
-    $hasUnnotified = FALSE;
     foreach ($objects as $object) {
-        if ($object->isNotified()) {
-            $message = "<br>入金を確認中です。受講開始までお待ち下さい。";
-        } else {
-            $hasUnnotified = TRUE;
-            $link = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_notify_payment&deal_pack_id={$object->pack_id}";
-            $message = "<a href='{$link}' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>入金完了を通知する</a>";
-        }
-
         $list .= <<<TEXT
-        <li>{$object->getPack()->describe()} {$message}</li>
+        <li>{$object->getPack()->describe()}<br>入金を確認中です。受講開始までお待ち下さい。</li>
 TEXT;
     }
 
@@ -185,30 +177,10 @@ TEXT;
         return '';
     }
 
-    plugin_movieviewer_purchase_notify_payment_set_back_page($params['back_page']);
-
-    if ($hasUnnotified) {
-        $guide_message =<<<TEXT
-        <p>
-        以下の受講セットを申し込んでいますが、入金完了の通知をいただいておりません。<br>
-        入金完了後、必ず以下のボタンを押して通知して下さい。<br>
-        通知がないと受講が開始されません。
-        </p>
-        <p>
-        入金完了前には、絶対に押さないで下さい。<br>
-        （申し込みが取り消しになる場合があります。）
-        </p>
-TEXT;
-    } else {
-        $guide_message =<<<TEXT
-        <p>
-        以下の受講セットを申し込んでいます。<br>
-        </p>
-TEXT;
-    }
-
     $message =<<<TEXT
-    $guide_message
+    <p>
+    以下の受講セットを申し込んでいます。<br>
+    </p>
     <ul>
         $list
     </ul>

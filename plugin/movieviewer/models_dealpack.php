@@ -7,20 +7,30 @@ class MovieViewerTransferDeadline extends DateTime {
     }
 }
 
-class MovieViewerFixedPrice {
-    public $amount;
+class MovieViewerDealPackPrice {
+    public $unit_amount_without_tax;
+    public $num_units;
+    public $tax_amount;
 
-    function __construct($amount) {
-        $this->amount = $amount;
+    function __construct($unit_amount_without_tax, $num_units, $tax_amount) {
+        $this->unit_amount_without_tax = $unit_amount_without_tax;
+        $this->num_units = $num_units;
+        $this->tax_amount = $tax_amount;
+    }
+
+    public function getTotalAmountWithoutTax() {
+        return $this->unit_amount_without_tax * $this->num_units;
+    }
+
+    public function getTotalAmountWithTax() {
+        return $this->getTotalAmountWithoutTax() + $this->tax_amount;
     }
 }
 
-class MovieViewerDiscountPrice {
-    public $amount;
+class MovieViewerDealPackFixedPrice extends MovieViewerDealPackPrice {
+}
 
-    function __construct($amount) {
-        $this->amount = $amount;
-    }
+class MovieViewerDealPackDiscountPrice extends MovieViewerDealPackPrice {
 }
 
 class MovieViewerDiscountPeriod extends MovieViewerPeriod {
@@ -51,8 +61,8 @@ class MovieViewerDealPack {
         $this->course_id = $course_id;
         $this->pack_number = $pack_number;
         $this->session_ids = $session_ids;
-        $this->fixed_price = new MovieViewerFixedPrice($fixed_price);
-        $this->discount_price = new MovieViewerDiscountPrice($discount_price);
+        $this->fixed_price = $fixed_price;
+        $this->discount_price = $discount_price;
 
         $courses = plugin_movieviewer_get_courses_repository()->find();
         $this->course = $courses->getCourse($this->course_id);
@@ -85,6 +95,10 @@ class MovieViewerDealPack {
             $objects[] = $object;
         }
         return $objects;
+    }
+
+    public function getNumSessions() {
+        return count($this->getSessions());
     }
 
     public function getFixedPrice() {
@@ -126,21 +140,30 @@ class MovieViewerDealBox {
     }
 }
 
+# S4 => Session4つまとめたものって意味
 class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K1Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 20520, 19440);
-        $this->addPack(2, array("05", "06", "07", "08"), 20520, 19440);
-        $this->addPack(3, array("09", "10", "11", "12"), 20520, 19440);
+
+        $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
+        $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
+
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price);
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price);
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price);
     }
 }
 
 class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
     function __construct() {
         parent::__construct("K2Kiso");
-        $this->addPack(1, array("01", "02", "03", "04"), 20520, 19440);
-        $this->addPack(2, array("05", "06", "07", "08"), 20520, 19440);
-        $this->addPack(3, array("09", "10", "11", "12"), 20520, 19440);
+
+        $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
+        $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
+
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price);
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price);
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price);
     }
 }
 

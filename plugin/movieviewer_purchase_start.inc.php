@@ -117,7 +117,7 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
     }
     
     $paygent_settings = $settings->payment->credit->paygent;
-    $generator = new MovieViewerPaygentParameterGenerator($paygent_settings, $user, $offer);
+    $generator = new MovieViewerDealPackPaygentParameterGenerator($paygent_settings, $user, $offer);
 
     $return_params = array(
           "cmd" => "movieviewer_purchase_start"

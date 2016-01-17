@@ -143,26 +143,36 @@ class MovieViewerDealPackOfferMaker {
             }
         }
     }
-
+    
     function createOffer($user, $box, $payment_confirmations) {
-
-        $offer_params = $this->getOfferParams($box, $payment_confirmations);
-
-        if ($offer_params == NULL) {
+        
+        $next_pack = $this->getNextPack($box, $payment_confirmations);        
+        
+        if ($next_pack === NULL) {
             return NULL;
         }
+        
+        $last_confirmation = $this->getLastConfirmation($box, $payment_confirmations);
 
+        if (!$this->canStartOffering($last_confirmation)) {
+            return NULL;
+        }
+        
+        $discount_period = $this->getDiscountPeriod($next_pack, $last_confirmation);
+        
+        $payment_deadline = $this->getPaymentDeadline();
+        
         $bank_transfer = new MovieViewerBankTransfer(
                                   $this->payment_settings["bank_transfer"]["bank_names"]
                                 , $this->payment_settings["bank_transfer"]["bank_accounts"]
                                 , $this->payment_settings["bank_transfer"]["notes"]
-                                , $offer_params["transfer_deadline"]
+                                , $payment_deadline
                             );
 
         $offer = new MovieViewerDealPackOffer(
               $user
-            , $offer_params["next_pack"]
-            , $offer_params["discount_period"]
+            , $next_pack
+            , $discount_period
             , $bank_transfer
         );
 
@@ -173,59 +183,84 @@ class MovieViewerDealPackOfferMaker {
         return $offer;
     }
 
-    function getOfferParams($box, $payment_confirmations) {
+    function getNextPack($box, $payment_confirmations) {
 
+        // 何も購入していない場合は、最初のパック      
+        if (count($payment_confirmations) === 0) {
+            return reset($box->packs);
+        }
+        
+        // 何かしら購入している場合は、最後に購入したパックの次
+        $last_confirmation = $this->getLastConfirmation($box, $payment_confirmations);
+        return $box->getNextPack($last_confirmation->pack_id);
+    }
+    
+    function getDiscountPeriod($pack, $last_payment_confirmation) {
+        
+        /*
+        if ($last_payment_confirmation !== NULL) {
+            $date_end = $last_payment_confirmation->viewing_period->date_end;
+            $date_begin = new DateTime($date_end->modify("first day of -1 month")->format("Y-m-d 23:59:59"));
+            $date_end = new DateTime($date_end->modify("last day of this month")->format("Y-m-d 23:59:59"));
+
+            return new MovieViewerDiscountPeriod($date_begin, $date_end);
+        }
+        */
+        
+        // 基礎1または、直近の視聴期限の1ヶ月前の場合は、割引を行う
+        if ($pack->getId() === "K1Kiso-1" || 
+            ( $last_payment_confirmation != NULL && $last_payment_confirmation->viewing_period->aboutToExpire())
+           ) {
+            $date_begin = new DateTime();
+            $tmp = new DateTime();
+            $date_end = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
+            return new MovieViewerDiscountPeriod($date_begin, $date_end);
+        }
+
+        // それ以外は割引しない
+        return new MovieViewerNeverDiscountPeriod();
+    }
+    
+    function getPaymentDeadline() {
+        // 振込期限は今月の末日
+        $tmp = new DateTime();
+        $last_day_of_this_month = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
+        return new MovieViewerTransferDeadline($last_day_of_this_month->format("Y-m-d H:i:sP"));
+    }
+    
+    function getLastConfirmation($box, $payment_confirmations) {
         $maped_confirmations = array();
         foreach($payment_confirmations as $payment_confirmation) {
             $maped_confirmations[$payment_confirmation->pack_id] = $payment_confirmation;
         }
 
-        $today = new DateTime();
-        $tmp = new DateTime();
-        $last_day_of_this_month = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
-
-        // 割引期限(割引なし)
-        $never_discount = new MovieViewerNeverDiscountPeriod();
-
-        // 割引期限(割引あり)
-        $year_month = date('Y-m');
-        $do_discount = new MovieViewerDiscountPeriod($today, $last_day_of_this_month);
-
-        // デフォルトは割引なし
-        $discount_period = $never_discount;
-
-        // 振込期限は当月月末まで
-        $transfer_deadline = new MovieViewerTransferDeadline($last_day_of_this_month->format("Y-m-d H:i:sP"));
-
+        $last_confirmation = NULL;
         foreach($box->packs as $pack) {
             // 受講していないパックがあればそれを返す
             if (!isset($maped_confirmations[$pack->getId()])) {
-                // 基礎1を買う場合は必ず割引価格にする
-                if ($pack->getId() === "K1Kiso-1") {
-                    $discount_period = $do_discount;
-                }
-
-                return array("next_pack" => $pack, "discount_period" => $discount_period, "transfer_deadline" => $transfer_deadline);
+                return $last_confirmation;
             }
-
-            // 直近に買ったパックの視聴期限が切れている場合は、割引なしで次のパックをオファーする
-            if ($maped_confirmations[$pack->getId()]->viewing_period->isExpired()) {
-                continue;
-            }
-
-            // 直近に買ったパックの視聴期限が1ヶ月前に迫っている場合は、割引ありで次のパックをオファーする
-            if ($maped_confirmations[$pack->getId()]->viewing_period->aboutToExpire()) {
-                $discount_period = $do_discount;
-                continue;
-            }
-
-            // 視聴期限内または、視聴期限が始まっておらず、
-            // かつ、視聴期限まで1ヶ月以上ある場合はオファーをしない(ループを終了する)
-            break;
+            $last_confirmation = $maped_confirmations[$pack->getId()];
+        }
+        
+        return $last_confirmation;
+    }
+    
+    function canStartOffering($last_confirmation) {
+        // 何も購入していない場合は、いつでもオファーを開始できる
+        if ($last_confirmation === NULL) {
+            return TRUE;
         }
 
-        return NULL;
+        // 直近の視聴期限をすぎている場合は、いつでもオファーを開始できる
+        if ($last_confirmation->viewing_period->isExpired()) {
+            return TRUE;
+        }
+        
+        // 直筋の視聴期限の1ヶ月前以降であれば、オファーを開始できる
+        return $last_confirmation->viewing_period->aboutToExpire();
     }
+    
 }
 
 class MovieViewerDealPackPurchaseRequest {

@@ -296,7 +296,7 @@ class MovieViewerPeriod {
         }
 
         $date_calc = new DateTime($date_target->format('Y-m-d H:i:sP'));
-
+        
         return ($date_calc->add(new DateInterval('P1M')) >= $this->date_end);
     }
 }

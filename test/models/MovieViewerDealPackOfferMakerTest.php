@@ -60,6 +60,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
         $this->assertTrue($offer->canDiscount());
+        $this->assertEquals(new DateTime("2015-10-31 23:59:59+09:00"), $offer->getBankTransfer()->deadline);
     }
 
     public function testGetOfferShouldReturnsOfferAlreadyExpired() {
@@ -77,6 +78,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
         $this->assertFalse($offer->canDiscount());
+        $this->assertEquals(new DateTime("2015-11-30 23:59:59+09:00"), $offer->getBankTransfer()->deadline);
     }
 
     public function testGetOffersShouldReturnsNoOfferRemainsMoreThan1Month() {

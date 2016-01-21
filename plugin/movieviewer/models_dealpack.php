@@ -133,6 +133,19 @@ class MovieViewerDealBox {
     public function getPackById($id) {
         return $this->packs[$id];
     }
+    
+    public function getNextPack($id) {
+        reset($this->packs);
+        do {
+            $current = current($this->packs);
+            if ($current->getId() === $id ) {
+                $next = next($this->packs);
+                if ($next === FALSE) { $next = NULL; }
+                return $next;
+            }
+        } while (next($this->packs) !== FALSE);
+        return NULL;
+    }
 
     function addPack($pack_id, $session_ids, $fixed_price, $discount_price) {
         $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price);

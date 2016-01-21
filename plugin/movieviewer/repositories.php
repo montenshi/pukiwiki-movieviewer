@@ -699,7 +699,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
 
         return $objects;
     }
-
+    
     public function findByNotYetStartedUser($user_id) {
 
         $candidates = $this->findByCourse($user_id, "*");

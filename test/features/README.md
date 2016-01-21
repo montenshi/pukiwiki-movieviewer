@@ -5,7 +5,7 @@
      + https://github.com/hnw/php-timecop を参照
      + php.iniを変更した場合は、apacheを再起動すること
   3. 以下のページを作成する (名前は任意)
-     + 会員ページ
+     + マイページ
        - movieviewer_auth, movieviewer_notify_user, movieviewer を呼び出す
        - movieviewer_show_userinfo は任意
      + 申し込み(銀行振込)ページ

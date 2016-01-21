@@ -137,6 +137,7 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
     申し込み内容を確認してください。<br>
     「申し込む」ボタンをクリックすると、クレジットカードの支払いページに移動します。<br>
     支払いページは、提携の決済代行会社ペイジェントのページになります。<br>
+    ※ 当研究所では、会員のみなさまのクレジットカード情報は一切お預かりいたしません。<br>
     </p>
     <p>
     <table class="movieviewer-purchase-request-details">
@@ -242,12 +243,13 @@ function plugin_movieviewer_purchase_start_action() {
         $messages =<<<TEXT
         ご登録のアドレスに振込先等のご案内をお送りしています。<br>
         ご確認の上、お振込を期限までに完了してください。<br>
-        現在の状況を会員ページに戻って、ご確認ください。
+        現在の状況をマイページに戻って、ご確認ください。
 TEXT;
     } else if ($purchase_method === "credit") {
         $messages =<<<TEXT
-        クレジットカードでの支払いが完了しました。
-        現在の状況を会員ページに戻って、ご確認ください。
+        クレジットカードでの支払いが完了しました。<br>
+        現在の状況をマイページに戻って、ご確認ください。<br>
+        
 TEXT;
     }
 
@@ -260,7 +262,7 @@ TEXT;
     $messages
     </p>
     <p>
-    <a href="{$back_uri}">会員ページに戻る</a>
+    <a href="{$back_uri}">マイページに戻る</a>
     </p>
 TEXT;
 

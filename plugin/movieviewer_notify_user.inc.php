@@ -76,16 +76,30 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
 
     $hsc = "plugin_movieviewer_hsc";
 
-    $bank_names_with_notes = nl2br($offer->getBankTransfer()->bank_names_with_notes);
+    $bank_names_with_notes = nl2br($offer->getPaymentGuide()->bank_transfer->bank_names_with_notes);
     $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
+
+    if ($settings->payment->isCreditEnabled()) {
+        $money_transfer_info =<<<TEXT
+        <tr><th rowspan=2>振込先</th><th width=45%>利用可能な銀行</th><th width=45%>利用可能なクレジットカード</th></tr>
+        <tr>
+        <td>{$bank_names_with_notes}</td>
+        <td></td>
+        </tr>
+TEXT;
+    } else {
+        $money_transfer_info =<<<TEXT
+        <tr><th>振込先</th><td colspan=2>{$bank_names_with_notes}</td></tr>
+TEXT;
+    }
 
     $bank_transfer_info =<<<TEXT
     <p>
     <table class="movieviewer-bank-transfer">
-      <tr><th>項目</th><td>{$hsc($offer->describePack())}</td></tr>
-      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
-      <tr><th>振込先</th><td>{$bank_names_with_notes}</td></tr>
-      <tr><th>振込期限</th><td>{$hsc($offer->getBankTransfer()->deadline->format("Y年m月d日"))}まで</td></tr>
+      <tr><th>項目</th><td colspan=2>{$hsc($offer->describePack())}</td></tr>
+      <tr><th>金額</th><td colspan=2>{$price_with_notes}</td></tr>
+      {$money_transfer_info}
+      <tr><th>振込期限</th><td colspan=2>{$hsc($offer->getPaymentGuide()->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>
 TEXT;

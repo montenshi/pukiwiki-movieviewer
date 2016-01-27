@@ -1,1 +1,1 @@
-php -c /vagrant/repos/tests/app/pukiwiki/plugin/movieviewer/php.ini vendor/bin/phpunit --bootstrap vendor/autoload.php models
+php -c /vagrant/repos-pukiwiki-movieviewer/test/php.ini vendor/bin/phpunit --bootstrap vendor/autoload.php models

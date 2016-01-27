@@ -1,20 +1,28 @@
 <?php
 
-class MovieViewerBankTransfer {
+class MovieViewerPaymentGuide {
+    public $bank_transfer;
+    public $deadline;
+    
+    function __construct($bank_transfer, $deadline) {
+        $this->bank_transfer = $bank_transfer;
+        $this->deadline = $deadline;
+    }
+}
+
+class MovieViewerPaymentGuideBankTransfer {
     public $bank_names;
     public $bank_accounts;
     public $notes;
     public $bank_names_with_notes;
     public $bank_accounts_with_notes;
-    public $deadline;
 
-    function __construct($bank_names, $bank_accounts, $notes, $deadline) {
+    function __construct($bank_names, $bank_accounts, $notes) {
         $this->bank_names = $bank_names;
         $this->bank_accounts = $bank_accounts;
         $this->notes = $notes;
         $this->bank_names_with_notes = "{$this->bank_names}\n\n{$this->notes}";
         $this->bank_accounts_with_notes = "{$this->bank_accounts}\n\n{$this->notes}";
-        $this->deadline = $deadline;
     }
 }
 
@@ -23,15 +31,15 @@ class MovieViewerDealPackOffer {
     private $user;
     private $pack;
     private $discount_period;
-    private $bank_transfer;
+    private $payment_guide;
     private $purchase_request = null;
 
-    function __construct($user, $pack, $discount_period, $bank_transfer) {
+    function __construct($user, $pack, $discount_period, $payment_guide) {
         $this->user = $user;
         $this->pack = $pack;
         $this->discount_period = $discount_period;
 
-        $this->bank_transfer = $bank_transfer;
+        $this->payment_guide = $payment_guide;
 
         try {
             $purchase_request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findBy($user->id, $pack->getId());
@@ -85,8 +93,8 @@ class MovieViewerDealPackOffer {
         }
     }
 
-    public function getBankTransfer() {
-        return $this->bank_transfer;
+    public function getPaymentGuide() {
+        return $this->payment_guide;
     }
 
     public function canDiscount() {
@@ -178,18 +186,19 @@ class MovieViewerDealPackOfferMaker {
         
         $payment_deadline = $this->getPaymentDeadline();
         
-        $bank_transfer = new MovieViewerBankTransfer(
+        $bank_transfer = new MovieViewerPaymentGuideBankTransfer(
                                   $this->payment_settings->bank_transfer["bank_names"]
                                 , $this->payment_settings->bank_transfer["bank_accounts"]
                                 , $this->payment_settings->bank_transfer["notes"]
-                                , $payment_deadline
                             );
 
+        $payment_guide = new MovieViewerPaymentGuide($bank_transfer, $payment_deadline);
+        
         $offer = new MovieViewerDealPackOffer(
               $user
             , $next_pack
             , $discount_period
-            , $bank_transfer
+            , $payment_guide
         );
 
         if ($offer->isAccepted()) {

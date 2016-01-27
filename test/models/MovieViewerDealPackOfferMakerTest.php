@@ -8,7 +8,13 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
-        $settings->data["dir"] = dirname(__FILE__) . "/resources";
+        $settings->data["dir"] = "test/models/resources";
+        $settings->payment = new MovieViewerPaymentSettings(
+            Array("bank_transfer" => 
+            Array("bank_names" => Array(), 
+                  "bank_accounts"=>Array(), 
+                  "notes" => ""))
+        );
         $settings->timezone = new DateTimeZone("Asia/Tokyo");
         $this->setGlobalSettings($settings);
     }
@@ -60,7 +66,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
         $this->assertTrue($offer->canDiscount());
-        $this->assertEquals(new DateTime("2015-10-31 23:59:59+09:00"), $offer->getBankTransfer()->deadline);
+        $this->assertEquals(new DateTime("2015-10-31 23:59:59+09:00"), $offer->getPaymentGuide()->deadline);
     }
 
     public function testGetOfferShouldReturnsOfferAlreadyExpired() {
@@ -78,7 +84,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase {
 
         $this->assertEquals("K1Kiso-2", $offer->getPackId());
         $this->assertFalse($offer->canDiscount());
-        $this->assertEquals(new DateTime("2015-11-30 23:59:59+09:00"), $offer->getBankTransfer()->deadline);
+        $this->assertEquals(new DateTime("2015-11-30 23:59:59+09:00"), $offer->getPaymentGuide()->deadline);
     }
 
     public function testGetOffersShouldReturnsNoOfferRemainsMoreThan1Month() {

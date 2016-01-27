@@ -67,8 +67,12 @@ class MovieViewerPaymentSettings {
     
     function __construct($data) {
         $this->bank_transfer = $data["bank_transfer"];
-        $this->extra_methods = $data["extra_methods"];
-        $this->credit = new MovieViewerPaymentCreditSettings($data["credit"]);
+        if (isset($data["extra_methods"])) {
+            $this->extra_methods = $data["extra_methods"];        
+        }
+        if (isset($data["credit"])) {
+            $this->credit = new MovieViewerPaymentCreditSettings($data["credit"]);
+        }
     }
     
     public function isCreditEnabled() {
@@ -77,6 +81,7 @@ class MovieViewerPaymentSettings {
 }
 
 class MovieViewerPaymentCreditSettings {
+    public $acceptable_brands;
     public $paygent;
     
     function __construct($data) {
@@ -476,7 +481,7 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
         parent::__construct($settings);
     }
 
-    public function build($user, $deal_pack_name, $price, $bank_transfer) {
+    public function build($user, $deal_pack_name, $price, $bank_transfer, $deadline) {
 
         $settings_local = $this->settings->template["transfer_information"];
         $mail = $this->createMail($user->mailAddress);
@@ -485,7 +490,7 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
               "user_name" => $user->describe()
             , "deal_pack_name" => $deal_pack_name
             , "bank_accounts_with_notes" => "{$bank_transfer->bank_accounts_with_notes}"
-            , "deadline" => $bank_transfer->deadline->format("Y年m月d日")
+            , "deadline" => $deadline->format("Y年m月d日")
             , "price" => $price
         );
 

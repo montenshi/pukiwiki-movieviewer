@@ -86,7 +86,7 @@ function plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer
     <h2>受講申し込み</h2>
     <p>
     申し込み内容を確認してください。<br>
-    「確認する」ボタンをクリックすると、
+    「申し込み」ボタンをクリックして、申し込みを完了して下さい。<br>
     ご登録されているアドレスに振込先等のご案内をお送りします。
     </p>
     <p>
@@ -102,7 +102,7 @@ function plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer
         <input type="hidden" name="deal_pack_id" value="{$hsc($offer->getPackId())}">
         <input type="hidden" name="purchase_method" value="bank">
         {$input_csrf_token()}
-        <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確認する</button>
+        <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">申し込み</button>
     </form>
 TEXT;
 

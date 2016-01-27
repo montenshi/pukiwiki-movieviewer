@@ -104,7 +104,7 @@ TEXT;
 
     $bank_transfer_info =<<<TEXT
     <p>
-    <table class="movieviewer-bank-transfer">
+    <table class="movieviewer-payment-guide">
       <tr><th>項目</th><td colspan=2>{$hsc($offer->describePack())}</td></tr>
       <tr><th>金額</th><td colspan=2>{$price_with_notes}</td></tr>
       {$money_transfer_info}

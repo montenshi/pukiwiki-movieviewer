@@ -98,16 +98,36 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
       public function お知らせに以下の振込情報が表示されていること(TableNode $table) {
           $page = $this->getSession()->getPage();
 
-          $detail = $page->find('css', '.movieviewer-bank-transfer');
+          $detail = $page->find('css', '.movieviewer-payment-guide');
 
           $actual = array();
-          foreach($detail->findAll('css', 'tr') as $row) {
-              $head = $row->find('css', 'th');
-              $data = $row->find('css', 'td');
+          
+          $rows = $detail->findAll('css', 'tr');
 
-              $actual[$head->getText()] = $data->getText();
+          if (count($rows) === 4) { // クレジットカード支払いが有効でない場合は単純な表なのでヘッダとデータを取り出せば良い
+              foreach($rows as $row) {
+                $head = $row->find('css', 'th');
+                $data = $row->find('css', 'td');
+                $actual[$head->getText()] = $data->getText();
+              }
+          } else { // クレジットカード支払いが有効な場合は、振込先の情報が複数になるので頑張って解析する
+              $actual[$rows[0]->find('css', 'th')->getText()] = $rows[0]->find('css', 'td')->getText();
+              $actual[$rows[1]->find('css', 'th')->getText()] = $rows[1]->find('css', 'td')->getText();
+              $actual[$rows[4]->find('css', 'th')->getText()] = $rows[4]->find('css', 'td')->getText();
+
+              $targets = $rows[3]->findAll('css', 'td');
+              $data = $targets[0]->getText();
+              
+              // クレジットカードは対応するカード会社を画像で表示しているので
+              // ALT属性を取り出して評価することにした
+              $images = $targets[1]->findAll('css', 'img');
+              foreach($images as $image) {
+                  $data .= " " . $image->getAttribute("alt");
+              }
+
+              $actual[$rows[2]->find('css', 'th')->getText()] = $data;
           }
-
+          
           assertEquals($table->getRowsHash(), $actual);
       }
 

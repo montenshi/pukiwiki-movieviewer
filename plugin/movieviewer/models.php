@@ -67,9 +67,11 @@ class MovieViewerPaymentSettings {
     
     function __construct($data) {
         $this->bank_transfer = $data["bank_transfer"];
+
         if (isset($data["extra_methods"])) {
             $this->extra_methods = $data["extra_methods"];        
         }
+
         if (isset($data["credit"])) {
             $this->credit = new MovieViewerPaymentCreditSettings($data["credit"]);
         }
@@ -85,6 +87,7 @@ class MovieViewerPaymentCreditSettings {
     public $paygent;
     
     function __construct($data) {
+        $this->acceptable_brands = $data["acceptable_brands"];
         $this->paygent = $data["paygent"];
     }
 }

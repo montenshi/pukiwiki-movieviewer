@@ -80,11 +80,20 @@ function plugin_movieviewer_notify_user_convert_purchase_offer($user, $params) {
     $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer);
 
     if ($settings->payment->isCreditEnabled()) {
+        $acceptable_brands = "";
+        foreach($offer->getPaymentGuide()->credit_card->acceptable_brands as $brand) {
+            $file_name = "logo_" . strtolower($brand) . ".gif";
+            $acceptable_brand=<<<TEXT
+            <img src="img/{$file_name}" ALT="{$brand}">
+TEXT;
+            $acceptable_brands .= $acceptable_brand;
+        }
+        
         $money_transfer_info =<<<TEXT
         <tr><th rowspan=2>振込先</th><th width=45%>利用可能な銀行</th><th width=45%>利用可能なクレジットカード</th></tr>
         <tr>
         <td>{$bank_names_with_notes}</td>
-        <td></td>
+        <td style='vertical-align:top;'>{$acceptable_brands}</td>
         </tr>
 TEXT;
     } else {

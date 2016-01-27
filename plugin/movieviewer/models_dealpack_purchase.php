@@ -2,10 +2,12 @@
 
 class MovieViewerPaymentGuide {
     public $bank_transfer;
+    public $credit_card;
     public $deadline;
     
-    function __construct($bank_transfer, $deadline) {
+    function __construct($bank_transfer, $credit_card, $deadline) {
         $this->bank_transfer = $bank_transfer;
+        $this->credit_card = $credit_card;
         $this->deadline = $deadline;
     }
 }
@@ -24,6 +26,14 @@ class MovieViewerPaymentGuideBankTransfer {
         $this->bank_names_with_notes = "{$this->bank_names}\n\n{$this->notes}";
         $this->bank_accounts_with_notes = "{$this->bank_accounts}\n\n{$this->notes}";
     }
+}
+
+class MovieViewerPaymentGuideCreditCard {
+    public $acceptable_brands;
+
+    function __construct($acceptable_brands) {
+        $this->acceptable_brands = $acceptable_brands;
+    }    
 }
 
 class MovieViewerDealPackOffer {
@@ -191,8 +201,10 @@ class MovieViewerDealPackOfferMaker {
                                 , $this->payment_settings->bank_transfer["bank_accounts"]
                                 , $this->payment_settings->bank_transfer["notes"]
                             );
+                            
+        $credit_card = new MovieViewerPaymentGuideCreditCard($this->payment_settings->credit->acceptable_brands);
 
-        $payment_guide = new MovieViewerPaymentGuide($bank_transfer, $payment_deadline);
+        $payment_guide = new MovieViewerPaymentGuide($bank_transfer, $credit_card, $payment_deadline);
         
         $offer = new MovieViewerDealPackOffer(
               $user

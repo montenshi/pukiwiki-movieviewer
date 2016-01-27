@@ -1,5 +1,4 @@
-app/pukiwiki/plugin/*/composer.phar
-app/pukiwiki/plugin/*/vendor
-tests/app/pukiwiki/plugin/*/vendor
+plugin/*/vendor
+test/vendor
 *.log
 .DS_Store

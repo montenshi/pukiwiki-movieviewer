@@ -38,6 +38,24 @@ function plugin_movieviewer_now() {
     return new DateTime(null, $settings->timezone);
 }
 
+// 指定した日時の前月1日を返す 時間は00:00:00
+function plugin_movieviewer_get_first_day_of_last_month($target) {
+    $clone = clone $target;
+    return new DateTime($clone->modify("first day of -1 month")->format("Y-m-d 00:00:00"));    
+}
+
+// 指定した日時の前月末日を返す 時間は23:59:59
+function plugin_movieviewer_get_last_day_of_last_month($target) {
+    $clone = clone $target;
+    return new DateTime($clone->modify("last day of -1 month")->format("Y-m-d 23:59:59"));
+}
+
+// 指定した日時の同月末日を返す 時間は23:59:59
+function plugin_movieviewer_get_last_day_of_same_month($target) {
+    $clone = clone $target;
+    return new DateTime($clone->modify("last day of this month")->format("Y-m-d 23:59:59"));
+}
+
 // この文字列が、指定された接頭辞で始まるかどうかを判定します。
 // http://b.0218.jp/20140514163237.html より。
 function plugin_movieviewer_startsWith($haystack, $needle)

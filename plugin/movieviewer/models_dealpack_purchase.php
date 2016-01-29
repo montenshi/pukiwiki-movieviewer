@@ -201,8 +201,12 @@ class MovieViewerDealPackOfferMaker {
                                 , $this->payment_settings->bank_transfer["bank_accounts"]
                                 , $this->payment_settings->bank_transfer["notes"]
                             );
-                            
-        $credit_card = new MovieViewerPaymentGuideCreditCard($this->payment_settings->credit->acceptable_brands);
+
+        $acceptable_brands = Array();
+        if (isset($this->payment_settings->credit)) {
+            $acceptable_brands = $this->payment_settings->credit->acceptable_brands;
+        }
+        $credit_card = new MovieViewerPaymentGuideCreditCard($acceptable_brands);
 
         $payment_guide = new MovieViewerPaymentGuide($bank_transfer, $credit_card, $payment_deadline);
         
@@ -234,23 +238,18 @@ class MovieViewerDealPackOfferMaker {
     
     function getDiscountPeriod($pack, $last_payment_confirmation) {
         
-        /*
+        // 直近の視聴期限の前月1日から前月末日の場合は、割引を行う
         if ($last_payment_confirmation !== NULL) {
-            $date_end = $last_payment_confirmation->viewing_period->date_end;
-            $date_begin = new DateTime($date_end->modify("first day of -1 month")->format("Y-m-d 23:59:59"));
-            $date_end = new DateTime($date_end->modify("last day of this month")->format("Y-m-d 23:59:59"));
+            $date_begin = plugin_movieviewer_get_first_day_of_last_month($last_payment_confirmation->viewing_period->date_end);
+            $date_end   = plugin_movieviewer_get_last_day_of_same_month($date_begin);
 
             return new MovieViewerDiscountPeriod($date_begin, $date_end);
         }
-        */
         
-        // 基礎1または、直近の視聴期限の1ヶ月前の場合は、割引を行う
-        if ($pack->getId() === "K1Kiso-1" || 
-            ( $last_payment_confirmation != NULL && $last_payment_confirmation->viewing_period->aboutToExpire())
-           ) {
+        // 基礎1の場合は、割引を行う
+        if ($pack->getId() === "K1Kiso-1") {
             $date_begin = new DateTime();
-            $tmp = new DateTime();
-            $date_end = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
+            $date_end   = plugin_movieviewer_get_last_day_of_same_month($date_begin);
             return new MovieViewerDiscountPeriod($date_begin, $date_end);
         }
 
@@ -294,8 +293,9 @@ class MovieViewerDealPackOfferMaker {
             return TRUE;
         }
         
-        // 直筋の視聴期限の1ヶ月前以降であれば、オファーを開始できる
-        return $last_confirmation->viewing_period->aboutToExpire();
+        // 直筋の視聴期限の前月1日以降であれば、オファーを開始できる
+        $first_day_of_last_month = plugin_movieviewer_get_first_day_of_last_month($last_confirmation->viewing_period->date_end);
+        return (new DateTime() >= $first_day_of_last_month);
     }
     
 }

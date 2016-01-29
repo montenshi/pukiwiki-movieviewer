@@ -13,7 +13,7 @@ function plugin_movieviewer_show_userinfo_convert() {
     } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
         return '';
     }
-
+    
     $hsc = "plugin_movieviewer_hsc";
 
     $content = <<<TEXT

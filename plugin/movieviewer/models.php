@@ -117,6 +117,11 @@ class MovieViewerUser {
         // 会員番号がAから始まる人はメンテナンスロール
         return plugin_movieviewer_startsWith($this->memberId, "A");
     }
+    
+    public function isTrial() {
+        // 会員番号が数字のみの人は仮会員
+        return mb_ereg_match("^[0-9]", $this->memberId);        
+    }
 
     public function verifyPassword($raw_password) {
         return strcmp($this->hashedPassword, $this->hashPassword($raw_password)) === 0;
@@ -124,7 +129,7 @@ class MovieViewerUser {
 
     public function describe() {
         $value = "";
-        if (strlen($this->memberId) > 0) {
+        if ($this->hasMemberId() && !$this->isTrial()) {
             $value = "{$this->memberId} ";
         }
         $value .= "{$this->lastName} {$this->firstName}";

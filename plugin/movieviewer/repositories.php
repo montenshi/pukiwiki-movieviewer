@@ -747,7 +747,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         $viewing_period = array();
         $viewing_period["date_begin"] = $this->convertToDateTime($yaml["viewing_period"]["date_begin"]);
         $viewing_period["date_end"] = $this->convertToDateTime($yaml["viewing_period"]["date_end"]);
-        $object = new MovieViewerDealPackPaymentConfirmation($yaml["user_id"], $yaml["pack_id"], $date_confirmed, $viewing_period);
+        $object = new MovieViewerDealPackPaymentConfirmation($yaml["user_id"], $yaml["pack_id"], $viewing_period, $date_confirmed);
 
         return $object;
     }

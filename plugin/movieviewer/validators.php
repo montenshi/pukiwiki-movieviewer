@@ -89,4 +89,13 @@ function plugin_movieviewer_validate_purchase_method($id) {
     throw new MovieViewerValidationException();
 }
 
+function plugin_movieviewer_validate_ymd($id) {
+
+    $correct_regex = "^\d{4}-\d{1,2}-\d{1,2}$";
+    if(mb_ereg($correct_regex, $id)) {
+        return;
+    }
+
+    throw new MovieViewerValidationException();
+}
 ?>

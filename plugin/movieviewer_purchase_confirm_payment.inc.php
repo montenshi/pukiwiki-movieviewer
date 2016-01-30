@@ -85,20 +85,66 @@ TEXT;
     $action_url = plugin_movieviewer_get_script_uri() . "?cmd=movieviewer_purchase_confirm_payment&page=$page";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
+    $date_begin = new DateTime();
+    $date_begin = new DateTime($date_begin->format("Y-m-15 00:00:00"));
+    
+    $date_begin_cds = "";
+    for ($index=0; $index<3; $index++) {
+        $value = $date_begin->format("Y-m-d");
+        $id = "viewing_period_date_begin_{$value}";
+        
+        $checked = "";
+        if ($index === 1) {
+            $checked = "checked";
+        }
+        
+        $date_begin_cds .=<<<TEXT
+        <input type=radio id="$id" name="viewing_perod_date_begin" value="{$value}" {$checked}><label for="$id">{$date_begin->format("m月d日")}から</label>
+TEXT;
+
+        $date_begin->modify("+1 month");
+    }
+    
+    $date_begin_more_cds = "";
+    for ($index=0; $index<3; $index++) {
+        $value = $date_begin->format("Y-m-d");
+        $id = "viewing_period_date_begin_{$value}";
+
+        $date_begin_more_cds .=<<<TEXT
+        <input type=radio id="$id" name="viewing_perod_date_begin" value="{$value}"><label for="$id">{$date_begin->format("m月d日")}から</label>
+TEXT;
+
+        $date_begin->modify("+1 month");
+    }
+
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <script src="plugin/movieviewer/movieviewer_purchase_confirm_payment.js"></script>
     <h2>入金確認</h2>
     <p>
       入金が確認できたものにチェックを付けて、確認ボタンを押してください。
     </p>
+    <h4>確認対象</h4>
     <p>
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="confirm">
     {$input_csrf_token()}
     $content_list
+    </p>
+    <p>
+    <h4>視聴開始日</h4>
+    <div id="radio">
+    <p>
+    {$date_begin_cds}
+    <button id="movieviewer-show-more-candidates"><span>もっと先を表示 >></span></button>
+    </p>
+    <p id="movieviewer-more-candidates" style="display:none;">
+    {$date_begin_more_cds}
+    </p>
+    </div>
     </p>
     <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確認</button>
     </form>
@@ -161,6 +207,20 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
         }
         $requests[] = $request;
     }
+    
+    if (count($requests) === 0) {
+        return plugin_movieviewer_action_error_response($page, "申し込みが見つかりません。");
+    }
+
+    $date_begin = filter_input(INPUT_POST, 'viewing_perod_date_begin', FILTER_DEFAULT);
+
+    try {
+        plugin_movieviewer_validate_ymd($date_begin);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
+
+    $date_begin = new DateTime($date_begin);
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -170,7 +230,7 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
         $ctrl_id = $hsc("pr_{$ctrl_value}");
 
         if (!$request->isPaymentConfirmed()) {
-            $confirmation = $request->preConfirmPayment();
+            $confirmation = $request->preConfirmPayment($date_begin);
         } else {
             $confirmation = $request->getPaymentConfirmation();
         }
@@ -202,6 +262,7 @@ TEXT;
     <p>
       以下の申し込みの入金を確定します。確認の上、確定ボタンを押してください。
     </p>
+    <h4>確定対象</h4>
     <p>
     <form action="{$action_url}" method="POST">
     <input type="hidden" name="ope_type" value="execute">
@@ -221,6 +282,7 @@ TEXT;
         {$content_rows}
       <tbody>
     </table>
+    <input type=hidden name="viewing_perod_date_begin" value="{$date_begin->format("Y-m-d")}">
     </p>
     <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">確定</button>
     </form>
@@ -260,8 +322,18 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
         $requests[] = $request;
     }
 
+    $date_begin = filter_input(INPUT_POST, 'viewing_perod_date_begin', FILTER_DEFAULT);
+
+    try {
+        plugin_movieviewer_validate_ymd($date_begin);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
+
+    $date_begin = new DateTime($date_begin);
+
     foreach($requests as $request) {
-        $request->confirmPayment();
+        $request->confirmPayment($date_begin);
     }
 
     $hsc = "plugin_movieviewer_hsc";

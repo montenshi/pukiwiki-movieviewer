@@ -369,13 +369,15 @@ class MovieViewerDealPackPurchaseRequest {
         return plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->exists($this->user_id, $this->pack_id);
     }
 
-    public function preConfirmPayment() {
-        $payment_confirmation = new MovieViewerDealPackPaymentConfirmation($this->user_id, $this->pack_id);
+    public function preConfirmPayment($date_begin = NULL) {
+        $viewing_period = Array();
+        $viewing_period["date_begin"] = $date_begin;
+        $payment_confirmation = new MovieViewerDealPackPaymentConfirmation($this->user_id, $this->pack_id, $viewing_period);
         return $payment_confirmation;
     }
 
-    public function confirmPayment() {
-        $this->payment_confirmation = $this->preConfirmPayment();
+    public function confirmPayment($date_begin = NULL) {
+        $this->payment_confirmation = $this->preConfirmPayment($date_begin);
         $periods = $this->addViewingPeriods($this->payment_confirmation);
 
         plugin_movieviewer_get_viewing_periods_by_user_repository()->store($periods);
@@ -407,7 +409,7 @@ class MovieViewerDealPackPaymentConfirmation {
     public $date_confirmed;
     public $viewing_period;
 
-    function __construct($user_id, $pack_id, $date_confirmed = null, $viewing_period = array()) {
+    function __construct($user_id, $pack_id, $viewing_period = array(), $date_confirmed = null) {
         $this->user_id = $user_id;
         $this->pack_id = $pack_id;
         if ($date_confirmed == null) {

@@ -538,19 +538,26 @@ class MovieViewerAwsCloudFrontUrlBuilder {
         $this->cf_settings = $cf_settings;
     }
 
-    public function buildVideoUrl($course_id, $session_id, $chapter_id, $duration_to_expire = 10) {
+    public function buildVideoRTMPUrl($course_id, $session_id, $chapter_id, $duration_to_expire = 10) {
         $expires = time() + $duration_to_expire;
-        $path = $this->getVideoPath($course_id, $session_id, $chapter_id);
+        $path = $this->getVideoRTMPPath($course_id, $session_id, $chapter_id);
 
         $policy = $this->createPolicy($expires, $path);
 
         $signed_params = array(
-            "url" => "rtmp://{$this->cf_settings['host']['video']}/{$path}",
+            "url" => "rtmp://{$this->cf_settings['host']['video_rtmp']}/{$path}",
             "policy" => $policy
         );
 
         $client = $this->createClient();
         return $client->getSignedUrl($signed_params);
+    }
+    
+    public function buildVideoHLSUrl($course_id, $session_id, $chapter_id, $duration_to_expire = 10) {
+        // HLSの場合はSignedURLではなく、暗号化によるコンテンツ保護を行う
+        // ので、すのままのURLを返す
+        $path = $this->getVideoHLSPath($course_id, $session_id, $chapter_id);
+        return "https://{$this->cf_settings['host']['video_hls']}/{$path}";
     }
 
     public function buildTextUrl($course_id, $session_id) {
@@ -592,9 +599,15 @@ POLICY;
         return $policy;
     }
 
-    function getVideoPath($course_id, $session_id, $chapter_id) {
+    function getVideoRTMPPath($course_id, $session_id, $chapter_id) {
         $course_dir = substr($course_id, 0, 2);
         return "courses/{$course_dir}/{$course_id}{$session_id}_{$chapter_id}.mp4";
+    }
+
+    function getVideoHLSPath($course_id, $session_id, $chapter_id) {
+        $course_dir = substr($course_id, 0, 2);
+        $base = "{$course_id}{$session_id}_{$chapter_id}";
+        return "out/{$course_dir}/{$base}/{$base}.m3u8";
     }
 
     function getTextPath($course_id, $session_id) {

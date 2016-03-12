@@ -57,8 +57,7 @@ TEXT;
         <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
         <script src="plugin/movieviewer/movieviewer.js"></script>
         <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-        <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
-        <script src="//vjs.zencdn.net/4.6/video.js"></script>
+        <link href="//vjs.zencdn.net/5.4/video-js.css" rel="stylesheet">
         $message_env
         <div>
             <h2>視聴可能な単元</h2>
@@ -75,6 +74,8 @@ TEXT;
         <div id="myModal" title="View Movie">
             <div id="myModal_body"></div>
         </div>
+        <script src="http://vjs.zencdn.net/5.4/video.js"></script>
+        <script src="$base_uri/plugin/movieviewer/videojs-contrib-hls.min.js"></script>    
         <script type="text/javascript">
              window.movieviewer = {};
              window.movieviewer.baseUrl = "{$script}";
@@ -198,6 +199,8 @@ function plugin_movieviewer_action(){
         return plugin_movieviewer_action_show_movie();
     } else if ($ope_type === 'download-text') {
         return plugin_movieviewer_action_download_text();
+    } else if ($ope_type === 'download-hls-key') {
+        return plugin_movieviewer_action_download_hls_key();
     }
 
     return plugin_movieviewer_action_invalid_request();
@@ -303,7 +306,8 @@ function plugin_movieviewer_action_show_movie(){
     }
 
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);
-    $signed_path = $builder->buildVideoUrl($target['course'], $target['session'], $target['chapter']);
+    $signed_path_rtmp = $builder->buildVideoRTMPUrl($target['course'], $target['session'], $target['chapter'], 24 * 60 * 60);
+    $signed_path_hls = $builder->buildVideoHLSUrl($target['course'], $target['session'], $target['chapter'], 24 * 60 * 60);
 
     $base_uri = plugin_movieviewer_get_base_uri();
 
@@ -312,7 +316,8 @@ function plugin_movieviewer_action_show_movie(){
     print <<<EOC
 <video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="800" height="500"
        data-setup=''>
-    <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
+    <source src="rtmp://{$cf_settings['host']['video']['rtmp']}/cfx/st/&mp4:{$signed_path_rtmp}" type="rtmp/mp4">
+    <source src="{$signed_path_hls}" type="application/x-mpegURL">
 </video>
 <p>
 最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
@@ -320,4 +325,18 @@ function plugin_movieviewer_action_show_movie(){
 EOC;
     exit();
 }
+
+function plugin_movieviewer_action_download_hls_key() {
+    pkwk_common_headers();
+    header('Content-type: application/octet-stream');
+
+    $settings = MovieViewerSettings::loadFromYaml(PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS);
+    $decrypter = new MovieViewerAwsTranscorderEncriptionKeyDecypter(
+        $settings->aws['kms'], $settings->aws['transcoder']
+    );
+    
+    print $decrypter->execute();  
+    exit();
+}
+
 ?>

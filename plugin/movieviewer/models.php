@@ -2,7 +2,6 @@
 
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/vendor/autoload.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . '/spyc.php');
-use Aws\CloudFront\CloudFrontClient;
 
 // ログの出力 plugins/movieviewer に出力される(10日分)
 class MovieViewerLogger {
@@ -527,79 +526,6 @@ class MovieViewerResetPasswordMailBuilder extends MovieViewerMailBuilder {
         $mail->subject($settings_local["subject"]);
         $mail->text($body);
         return $mail;
-    }
-}
-
-class MovieViewerAwsCloudFrontUrlBuilder {
-
-    private $cf_settings;
-
-    function __construct($cf_settings) {
-        $this->cf_settings = $cf_settings;
-    }
-
-    public function buildVideoUrl($course_id, $session_id, $chapter_id, $duration_to_expire = 10) {
-        $expires = time() + $duration_to_expire;
-        $path = $this->getVideoPath($course_id, $session_id, $chapter_id);
-
-        $policy = $this->createPolicy($expires, $path);
-
-        $signed_params = array(
-            "url" => "rtmp://{$this->cf_settings['host']['video']}/{$path}",
-            "policy" => $policy
-        );
-
-        $client = $this->createClient();
-        return $client->getSignedUrl($signed_params);
-    }
-
-    public function buildTextUrl($course_id, $session_id) {
-        $expires = time() + 10;
-        $path = $this->getTextPath($course_id, $session_id);
-
-        $signed_params = array(
-            "url" => "https://{$this->cf_settings['host']['text']}/{$path}",
-            "expires" => $expires
-        );
-
-        $client = $this->createClient();
-        return $client->getSignedUrl($signed_params);
-    }
-
-    function createClient() {
-        $client_config = array(
-            'key'         => $this->cf_settings['key'],
-            'secret'      => $this->cf_settings['secret'],
-            'private_key' => $this->cf_settings['private_key'],
-            'key_pair_id' => $this->cf_settings['key_pair_id']
-        );
-        return CloudFrontClient::factory($client_config);
-    }
-
-    function createPolicy($expires, $path) {
-        $policy = <<<POLICY
-        {
-            "Statement": [
-                {
-                    "Resource": "{$path}",
-                    "Condition": {
-                        "DateLessThan": {"AWS:EpochTime": {$expires}}
-                    }
-                }
-            ]
-        }
-POLICY;
-        return $policy;
-    }
-
-    function getVideoPath($course_id, $session_id, $chapter_id) {
-        $course_dir = substr($course_id, 0, 2);
-        return "courses/{$course_dir}/{$course_id}{$session_id}_{$chapter_id}.mp4";
-    }
-
-    function getTextPath($course_id, $session_id) {
-        $course_dir = substr($course_id, 0, 2);
-        return "courses/{$course_dir}/{$course_id}{$session_id}.zip";
     }
 }
 ?>

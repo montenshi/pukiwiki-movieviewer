@@ -18,22 +18,26 @@ function plugin_movieviewer_embed_convert(){
     $cf_settings = $settings->aws['cloud_front'];
 
     $builder = new MovieViewerAwsCloudFrontUrlBuilder($cf_settings);
-    $signed_path = $builder->buildVideoUrl($videoopts[0], $videoopts[1], $videoopts[2], 24 * 60 * 60);
+    $signed_path_rtmp = $builder->buildVideoRTMPUrl($videoopts[0], $videoopts[1], $videoopts[2], 24 * 60 * 60);
+    $signed_path_hls = $builder->buildVideoHLSUrl($videoopts[0], $videoopts[1], $videoopts[2], 24 * 60 * 60);
 
     $base_uri = plugin_movieviewer_get_base_uri();
 
+    // videojs-contrib-hls.min.js は Firefox on Mac用 (現時点では)
     $embed = <<<EOC
-    <link href="//vjs.zencdn.net/4.6/video-js.css" rel="stylesheet">
-    <script src="//vjs.zencdn.net/4.6/video.js"></script>
-    <video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="550" height="319" data-setup=''>
-        <source src="rtmp://{$cf_settings['host']['video']}/cfx/st/&mp4:{$signed_path}" type="rtmp/mp4">
+    <link href="http://vjs.zencdn.net/5.4/video-js.css" rel="stylesheet">
+    <video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="550" height="319" 
+           data-setup='{"techOrder":["flash","html5"]}'>
+        <source src="rtmp://{$cf_settings['host']['video']['rtmp']}/cfx/st/&mp4:{$signed_path_rtmp}" type="rtmp/mp4">
+        <source src="{$signed_path_hls}" type="application/x-mpegURL">
     </video>
     <p>
     最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
     </p>
+    <script src="http://vjs.zencdn.net/5.4/video.js"></script>
+    <script src="$base_uri/plugin/movieviewer/videojs-contrib-hls.min.js"></script>    
 EOC;
 
     return $embed;
 }
-
 ?>

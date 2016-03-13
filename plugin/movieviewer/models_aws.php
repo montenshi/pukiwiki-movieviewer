@@ -81,8 +81,8 @@ POLICY;
 
     function getVideoHLSPath($course_id, $session_id, $chapter_id) {
         $course_dir = substr($course_id, 0, 2);
-        $base = "{$course_id}{$session_id}_{$chapter_id}";
-        return "out/{$course_dir}/{$base}/{$base}.m3u8";
+        $base = "{$course_id}{$session_id}_{$chapter_id}_HLSv3_1500";
+        return "courses/{$course_dir}/video/{$base}/{$base}.m3u8";
     }
 
     function getTextPath($course_id, $session_id) {

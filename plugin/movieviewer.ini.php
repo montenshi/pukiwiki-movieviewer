@@ -26,7 +26,14 @@ define('PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR', PLUGIN_MOVIEVIEWER_PLUGIN_DIR . "/m
 define('PLUGIN_MOVIEVIEWER_LOG_DIR', PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR);
 
 # ユーザ設定ファイルを読み込む
-require_once(PLUGIN_MOVIEVIEWER_PLUGIN_DIR . '/movieviewer.ini.user.php');
+$user_ini_file = PLUGIN_MOVIEVIEWER_PLUGIN_DIR . '/movieviewer.ini.user.php';
+if (file_exists($user_ini_file)) {
+    require_once($user_ini_file);
+} else {
+    # ファイルがない場合は開発環境の設定にしておく
+    define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS_USER_DEFAULT', "/vagrant/resources/default/settings.yml");
+    define('PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS_USER_TEST'   , "/vagrant/resources/test/settings.yml");
+}
 
 if (!file_exists(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/.movieviewer_env_feature_test")) {
     define('PLUGIN_MOVIEVIEWER_ENV', '');

@@ -28,23 +28,23 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     /** @BeforeFeature */
     public static function setupFeature(BeforeFeatureScope $scope) {
         // テスト中であることをプラグインに知らせる
-        exec("touch /Users/and/development/projects/montenshi/web/htdocs/.movieviewer_env_feature_test");
+        exec("touch ../../../htdocs/.movieviewer_env_feature_test");
     }
 
     /** @AfterFeature */
     public static function teardownFeature(AfterFeatureScope $scope) {
         // テストが終わったことをプラグインに知らせる
-        exec("rm -f /Users/and/development/projects/montenshi/web/htdocs/.movieviewer_env_feature_test");
+        exec("rm -f ../../../htdocs/.movieviewer_env_feature_test");
     }
 
     /** @BeforeScenario */
     public function before(BeforeScenarioScope $scope) {
         // テストで作成されたデータを削除
-        exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/purchase");
-        exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/users");
+        exec("rm -rf ../../../web/resources-test/purchase");
+        exec("rm -rf ../../../web/resources-test/users");
         // コピー
-        exec("cp -pr ./features/resources/* /Users/and/development/projects/montenshi/web/resources/test");
-        exec("cp -pr ./features/qhmcommu/commu/data/* /Users/and/development/projects/montenshi/web/htdocs/commu/data");
+        exec("cp -pr ./features/resources/* ../../../resources/test");
+        exec("cp -pr ./features/qhmcommu/commu/data/* ../../../htdocs/commu/data");
         // Syncでコピーが終わるまで待機しているつもり
         sleep(2); // 試しに2秒ほど待つ
     }

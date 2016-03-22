@@ -43,8 +43,10 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/purchase");
         exec("rm -rf /Users/and/development/projects/montenshi/web/resources-test/users");
         // コピー
-        exec("cp -pr ./features/resources/* /Users/and/development/projects/montenshi/web/resources-test");
+        exec("cp -pr ./features/resources/* /Users/and/development/projects/montenshi/web/resources/test");
         exec("cp -pr ./features/qhmcommu/commu/data/* /Users/and/development/projects/montenshi/web/htdocs/commu/data");
+        // Syncでコピーが終わるまで待機しているつもり
+        sleep(2); // 試しに2秒ほど待つ
     }
 
     /**

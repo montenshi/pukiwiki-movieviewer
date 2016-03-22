@@ -1,11 +1,11 @@
 settings:
   auth_module:     commu
   data:
-    dir:           /vagrant/resources-test
+    dir:           /vagrant/resources/test/data
   aws:
-    path:          /vagrant/resources-test/aws/settings.yml
+    path:          /vagrant/resources/test/settings/aws/settings.yml
   mail:
-    path:          /vagrant/resources-test/mail.yml
+    path:          /vagrant/resources/test/settings/mail.yml
   contact:
     name:          まるぺけ商会
   payment:

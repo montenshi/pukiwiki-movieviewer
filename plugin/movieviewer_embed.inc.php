@@ -32,10 +32,10 @@ function plugin_movieviewer_embed_convert(){
         <source src="{$signed_path_hls}" type="application/x-mpegURL">
     </video>
     <p>
-    最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+    最大化ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-play.png"> を押した後、表示されます。
     </p>
     <script src="http://vjs.zencdn.net/5.4/video.js"></script>
-    <script src="$base_uri/plugin/movieviewer/videojs-contrib-hls.min.js"></script>    
+    <script src="$base_uri/plugin/movieviewer/assets/js/videojs-contrib-hls.min.js"></script>    
 EOC;
 
     return $embed;

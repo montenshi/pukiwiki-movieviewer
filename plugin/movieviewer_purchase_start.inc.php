@@ -67,7 +67,7 @@ function plugin_movieviewer_purchase_start_convert() {
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     $content_body
 TEXT;
 
@@ -262,7 +262,7 @@ TEXT;
     $hsc = "plugin_movieviewer_hsc";
 
     $content =<<<TEXT
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>受講申し込み完了</h2>
     <p>
     $messages

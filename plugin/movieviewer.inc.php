@@ -23,7 +23,7 @@ function plugin_movieviewer_convert_show_alert($messages){
     plugin_movieviewer_get_auth_manager()->logout();
 
     $body =<<<TEXT
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <p class="caution">動画を見るにはログインが必要です。</p>
 TEXT;
     return $body;
@@ -55,8 +55,8 @@ TEXT;
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
         <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-        <script src="plugin/movieviewer/movieviewer.js"></script>
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+        <script src="plugin/movieviewer/assets/js/movieviewer.js"></script>
+        <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
         <link href="//vjs.zencdn.net/5.4/video-js.css" rel="stylesheet">
         $message_env
         <div>
@@ -75,7 +75,7 @@ TEXT;
             <div id="myModal_body"></div>
         </div>
         <script src="http://vjs.zencdn.net/5.4/video.js"></script>
-        <script src="$base_uri/plugin/movieviewer/videojs-contrib-hls.min.js"></script>    
+        <script src="$base_uri/plugin/movieviewer/assets/js/videojs-contrib-hls.min.js"></script>    
         <script type="text/javascript">
              window.movieviewer = {};
              window.movieviewer.baseUrl = "{$script}";
@@ -320,7 +320,7 @@ function plugin_movieviewer_action_show_movie(){
         <source src="{$signed_path_hls}" type="application/x-mpegURL">
     </video>
     <p>
-    最大化ボタン <img src="$base_uri/plugin/movieviewer/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/images/button-play.png"> を押した後、表示されます。
+    最大化ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-play.png"> を押した後、表示されます。
     </p>
 EOC;
     exit();

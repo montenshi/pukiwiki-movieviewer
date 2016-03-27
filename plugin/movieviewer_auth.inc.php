@@ -117,7 +117,7 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>会員認証</h2>
     <p>以下に、{$label_for_username}、パスワードを入力し「ログインする」ボタンを押して下さい。</p>
     ${body_messages}

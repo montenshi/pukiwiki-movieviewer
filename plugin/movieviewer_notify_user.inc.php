@@ -42,7 +42,7 @@ function plugin_movieviewer_notify_user_convert(){
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/asets/css/movieviewer.css" rel="stylesheet">
     <h2>お知らせ</h2>
     <div class="movieviewer-notices">
     $purchase_offer

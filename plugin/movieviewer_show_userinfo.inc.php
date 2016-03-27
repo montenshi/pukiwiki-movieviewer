@@ -17,7 +17,7 @@ function plugin_movieviewer_show_userinfo_convert() {
     $hsc = "plugin_movieviewer_hsc";
 
     $content = <<<TEXT
-        <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+        <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
         <div><span class="movieviewer-lead">{$hsc($user->describe())}様</span></div>
 TEXT;
 

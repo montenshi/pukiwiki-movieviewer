@@ -121,8 +121,8 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
-    <script src="plugin/movieviewer/movieviewer_purchase_confirm_payment.js"></script>
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
+    <script src="plugin/movieviewer/assets/css/movieviewer_purchase_confirm_payment.js"></script>
     <h2>入金確認</h2>
     <p>
       入金が確認できたものにチェックを付けて、確認ボタンを押してください。
@@ -257,7 +257,7 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>入金確認(最終確認)</h2>
     <p>
       以下の申し込みの入金を確定します。確認の上、確定ボタンを押してください。
@@ -358,7 +358,7 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>入金確認完了</h2>
     <p>
       以下の申し込みの入金を確定しました。

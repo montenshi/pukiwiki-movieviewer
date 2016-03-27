@@ -55,6 +55,7 @@ require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/dealpack.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/dealpack_purchase.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/payment.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/aws.php");
+require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/notifier.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/repositories.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/validators.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/managers.php");

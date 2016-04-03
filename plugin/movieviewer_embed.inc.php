@@ -34,7 +34,7 @@ function plugin_movieviewer_embed_convert(){
     <p>
     最大化ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-play.png"> を押した後、表示されます。
     </p>
-    <script src="http://vjs.zencdn.net/5.4/video.js"></script>
+    <script src="https://vjs.zencdn.net/5.4/video.js"></script>
     <script src="$base_uri/plugin/movieviewer/assets/js/videojs-contrib-hls.min.js"></script>    
 EOC;
 

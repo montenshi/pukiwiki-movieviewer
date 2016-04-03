@@ -74,7 +74,7 @@ TEXT;
         <div id="myModal" title="View Movie">
             <div id="myModal_body"></div>
         </div>
-        <script src="http://vjs.zencdn.net/5.4/video.js"></script>
+        <script src="https://vjs.zencdn.net/5.4/video.js"></script>
         <script src="$base_uri/plugin/movieviewer/assets/js/videojs-contrib-hls.min.js"></script>    
         <script type="text/javascript">
              window.movieviewer = {};

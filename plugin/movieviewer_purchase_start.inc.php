@@ -151,6 +151,11 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
       <tr><th>金額</th><td>{$price_with_notes}</td></tr>
     </table>
     </p>
+    <p>
+
+    ※　クレジット決済画面の表示後、５日以内に入金を完了させてください。<br>
+    期限が過ぎると、クレジット決済画面が表示されなくなり、入金できなくなります。
+    </p>
     <form action="{$paygent_settings["request_uri"]}" method="post">
         <input type="hidden" name="trading_id" value="{$generator->getTradingId()}">
         <input type="hidden" name="id" value="{$generator->getId()}">

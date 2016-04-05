@@ -174,7 +174,7 @@ TEXT;
 
         $list = "";
         foreach ($objects as $object) {
-            $message = "<br>入金が確認できました。<br>受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')} までもうしばらくお待ちください。<br>基礎コース１年目第１回～第４回以外の受講開始はマイページでの視聴可能をもって開始といたします。<br>メールでのご連絡はありませんので、開始日にご注意ください。";
+            $message = "<br>入金が確認できました。<br>受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')} までもうしばらくお待ちください。<br>基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。";
             $list .= <<<TEXT
             <li>{$object->getPack()->describe()} {$message}</li>
 TEXT;

@@ -1,11 +1,12 @@
 smtp:
-  host: tls://smtp.gmail.com
-  port: 465
-  from: @@@EDIT_IT@@@
-  protocol: SMTP_AUTH
-  user: @@@EDIT_IT@@@
-  password: @@@EDIT_IT@@@
-  qdmail_debug: 2
+  host: 172.16.1.1
+  smtp_auth: false
+  encryption_protocol: 
+  port: 5000
+  user: aaa@bbb.ccc
+  password: hogehoge
+  charset: utf-8
+  from: aaa@bbb.ccc
 template:
   reset_password:
     subject: てんしのおうち：動画配信会員 パスワード再設定手続きのお知らせ

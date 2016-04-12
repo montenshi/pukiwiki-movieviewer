@@ -169,7 +169,8 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
     }
     
     public function store($object) {
-        throw new Exception("Not Implement");
+        $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
+        $db->update(array("id" => $object->commuId, "password" => $object->hashedPassword), "\$id=='{$object->commuId}'");
     }
 
     function isAdmin($id) {
@@ -426,62 +427,13 @@ class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepos
 
         $this->cleanUpToken($object->user_id);
 
-        $file_path = $this->getFilePath($object->id, $object->user_id);
-
-        $fp = fopen($file_path, 'w');
-
-        if ($fp === FALSE) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
-
-            throw new MovieViewerRepositoryObjectCantStoreException();
-        }
-
-        if (!flock($fp, LOCK_EX)) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルのロックに失敗", array("file" => $file_path));
-
-            fclose($fp);
-            throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロックに失敗");
-        }
-
         $data = array();
         $data["id"] = $object->id;
         $data["user_id"] = $object->user_id;
         $data["date_expire"] = $object->date_expire->format(self::DEFAULT_DATETIME_FORMAT);
 
-        if (fputs($fp, Spyc::YAMLDump($data)) === FALSE) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルの書きこみに失敗", array("file" => $file_path));
-
-            flock($fp, LOCK_UN);
-            fclose($fp);
-            throw new MovieViewerRepositoryObjectCantStoreException("ファイルの書きこみに失敗");
-        }
-
-        if (fflush($fp) === FALSE) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルのフラッシュに失敗", array("file" => $file_path));
-
-            flock($fp, LOCK_UN);
-            fclose($fp);
-            throw new MovieViewerRepositoryObjectCantStoreException("ファイルのフラッシュに失敗");
-        }
-
-        if (!flock($fp, LOCK_UN)) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルのロック解除に失敗", array("file" => $file_path));
-
-            fclose($fp);
-            throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロック解除に失敗");
-        }
-
-        if (!fclose($fp)) {
-            MovieViewerLogger::getLogger()->addError(
-                "ファイルのクローズに失敗", array("file" => $file_path));
-
-            throw new MovieViewerRepositoryObjectCantStoreException("ファイルのクローズに失敗");
-        }
+        $file_path = $this->getFilePath($object->id, $object->user_id);
+        $this->storeToYaml($file_path, $data);
     }
 
     public function delete($object) {

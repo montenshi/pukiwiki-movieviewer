@@ -97,7 +97,7 @@ function plugin_movieviewer_convert_error_response($message) {
     $hsc = "plugin_movieviewer_hsc";
 
     $content =<<<TEXT
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <p class="caution">{$hsc($message)}</p>
 TEXT;
 
@@ -116,7 +116,7 @@ function plugin_movieviewer_abort($message) {
 
     header('Content-type: text/html; charset=UTF-8');
     print <<<EOC
-    <link href="plugin/movieviewer/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <p class="caution">{$hsc($message)}</p>
 EOC;
     exit();

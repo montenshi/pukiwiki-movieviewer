@@ -25,7 +25,7 @@ function plugin_movieviewer_embed_convert(){
 
     // videojs-contrib-hls.min.js は Firefox on Mac用 (現時点では)
     $embed = <<<EOC
-    <link href="http://vjs.zencdn.net/5.4/video-js.css" rel="stylesheet">
+    <link href="//vjs.zencdn.net/5.4/video-js.css" rel="stylesheet">
     <video id="my_video_1" class="video-js vjs-default-skin vjs-big-play-centered" preload="auto" controls width="550" height="319" 
            data-setup='{"techOrder":["flash","html5"]}'>
         <source src="rtmp://{$cf_settings['host']['video']['rtmp']}/cfx/st/&mp4:{$signed_path_rtmp}" type="rtmp/mp4">

@@ -245,7 +245,7 @@ function plugin_movieviewer_purchase_start_action() {
 
         if (!$result) {
             MovieViewerLogger::getLogger()->addError(
-                "案内通知エラー", array("error_statement"=>$mail->errorStatment())
+                "案内通知エラー", array("error_statement"=>$mail->ErrorInfo)
             );
 
             return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");

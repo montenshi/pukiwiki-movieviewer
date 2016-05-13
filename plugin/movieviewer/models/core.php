@@ -442,31 +442,31 @@ class MovieViewerMailBuilder {
     }
 
     function createMail($mail_to) {
-        $params = $this->createParams();
-        $mail = new Qdmail();
-        $mail->smtp(true);
-        $mail->smtpServer($params);
-        $mail->to($mail_to);
-        $mail->from($this->settings->smtp["from"]);
-        $mail->errorDisplay(false);
+        $mail = new PHPMailer();
+        $mail->IsHTML(false);
+        
+        $mail->IsSMTP();
+        $mail->Host = $this->settings->smtp["host"];
+        $mail->SMTPAuth = $this->settings->smtp["smtp_auth"];
+        if (isset($this->settings->smtp["encryption_protocol"])) {
+            $mail->SMTPSecure = $this->settings->smtp["encryption_protocol"];
+        }
+        $mail->Port = $this->settings->smtp["port"];
 
-        if (isset($this->settings->smtp["qdmail_debug"])) {
-            $mail->debug($this->settings->smtp["qdmail_debug"]);
+        $mail->Username = $this->settings->smtp["user"];
+        $mail->Password = $this->settings->smtp["password"]; 
+        $mail->CharSet = $this->settings->smtp["charset"];
+
+        $mail->SetFrom($this->settings->smtp["from"]);
+        $mail->From = $this->settings->smtp["from"];
+        $mail->AddAddress($mail_to);
+
+        $mail->SMTPDebug = 0;
+        if (isset($this->settings->smtp["debug"])) {
+            $mail->SMTPDebug = 1;
         }
 
         return $mail;
-    }
-
-    function createParams() {
-        $params = array(
-              'host'     => $this->settings->smtp["host"]
-            , 'port'     => $this->settings->smtp["port"]
-            , 'from'     => $this->settings->smtp["from"]
-            , 'protocol' => $this->settings->smtp["protocol"]
-            , 'user' => $this->settings->smtp["user"]
-            , 'pass' => $this->settings->smtp["password"]
-        );
-        return $params;
     }
 
     function renderBody($template, $params) {
@@ -503,8 +503,8 @@ class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerM
 
         $body = $this->renderBody($settings_local["body"], $params);
 
-        $mail->subject($settings_local["subject"]);
-        $mail->text($body);
+        $mail->Subject = $settings_local["subject"];
+        $mail->Body = $body;
         return $mail;
     }
 
@@ -523,8 +523,8 @@ class MovieViewerResetPasswordMailBuilder extends MovieViewerMailBuilder {
 
         $body = $this->renderBody($settings_local["body"], array('reset_url' => $reset_url));
 
-        $mail->subject($settings_local["subject"]);
-        $mail->text($body);
+        $mail->Subject = $settings_local["subject"];
+        $mail->Body = $body;
         return $mail;
     }
 }

@@ -43,19 +43,20 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>パスワードの再設定</h2>
     <p>以下に、ユーザー名を入力し「メールを送る」ボタンを押して下さい。<br>
     登録しているメールアドレスにパスワード再設定手続きのお知らせメールが届きます。</p>
     ${body_messages}
-    <form action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
+    <form class="movieviewer" action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
         <input type="hidden" name="ope_type" value="request">
         <input type="hidden" name="page" value="$page">
         {$input_csrf_token()}
         <fieldset style="margin-bottom:10px;">
             <label for="movieviewer_user">ユーザ名</label>
-            <input class="text ui-widget-content ui-corner-all" type="text" id="movieviewer_user" name="movieviewer_user">
+            <input type="text" id="movieviewer_user" name="movieviewer_user" size=50>
         </fieldset>
-        <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">メールを送る</button>
+        <button class="movieviewer-button" type="submit">メールを送る</button>
     </form>
 TEXT;
     return $body;
@@ -100,7 +101,7 @@ function plugin_movieviewer_reset_password_action_request(){
         return plugin_movieviewer_reset_password_error("不正なリクエストです。");
     }
 
-    $user_id = filter_iput(INPUT_POST, 'movieviewer_user');
+    $user_id = filter_input(INPUT_POST, 'movieviewer_user');
 
     try {
         $user = plugin_movieviewer_get_user_repository()->findById($user_id);
@@ -196,22 +197,25 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>パスワードのリセット</h2>
     <div><span style="font-size:1.2em;font-weight:bold;">{$hsc($user->describe())}様</span></div>
     <p>以下に、パスワードを入力し「パスワードをリセットする」ボタンを押して下さい。</p>
     ${body_messages}
-    <form action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
+    <form class="movieviewer" action="index.php?cmd=movieviewer_reset_password" METHOD="POST">
         <input type="hidden" name="ope_type" value="reset">
-        <input type="hidden" name="page" value="$hsc($page)">
-        <input type="hidden" name="token" value="$hsc($token->id)">
+        <input type="hidden" name="page" value="{$hsc($page)}">
+        <input type="hidden" name="token" value="{$hsc($token->id)}">
         {$input_csrf_token()}
-        <fieldset style="margin-bottom:10px;">
-            <label for="movieviewer_user">パスワード</label>
-            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password" name="movieviewer_password">
-            <label for="movieviewer_user">パスワード(確認)</label>
-            <input class="text ui-widget-content ui-corner-all" type="password" id="movieviewer_password_confirm" name="movieviewer_password_confirm">
+        <fieldset>
+            <label for="movieviewer_password">パスワード</label>
+            <input type="password" id="movieviewer_password" name="movieviewer_password" size=50>
         </fieldset>
-        <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" style="width: 7em;">パスワードをリセットする</button>
+        <fieldset>
+            <label for="movieviewer_password_confirm">パスワード(確認)</label>
+            <input type="password" id="movieviewer_password_confirm" name="movieviewer_password_confirm" size=50>
+        </fieldset>
+        <button class="movieviewer-button" type="submit">パスワードをリセットする</button>
     </form>
 TEXT;
     return $body;

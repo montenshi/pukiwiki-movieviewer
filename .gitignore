@@ -2,3 +2,4 @@ plugin/*/vendor
 test/vendor
 *.log
 .DS_Store
+nbproject/

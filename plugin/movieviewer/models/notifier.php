@@ -192,4 +192,10 @@ TEXT;
     }
 }
 
+class MovieViewerReportNotifier extends MovieViewerNotifier {
+    public function generateMessage($user, $context) {
+          return " <a href='https://ws.formzu.net/fgen/S75172099/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>Ｎ基礎コース1年目第５～８回レポート提出</a>";
+              
+    }
+}
 ?>

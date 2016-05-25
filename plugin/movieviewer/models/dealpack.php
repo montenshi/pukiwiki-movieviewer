@@ -55,14 +55,16 @@ class MovieViewerDealPack {
     private $session_ids = array();
     private $fixed_price;
     private $discount_price;
+    private $report_form_id;
     private $course;
 
-    function __construct($course_id, $pack_number, $session_ids, $fixed_price, $discount_price) {
+    function __construct($course_id, $pack_number, $session_ids, $fixed_price, $discount_price, $report_form_id) {
         $this->course_id = $course_id;
         $this->pack_number = $pack_number;
         $this->session_ids = $session_ids;
         $this->fixed_price = $fixed_price;
         $this->discount_price = $discount_price;
+        $this->report_form_id = $report_form_id;
 
         $courses = plugin_movieviewer_get_courses_repository()->find();
         $this->course = $courses->getCourse($this->course_id);
@@ -109,6 +111,10 @@ class MovieViewerDealPack {
         return $this->discount_price;
     }
 
+    public function getReportFormId() {
+        return $this->report_form_id;
+    }
+
     public function describe() {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
@@ -147,8 +153,8 @@ class MovieViewerDealBox {
         return NULL;
     }
 
-    function addPack($pack_id, $session_ids, $fixed_price, $discount_price) {
-        $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price);
+    function addPack($pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id) {
+        $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id);
         $this->packs[$pack->getId()] = $pack;
     }
 }
@@ -161,9 +167,9 @@ class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
         $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
         $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
 
-        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price);
-        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price);
-        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price);
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price, "S9041343");
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price, "S75172099");
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "");
     }
 }
 

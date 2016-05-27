@@ -31,9 +31,9 @@ function plugin_movieviewer_notify_user_convert(){
     }
 
     $notifiers = array();
+    $notifiers[] = new MovieViewerReportNotifier();
     $notifiers[] = new MovieViewerPurchaseOfferNotifier();
     $notifiers[] = new MovieViewerPurchaseStatusNotifier();
-    $notifiers[] = new MovieViewerReportNotifier();
     
     $messages = array();
     foreach($notifiers as $notifier) {

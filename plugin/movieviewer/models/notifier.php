@@ -199,8 +199,16 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
         $pack = $box->getPackById("K2Kiso-1");
         //return $pack->describe();
         
-        return " <a href='https://ws.formzu.net/fgen/{$pack->getReportFormId()}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>{$pack->describe()}</a>";
-              
+       return "<h3 id='content_1_1'>{$pack->describe()}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>　　　　提出はこちらから→　<a href='https://ws.formzu.net/fgen/{$pack->getReportFormId()}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>{$pack->describe()}</a><br><br>";
+
+        /*
+            $context =<<<TEXT
+            <p>
+            {$pack->describe()}のレポート提出期間中です。
+            </p>
+            <Dev  Align="right"><a href='https://ws.formzu.net/fgen/{$pack->getReportFormId()}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>{$pack->describe()}</a></Dev>
+TEXT;     
+         */         
     }
 }
 ?>

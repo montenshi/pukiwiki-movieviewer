@@ -219,8 +219,8 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
                  $reportName = $pack->describe();
                  $reportLinkId = $pack->getReportFormId();
 
-                 print_r($reportName);
-                 print_r("　".$reportDeadline);
+             //    print_r($reportName);
+             //    print_r("　".$reportDeadline);
                  
               // ＊＊＊＊　ここからは　Ｎ３期生　１～４回レポート対応
                 $reportDeadline = "７月１４日";

@@ -198,7 +198,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
 
         if (mb_ereg_match('N1-',$user->memberId) == TRUE){    //N1- 会員の場合、非表示
                 return;
-        }   elseif ((mb_ereg_match('N0-',$user->memberId)) == false){    //N0- 会員以外の場合、非表示
+        }   elseif ((mb_ereg_match('N3-',$user->memberId)) == false){    //N0- 会員以外の場合、非表示
             return;
         }        
 
@@ -209,7 +209,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
         
        // 以降で、N3-会員の場合のみ、レポート表示
        // 基礎１年目第１回～第４回のレポート表示　　６月１日以降
-        $reportStart = "16-05-28";   //　レポート開始日　2016年６月１日
+        $reportStart = "16-06-01";   //　レポート開始日　2016年６月１日
         $reportEnd = "16-07-14";     //　レポート終了日　2016年７月１４日
         $reportDeadline ="";
         $reportName ="";

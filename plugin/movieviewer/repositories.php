@@ -663,7 +663,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
 
         return file_exists($file_path);
     }
-
+    
     public function findById($confirmation_id) {
         list($user_id, $pack_id) = mb_split("###", $confirmation_id, 2);
 

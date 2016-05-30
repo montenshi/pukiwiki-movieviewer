@@ -40,8 +40,8 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
     /** @BeforeScenario */
     public function before(BeforeScenarioScope $scope) {
         // テストで作成されたデータを削除
-        exec("rm -rf ../../../web/resources-test/purchase");
-        exec("rm -rf ../../../web/resources-test/users");
+        exec("rm -rf ../../../resources/test/data/purchase");
+        exec("rm -rf ../../../resources/test/data/users");
         // コピー
         exec("cp -pr ./features/resources/* ../../../resources/test");
         exec("cp -pr ./features/qhmcommu/commu/data/* ../../../htdocs/commu/data");

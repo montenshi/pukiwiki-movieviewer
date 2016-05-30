@@ -2,5 +2,6 @@
     "require": {
           "aws/aws-sdk-php": "2.*"
         , "monolog/monolog": "@stable"
+        , "phpmailer/phpmailer": "~5.2"
     }
 }

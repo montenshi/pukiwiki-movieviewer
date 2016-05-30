@@ -174,17 +174,18 @@ TEXT;
 
         $list = "";
         foreach ($objects as $object) {
-            $message = "<br><h3 id='content_1_1'>入金が確認できました。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3><br>受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')} までもうしばらくお待ちください。<br>基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。";
             $list .= <<<TEXT
-            <li>{$object->getPack()->describe()} {$message}</li>
+            <li>{$object->getPack()->describe()} (受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')})</li>
 TEXT;
         }
 
         $content =<<<TEXT
         <div class="movieviewer-notice movieviewer-notice-purchase-status">
+        <h3 id='content_1_1'>入金が確認できました。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
         <ul>
         $list
         </ul>
+        <p>※基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。</p>
         </div>
 TEXT;
 
@@ -236,7 +237,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
 
         $context =<<<TEXT
         <h3 id='content_1_1'>{$reportName}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
-         　レポートの提出期限は{$reportDeadline}までです。
+        レポートの提出期限は{$reportDeadline}までです。
         <div align="right">提出はこちらから→　
         <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
         {$pack->describe()}</a></div><br>

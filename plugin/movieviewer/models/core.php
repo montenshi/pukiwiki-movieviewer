@@ -99,7 +99,7 @@ class MovieViewerUser {
     public $hashedPassword = '';
     public $memberId = '';
     public $selected_courses = array('K1Kiso');
-
+    
     public function setPassword($raw_password) {
         $this->hashedPassword = $this->hashPassword($raw_password);
     }
@@ -140,6 +140,18 @@ class MovieViewerUser {
         return new MovieViewerUserResetPasswordToken($this->id);
     }
 
+    public function getLastDealPackConfirmation() {
+
+        $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
+        $confirmations = $repo->findByCourse($this->id, "*");
+        
+        if (count($confirmations) === 0) {
+            return NULL;
+        }
+
+        return end($confirmations);    
+    }
+    
     protected function hashPassword($raw_password) {
         return hash("sha512", $raw_password);
     }

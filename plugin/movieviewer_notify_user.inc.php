@@ -31,6 +31,7 @@ function plugin_movieviewer_notify_user_convert(){
     }
 
     $notifiers = array();
+    $notifiers[] = new MovieViewerReportNotifier();
     $notifiers[] = new MovieViewerPurchaseOfferNotifier();
     $notifiers[] = new MovieViewerPurchaseStatusNotifier();
     
@@ -46,7 +47,7 @@ function plugin_movieviewer_notify_user_convert(){
         return '';
     }
     
-    $messages_flat = implode("¥n", $messages);
+    $messages_flat = implode("\r\n", $messages);
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>

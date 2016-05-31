@@ -85,7 +85,7 @@ TEXT;
 
             $offer_message =<<<TEXT
             <p>
-            {$hsc($offer->describePack())}の受講申し込みができるようになりました。
+            <h3 id='content_1_1'>{$hsc($offer->describePack())}の受講申し込みができるようになりました。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
             </p>
             $bank_transfer_info
             <p>
@@ -98,7 +98,7 @@ TEXT;
         } else {
             $offer_message =<<<TEXT
             <p>
-            {$hsc($offer->describePack())}の受講申し込みができます。
+            <h3 id='content_1_1'>{$hsc($offer->describePack())}の受講申し込みができます。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
             </p>
             $bank_transfer_info
             <p>
@@ -147,7 +147,7 @@ TEXT;
 
         $message =<<<TEXT
         <p>
-        以下の受講セットを申し込んでいます。<br>
+        <h3 id='content_1_1'>以下の受講セットを申し込んでいます。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
         </p>
         <ul>
             $list
@@ -174,17 +174,18 @@ TEXT;
 
         $list = "";
         foreach ($objects as $object) {
-            $message = "<br>入金が確認できました。<br>受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')} までもうしばらくお待ちください。<br>基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。";
             $list .= <<<TEXT
-            <li>{$object->getPack()->describe()} {$message}</li>
+            <li>{$object->getPack()->describe()} (受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')})</li>
 TEXT;
         }
 
         $content =<<<TEXT
         <div class="movieviewer-notice movieviewer-notice-purchase-status">
+        <h3 id='content_1_1'>入金が確認できました。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
         <ul>
         $list
         </ul>
+        <p>※基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。</p>
         </div>
 TEXT;
 
@@ -192,4 +193,57 @@ TEXT;
     }
 }
 
+class MovieViewerReportNotifier extends MovieViewerNotifier {
+    public function generateMessage($user, $context) {
+
+        if (mb_ereg_match('N1-',$user->memberId) == TRUE){    //N1- 会員の場合、非表示
+                return;
+        }   elseif ((mb_ereg_match('N3-',$user->memberId)) == false){    //N0- 会員以外の場合、非表示
+            return;
+        }        
+
+ 
+        $confirmation = $user->getLastDealPackConfirmation();
+        $pack = $confirmation->getPack();
+        // $viewing_period["date_end"]
+        
+       // 以降で、N3-会員の場合のみ、レポート表示
+       // 基礎１年目第１回～第４回のレポート表示　　６月１日以降
+        $reportStart = "16-06-01";   //　レポート開始日　2016年６月１日
+        $reportEnd = "16-07-14";     //　レポート終了日　2016年７月１４日
+        $reportDeadline ="";
+        $reportName ="";
+        $reportLinkId ="";
+        
+        if ((date('y-m-d')  >= $reportStart ) and (date('y-m-d')  <= $reportEnd)) {
+                 $reportDeadline = $confirmation->viewing_period->date_end->format('m月d日');
+                 $reportName = $pack->describe();
+                 $reportLinkId = $pack->getReportFormId();
+
+             //    print_r($reportName);
+             //    print_r("　".$reportDeadline);
+                 
+              // ＊＊＊＊　ここからは　Ｎ３期生　１～４回レポート対応
+                $reportDeadline = "７月１４日";
+                $reportName = "基礎コース１年目 第１回～第４回";
+                $reportLinkId = "S9041343";
+              // ＊＊＊＊　対応End
+
+        } else {
+                 return;
+        }
+        
+        //return $reportDeadline;
+
+        $context =<<<TEXT
+        <h3 id='content_1_1'>{$reportName}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
+        レポートの提出期限は{$reportDeadline}までです。
+        <div align="right">提出はこちらから→　
+        <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
+        {$pack->describe()}</a></div><br>
+TEXT;
+        return $context;
+        }
+    
+}
 ?>

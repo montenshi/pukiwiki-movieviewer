@@ -240,7 +240,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
         レポートの提出期限は{$reportDeadline}までです。
         <div align="right">提出はこちらから→　
         <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
-        {$pack->describe()}</a></div><br>
+        {$reportName}</a></div><br>
 TEXT;
         return $context;
         }

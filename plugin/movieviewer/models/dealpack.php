@@ -124,7 +124,7 @@ class MovieViewerDealPack {
     public function describeShort() {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
-        return "{$this->getCourse()->describeShort()} {$first_session->describeShort()}～{$last_session->describeShort()}";
+        return "{$this->getCourse()->describeShort()}{$first_session->describeShort()}～{$last_session->describeShort()}";
     }
 }
 

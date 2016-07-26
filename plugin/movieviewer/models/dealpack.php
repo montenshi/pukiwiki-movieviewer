@@ -137,7 +137,10 @@ class MovieViewerDealBox {
     }
 
     public function getPackById($id) {
-        return $this->packs[$id];
+        if (array_key_exists($id, $this->packs)) {
+            return $this->packs[$id];
+        }
+        return NULL;
     }
     
     public function getNextPack($id) {
@@ -180,9 +183,9 @@ class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
         $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
         $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
 
-        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price);
-        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price);
-        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price);
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price, "");
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price, "");
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "");
     }
 }
 

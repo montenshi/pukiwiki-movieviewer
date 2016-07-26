@@ -652,6 +652,24 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
     
+    public function findValidsByCourse($user_id, $date_target = null) {
+        if ($date_target === null) {
+            $date_target = plugin_movieviewer_now();
+        }
+
+        $data_dir = $this->getGlobPathByCourse($user_id, "*");
+
+        $objects = array();
+        foreach( glob($data_dir) as $file_path ) {
+            $object = $this->createObject($file_path);
+            if ( $object->viewing_period->isBetween($date_target) ) {
+                $objects[] = $object;
+            }
+        }
+
+        return $objects;
+    }
+
     public function findByNotYetStartedUser($user_id) {
 
         $candidates = $this->findByCourse($user_id, "*");

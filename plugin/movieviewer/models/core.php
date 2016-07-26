@@ -151,6 +151,13 @@ class MovieViewerUser {
 
         return end($confirmations);    
     }
+
+    public function getValidDealPackConfirmations() {
+        $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
+        $confirmations = $repo->findValidsByUser($this->id);
+        
+        return $valid_confirmations;
+    }
     
     protected function hashPassword($raw_password) {
         return hash("sha512", $raw_password);

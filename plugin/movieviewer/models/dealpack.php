@@ -172,7 +172,7 @@ class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
 
         $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price, "S9041343");
         $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price, "S75172099");
-        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "");
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "S70745104");
     }
 }
 

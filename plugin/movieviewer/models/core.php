@@ -156,7 +156,7 @@ class MovieViewerUser {
         $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
         $confirmations = $repo->findValidsByUser($this->id);
         
-        return $valid_confirmations;
+        return $confirmations;
     }
     
     protected function hashPassword($raw_password) {

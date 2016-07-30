@@ -652,7 +652,7 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
     
-    public function findValidsByCourse($user_id, $date_target = null) {
+    public function findValidsByUser($user_id, $date_target = null) {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }

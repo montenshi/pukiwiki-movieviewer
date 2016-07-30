@@ -12,9 +12,11 @@ class MovieViewerTestCase extends PHPUnit_Framework_TestCase {
 
         chdir('../');
         require_once('plugin/movieviewer/functions.php');
-        require_once('plugin/movieviewer/models.php');
-        require_once('plugin/movieviewer/models_dealpack.php');
-        require_once('plugin/movieviewer/models_dealpack_purchase.php');
+        require_once('plugin/movieviewer/models/aws.php');
+        require_once('plugin/movieviewer/models/core.php');
+        require_once('plugin/movieviewer/models/dealpack.php');
+        require_once('plugin/movieviewer/models/dealpack_purchase.php');
+        require_once('plugin/movieviewer/models/payment.php');
         require_once('plugin/movieviewer/repositories.php');
     }
 

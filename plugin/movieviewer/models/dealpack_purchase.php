@@ -293,7 +293,7 @@ class MovieViewerDealPackOfferMaker {
             return TRUE;
         }
         
-        // 直筋の視聴期限の前月1日以降であれば、オファーを開始できる
+        // 直近の視聴期限の前月1日以降であれば、オファーを開始できる
         $first_day_of_last_month = plugin_movieviewer_get_first_day_of_last_month($last_confirmation->viewing_period->date_end);
         return (new DateTime() >= $first_day_of_last_month);
     }

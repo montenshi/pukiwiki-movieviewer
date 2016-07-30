@@ -197,53 +197,38 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
     public function generateMessage($user, $context) {
 
         if (mb_ereg_match('N1-',$user->memberId) == TRUE){    //N1- 会員の場合、非表示
-                return;
-        }   elseif ((mb_ereg_match('N3-',$user->memberId)) == false){    //N0- 会員以外の場合、非表示
             return;
-        }        
-
- 
-        $confirmation = $user->getLastDealPackConfirmation();
-        $pack = $confirmation->getPack();
-        // $viewing_period["date_end"]
-        
-       // 以降で、N3-会員の場合のみ、レポート表示
-       // 基礎１年目第１回～第４回のレポート表示　　６月１日以降
-        $reportStart = "16-06-01";   //　レポート開始日　2016年６月１日
-        $reportEnd = "16-07-14";     //　レポート終了日　2016年７月１４日
-        $reportDeadline ="";
-        $reportName ="";
-        $reportLinkId ="";
-        
-        if ((date('y-m-d')  >= $reportStart ) and (date('y-m-d')  <= $reportEnd)) {
-                 $reportDeadline = $confirmation->viewing_period->date_end->format('m月d日');
-                 $reportName = $pack->describe();
-                 $reportLinkId = $pack->getReportFormId();
-
-             //    print_r($reportName);
-             //    print_r("　".$reportDeadline);
-                 
-              // ＊＊＊＊　ここからは　Ｎ３期生　１～４回レポート対応
-                $reportDeadline = "７月１４日";
-                $reportName = "基礎コース１年目 第１回～第４回";
-                $reportLinkId = "S9041343";
-              // ＊＊＊＊　対応End
-
-        } else {
-                 return;
         }
         
-        //return $reportDeadline;
+        $confirmations = $user->getValidDealPackConfirmations();
 
-        $context =<<<TEXT
-        <h3 id='content_1_1'>{$reportName}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
-        レポートの提出期限は{$reportDeadline}までです。
-        <div align="right">提出はこちらから→　
-        <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
-        {$reportName}</a></div><br>
+        if (count($confirmations) === 0) {
+            return;
+        }
+
+        $context = "";
+        foreach ($confirmations as $confirmation) {
+            $pack = $confirmation->getPack();
+
+            // 終了前月1日よりも前の場合は表示しない
+            $first_day_of_last_month = plugin_movieviewer_get_first_day_of_last_month($confirmation->viewing_period->date_end);
+            if (new DateTime() < $first_day_of_last_month) {
+                continue;
+            }
+
+            $reportDeadline = $confirmation->viewing_period->date_end->format('m月d日');
+            $reportName = $pack->describe();
+            $reportLinkId = $pack->getReportFormId();
+
+            $context .=<<<TEXT
+            <h3 id='content_1_1'>{$reportName}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
+            レポートの提出期限は{$reportDeadline}までです。
+            <div align="right">提出はこちらから→　
+            <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
+            {$reportName}</a></div><br>
 TEXT;
-        return $context;
         }
-    
+        return $context;
+    }
 }
 ?>

@@ -19,6 +19,10 @@ table, td, th {
   padding: 4px;
 }
 
+table.movieviewer-purchase-request-details td, th {
+  padding: 10px 15px;
+}
+
 form.movieviewer fieldset {
   border: none;
 }

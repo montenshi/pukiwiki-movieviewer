@@ -333,6 +333,20 @@ class MovieViewerPeriod {
 }
 
 class MovieViewerViewingPeriod {
+
+    public static function sortByCourse($periods) {
+        $viewing_periods_by_course = array();
+        $current_course_id = '';
+        foreach ($periods as $period) {
+            if ($current_course_id !== $period->course_id) {
+                $viewing_periods_by_course[$period->course_id] = array();
+                $current_course_id = $period->course_id;
+            }
+            $viewing_periods_by_course[$period->course_id][] = $period;
+        }
+        return $viewing_periods_by_course;
+    }
+
     public $course_id;
     public $session_id;
     public $date_begin;

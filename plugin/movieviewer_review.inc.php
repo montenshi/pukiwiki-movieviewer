@@ -19,15 +19,7 @@ function plugin_movieviewer_review_convert(){
     $viewing_periods = $viewing_periods->getExpiredPeriods();
 
     # コースごとに仕分け
-    $viewing_periods_by_course = array();
-    $current_course_id = '';
-    foreach ($viewing_periods as $period) {
-        if ($current_course_id !== $period->course_id) {
-            $viewing_periods_by_course[$period->course_id] = array();
-            $current_course_id = $period->course_id;
-        }
-        $viewing_periods_by_course[$period->course_id][] = $period;
-    }
+    $viewing_periods_by_course = MovieViewerViewingPeriod::sortByCourse($viewing_periods);
     
     $courses = plugin_movieviewer_get_courses_repository()->find();
     $content_courses = "";
@@ -40,13 +32,13 @@ function plugin_movieviewer_review_convert(){
             $session = $course->getSession($period->session_id);
             $field_id = "{$hsc($course->id)}_{$hsc($session->id)}";
             $content_periods .=<<<TEXT
-            <label for="{$field_id}">{$session->describe()}</label>
+            <label class='movie-session' for="{$field_id}">{$session->describe()}</label>
             <input class='movie-session' type="checkbox" name="sessions" id="{$field_id}" value="{$field_id}">
 TEXT;
         }
 
         $content_course =<<<TEXT
-        <h2>{$hsc($course->name)}</h2>
+        <h3>{$hsc($course->name)}</h3>
         <fieldset style='border: none;'>
         {$content_periods}
         </fieldset>
@@ -62,16 +54,17 @@ TEXT;
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
     <link href="https://code.jquery.com/ui/1.12.0/themes/cupertino/jquery-ui.css" rel="stylesheet">
-    <script src="plugin/movieviewer/assets/js/movieviewer.js"></script>
+    <script src="plugin/movieviewer/assets/js/movieviewer_review.js"></script>
     <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer_review.css" rel="stylesheet">
     <style>
-    label { margin: 2px 5px; }
-    span.ui-checkboxradio-icon.ui-corner-all.ui-icon.ui-icon-background.ui-icon-check.ui-state-checked { background-image: url("https://code.jquery.com/ui/1.12.0/themes/cupertino/images/ui-icons_2694e8_256x240.png"); }
-    .ui-checkboxradio-label { width: 6em; }
-    .ui-checkboxradio-label.ui-button { text-align: left; }
     </style>
 
+    <h2>再視聴可能なコース</h2>
+
+    <p>
     再視聴したいコースを選択して、申し込みボタンを押してください。
+    </p>
 
     ${content_courses}
 
@@ -79,48 +72,6 @@ TEXT;
         <a href="${uri_start_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
         <a href="${uri_start_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
     </div>
-
-    <script>
-      $(document).ready(function() {
-        $('input.movie-session').checkboxradio();
-        $('a.ui-button').button({disabled: true});
-        $('a.ui-button').on('click', function(ev){
-            values = $('[name="sessions"]:checked').map(function(checkbox){
-                return $(this).val();
-            }).get();
-            base_uri = $(this).attr('href');
-            window.location.href = base_uri + '&' + $.param({'sessions': values.join(',')});
-            return false;
-        });
-        $('label').on('click', function(ev){
-            values = $('[name="sessions"]:checked').map(function(checkbox){
-                return $(this).val();
-            }).get();
-
-            target = ev.toElement;
-            currentState = $(target).hasClass('ui-state-active') || $(target).hasClass('ui-state-checked');
-
-            numSelected = values.length;
-            if (currentState) {
-                numSelected--;
-            } else {
-                numSelected++;
-            }
-
-            if (numSelected == 0){
-                $('a.ui-button').button({disabled: true});
-                return;
-            } else {
-                $('a.ui-button').button({disabled: false});
-            }
-
-            if (numSelected > 4) {
-                ev.preventDefault();
-            }
-        });
-      });
-    </script>
-
 TEXT;
 
     return $content;

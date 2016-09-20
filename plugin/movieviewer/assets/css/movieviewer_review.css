@@ -1,0 +1,16 @@
+label.movie-session { 
+  margin: 2px 5px; 
+}
+
+.ui-checkboxradio-label { 
+  width: 6em; 
+}
+
+.ui-checkboxradio-label.ui-button { 
+  text-align: left; 
+}
+
+/* 選択時にチェックマークが表示されるように */
+span.ui-checkboxradio-icon.ui-corner-all.ui-icon.ui-icon-background.ui-icon-check.ui-state-checked { 
+  background-image: url("https://code.jquery.com/ui/1.12.0/themes/cupertino/images/ui-icons_2694e8_256x240.png"); 
+}

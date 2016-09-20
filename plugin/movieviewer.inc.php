@@ -51,6 +51,8 @@ function plugin_movieviewer_convert_show_contents(){
 TEXT;
     }
 
+    $uri_review = plugin_movieviewer_get_script_uri() . "?%3A動画配信会員_再視聴";
+
     $body = <<<TEXT
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -68,6 +70,7 @@ TEXT;
         <div>
             <h2>受講済みの単元</h2>
         </div>
+        <a href="{$uri_review}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>再視聴の申し込み</a>
         <div class="movieviewer-sessions movieviewer-sessions-attended">
         {$body_expired_courses}
         </div>
@@ -126,13 +129,6 @@ TEXT;
                         <li>{$list_item}</li>
 TEXT;
         }
-
-        $action = <<<TEXT
-                  <button class="movieviewer-course-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="position:absolute;right:1em;">
-                    <span>再視聴の申込</span>
-                  </button>
-TEXT;
-        $action = ""; // 再視聴の申し込みが実装できたらここを外す
 
         if ($isValid) {
             $action = <<<TEXT

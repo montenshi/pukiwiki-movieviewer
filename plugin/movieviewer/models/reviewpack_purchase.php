@@ -28,6 +28,11 @@ class MovieViewerReviewPackPurchaseRequest {
         return $this->review_pack->getPrice();
     }
 
+    function describePackShort() {
+        $item_count = count($this->getItems());
+        return "再視聴 {$item_count}個分";
+    }
+
     function getDateRequested() {
         return $this->date_requested;
     }

@@ -70,6 +70,82 @@ function plugin_movieviewer_review_purchase_start_convert_bank($settings, $user,
     $hsc = "plugin_movieviewer_hsc";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
 
+    $request_details = plugin_movieviewer_review_purchase_start_convert_get_request_details($settings, $request);
+
+    $content =<<<TEXT
+    <h2>再視聴申し込み</h2>
+    <p>
+    申し込み内容を確認してください。<br>
+    「申し込み」ボタンをクリックして、申し込みを完了して下さい。<br>
+    ご登録されているアドレスに振込先等のご案内をお送りします。
+    </p>
+    {$request_details}
+    <form action="index.php?cmd=movieviewer_review_purchase_start" METHOD="POST">
+        <input type="hidden" name="page" value="{$hsc($current_page)}">
+        <input type="hidden" name="request_stash_id" value="{$request_stash_id}">
+        {$input_csrf_token()}
+        <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">申し込み</button>
+    </form>
+TEXT;
+
+    return $content;
+}
+
+function plugin_movieviewer_review_purchase_start_convert_credit($settings, $user, $request, $request_stash_id, $current_page) {
+
+    // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
+    if (!$user->hasMemberId()) {
+        return plugin_movieviewer_convert_error_response("クレジットカードの支払いには会員番号が必要です。");
+    }
+
+    $paygent_settings = $settings->payment->credit->paygent;
+    $generator = new MovieViewerReviewPackPaygentParameterGenerator($paygent_settings, $user, $request);
+
+    $return_params = array(
+          "cmd" => "movieviewer_review_purchase_start"
+        , "request_stash_id" => $request_stash_id
+    );
+    $return_uri = plugin_movieviewer_get_script_uri() . "?" . http_build_query($return_params);
+
+    $hsc = "plugin_movieviewer_hsc";
+
+    $request_details = plugin_movieviewer_review_purchase_start_convert_get_request_details($settings, $request);
+
+    $content =<<<TEXT
+    <h2>再視聴申し込み</h2>
+    <p>
+    申し込み内容を確認してください。<br>
+    「申し込む」ボタンをクリックすると、クレジットカードの支払いページに移動します。<br>
+    支払いページは、提携の決済代行会社ペイジェントのページになります。<br>
+    </p>
+    <p>
+    決済の手続きが終了すると当サイトに再び戻ってきますので、それまで手続きを続けてください。
+    当サイトに戻ってくる前に手続きを中断してしまった場合、購入完了となりませんのでご注意ください。<br>
+    </p>
+    <p>
+    ※ 当研究所では、会員のみなさまのクレジットカード情報は一切お預かりいたしません。<br>
+    </p>
+    {$request_details}
+
+    ※　クレジット決済画面の表示後、５日以内に入金を完了させてください。<br>
+    期限が過ぎると、クレジット決済画面が表示されなくなり、入金できなくなります。
+    </p>
+    <form action="{$paygent_settings["request_uri"]}" method="post">
+        <input type="hidden" name="trading_id" value="{$generator->getTradingId()}">
+        <input type="hidden" name="id" value="{$generator->getId()}">
+        <input type="hidden" name="seq_merchant_id" value="{$generator->getSeqMerchantId()}">
+        <input type="hidden" name="hc" value="{$generator->getHash()}">
+        <input type="hidden" name="payment_detail" value="{$generator->getPaymentDetail()}">
+        <input type="hidden" name="return_url" value="$return_uri">
+        <button type="submit" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>申し込む</button>
+    </form>
+TEXT;
+
+    return $content;
+}
+
+function plugin_movieviewer_review_purchase_start_convert_get_request_details($settings, $request) {
+
     $courses = plugin_movieviewer_get_courses_repository()->find();
     $itemsByCourse = $request->getItemsByCourse();
 
@@ -94,15 +170,9 @@ TEXT;
     $price_with_notes = plugin_movieviewer_render_price_with_notes($request->getPrice(), "回", FALSE);
     $bank_accounts_with_notes = nl2br($payment_guide->bank_transfer->bank_accounts_with_notes);
 
-    $items_value = plugin_movieviewer_review_purchase_review_items_2_value($request->getItems());
+    $hsc = "plugin_movieviewer_hsc";
 
     $content =<<<TEXT
-    <h2>再視聴申し込み</h2>
-    <p>
-    申し込み内容を確認してください。<br>
-    「申し込み」ボタンをクリックして、申し込みを完了して下さい。<br>
-    ご登録されているアドレスに振込先等のご案内をお送りします。
-    </p>
     <p>
     <table class="movieviewer-purchase-request-details">
       <tr><th>再視聴</th><td>{$item_description}</td></tr>
@@ -111,18 +181,9 @@ TEXT;
       <tr><th>振込期限</th><td>{$hsc($payment_guide->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>
-    <form action="index.php?cmd=movieviewer_review_purchase_start" METHOD="POST">
-        <input type="hidden" name="page" value="{$hsc($current_page)}">
-        <input type="hidden" name="request_stash_id" value="{$request_stash_id}">
-        {$input_csrf_token()}
-        <button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">申し込み</button>
-    </form>
 TEXT;
 
     return $content;
-}
-
-function plugin_movieviewer_review_purchase_start_convert_credit($settings, $user, $request, $request_stash_id, $current_page) {
 }
 
 function plugin_movieviewer_review_purchase_start_action(){
@@ -209,14 +270,6 @@ function plugin_movieviewer_review_purchase_start_action_credit($settings, $user
 TEXT;
 
     return $messages;
-}
-
-function plugin_movieviewer_review_purchase_review_items_2_value($items) {
-    $value = "";
-    foreach($items as $item) {
-        $value .= "{$item->course_id}_{$item->session_id},";
-    }
-    return $value;
 }
 
 ?>

@@ -19,8 +19,6 @@ class MovieViewerPurchaseOfferNotifier extends MovieViewerNotifier {
 
         $offer = $offer_maker->getOffer();
 
-        plugin_movieviewer_purchase_start_set_back_page($context['back_page']);
-
         $req_params = "&deal_pack_id={$offer->getPackId()}";
         $start_uri_bank = plugin_movieviewer_get_script_uri() . "?{$context['start_page_bank']}&purchase_method=bank{$req_params}";
         $start_uri_credit = plugin_movieviewer_get_script_uri() . "?{$context['start_page_credit']}&purchase_method=credit{$req_params}";

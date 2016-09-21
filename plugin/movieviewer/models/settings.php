@@ -7,18 +7,21 @@ class MovieViewerSettings {
     public $mail;
     public $contact;
     public $payment;
+    public $pages;
 
     public static function loadFromYaml($file) {
         $object = new MovieViewerSettings();
         $data = Spyc::YAMLLoad($file);
         $aws = Spyc::YAMLLoad($data['settings']['aws']['path']);
         $mail = Spyc::YAMLLoad($data['settings']['mail']['path']);
+
         $object->auth_module = $data['settings']['auth_module'];
         $object->data = $data['settings']['data'];
         $object->aws = $aws;
         $object->mail = new MovieViewerMailSettings($mail['smtp'], $mail['template']);
         $object->contact = $data['settings']['contact'];
         $object->payment = new MovieViewerPaymentSettings($data['settings']['payment']);
+        $object->pages = $data['settings']['pages'];
 
         return $object;
     }

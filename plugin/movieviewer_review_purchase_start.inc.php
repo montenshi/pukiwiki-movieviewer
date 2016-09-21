@@ -174,7 +174,7 @@ function plugin_movieviewer_review_purchase_start_action(){
     }
 
     $page = plugin_movieviewer_get_current_page();
-    $back_uri = plugin_movieviewer_get_script_uri();
+    $back_uri = plugin_movieviewer_get_home_uri();
 
     $content =<<<TEXT
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">

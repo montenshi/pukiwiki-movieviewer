@@ -13,6 +13,13 @@ function plugin_movieviewer_get_script_uri() {
     return $url;
 }
 
+// HomeのURIを取得する
+function plugin_movieviewer_get_home_uri() {
+    $settings = plugin_movieviewer_get_global_settings();
+    $page_home = $settings->pages["home"];
+    return plugin_movieviewer_get_script_uri() . "?{$page_home}";
+}
+
 // カレント(=ログインしている)ユーザを取得する
 function plugin_movieviewer_get_current_user() {
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();

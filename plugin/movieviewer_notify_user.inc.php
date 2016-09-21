@@ -23,12 +23,6 @@ function plugin_movieviewer_notify_user_convert(){
     $params = array();
     $params['start_page_bank']   = $page_args[0];
     $params['start_page_credit'] = $page_args[1];
-    $params['back_page'] = $page_args[2];
-
-    global $defaultpage;
-    if (!isset($params['back_page'])) {
-        $params['back_page'] = $defaultpage;
-    }
 
     $notifiers = array();
     $notifiers[] = new MovieViewerReportNotifier();

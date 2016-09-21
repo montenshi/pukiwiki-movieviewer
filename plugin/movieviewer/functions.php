@@ -95,10 +95,15 @@ function plugin_movieviewer_hsc_number_format($value) {
 // Convertで呼び出されたページのエラーレスポンスを生成する
 function plugin_movieviewer_convert_error_response($message) {
     $hsc = "plugin_movieviewer_hsc";
+    $back_uri = plugin_movieviewer_get_home_uri();
 
     $content =<<<TEXT
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <p class="caution">{$hsc($message)}</p>
+    <p>
+    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
+    </p>
 TEXT;
 
     return $content;

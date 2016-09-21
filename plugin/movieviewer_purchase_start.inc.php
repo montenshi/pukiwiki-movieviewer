@@ -2,14 +2,6 @@
 
 require_once("movieviewer.ini.php");
 
-function plugin_movieviewer_purchase_start_set_back_page($page) {
-    $_SESSION['movieviewer_puarchase_start_back_page'] = $page;
-}
-
-function plugin_movieviewer_purchase_start_get_back_page() {
-    return $_SESSION['movieviewer_puarchase_start_back_page'];
-}
-
 function plugin_movieviewer_purchase_start_init() {
     plugin_movieviewer_set_global_settings();
 }
@@ -233,12 +225,8 @@ function plugin_movieviewer_purchase_start_action() {
 
     $offer->accept();
 
-    $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, TRUE);
-
-    $back_uri = plugin_movieviewer_get_script_uri() . "?" . plugin_movieviewer_purchase_start_get_back_page();
-    $bank_accounts_with_notes = nl2br($offer->getPaymentGuide()->bank_transfer->bank_accounts_with_notes);
-
     if ($purchase_method === "bank") {
+        $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, TRUE);
         $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
         $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getPaymentGuide()->bank_transfer, $offer->getPaymentGuide()->deadline);
         $result = $mail->send();
@@ -265,15 +253,17 @@ TEXT;
     }
 
     $hsc = "plugin_movieviewer_hsc";
+    $back_uri = plugin_movieviewer_get_home_uri();
 
     $content =<<<TEXT
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <h2>受講申し込み完了</h2>
     <p>
     $messages
     </p>
     <p>
-    <a href="{$back_uri}">マイページに戻る</a>
+    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
     </p>
 TEXT;
 

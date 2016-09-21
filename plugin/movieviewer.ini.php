@@ -50,14 +50,7 @@ define('PLUGIN_MOVIEVIEWER_AUTH_MODULE_DEFAULT', "default");
 define('PLUGIN_MOVIEVIEWER_AUTH_MODULE_COMMU', "commu");
 
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/functions.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/core.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/dealpack.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/dealpack_purchase.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/payment.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/reviewpack.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/reviewpack_purchase.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/aws.php");
-require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/notifier.php");
+require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/index.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/repositories.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/validators.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/managers.php");

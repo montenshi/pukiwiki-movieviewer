@@ -446,4 +446,32 @@ class MovieViewerDealPackPaymentConfirmation {
     }
 }
 
+class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerMailBuilder {
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+
+    public function build($user, $deal_pack_name, $price, $bank_transfer, $deadline) {
+
+        $settings_local = $this->settings->template["transfer_information"];
+        $mail = $this->createMail($user->mailAddress);
+
+        $params = array(
+              "user_name" => $user->describe()
+            , "deal_pack_name" => $deal_pack_name
+            , "bank_accounts_with_notes" => "{$bank_transfer->bank_accounts_with_notes}"
+            , "deadline" => $deadline->format("Y年m月d日")
+            , "price" => $price
+        );
+
+        $body = $this->renderBody($settings_local["body"], $params);
+
+        $mail->Subject = $settings_local["subject"];
+        $mail->Body = $body;
+        return $mail;
+    }
+
+}
+
 ?>

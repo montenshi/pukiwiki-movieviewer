@@ -17,6 +17,8 @@ class MovieViewerTestCase extends PHPUnit_Framework_TestCase {
         require_once('plugin/movieviewer/models/dealpack.php');
         require_once('plugin/movieviewer/models/dealpack_purchase.php');
         require_once('plugin/movieviewer/models/payment.php');
+        require_once('plugin/movieviewer/models/reviewpack.php');
+        require_once('plugin/movieviewer/models/reviewpack_purchase.php');
         require_once('plugin/movieviewer/repositories.php');
     }
 

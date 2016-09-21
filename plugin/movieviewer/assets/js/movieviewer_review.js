@@ -17,7 +17,7 @@ $(document).ready(function() {
           return $(this).val();
       }).get();
       base_uri = $(this).attr('href');
-      window.location.href = base_uri + '&' + $.param({'sessions': values.join(',')});
+      window.location.href = base_uri + '&' + $.param({'items': values.join(',')});
       return false;
   });
 

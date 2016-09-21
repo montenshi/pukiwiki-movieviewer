@@ -183,4 +183,25 @@ TEXT;
     return $price_with_notes;
 }
 
+function plugin_movieviewer_render_price_with_notes($price, $unit, $text_only, $class_for_unit_amount) {
+    $hsc_num = "plugin_movieviewer_hsc_number_format";
+
+    $total_amount_with_tax = $hsc_num($price->getTotalAmountWithTax());
+    $total_amount_without_tax = $hsc_num($price->getTotalAmountWithoutTax());
+    $unit_amount_without_tax = $hsc_num($price->unit_amount_without_tax);
+    $num_units = $hsc_num($price->num_units);
+    $tax_amount = $hsc_num($price->tax_amount);
+
+    // 最初の行に空白がないのは、メールの文章に利用するため...
+    $price_with_notes =<<<TEXT
+{$total_amount_with_tax}円<br>
+    （<span class="{$class_for_unit_amount}">{$unit_amount_without_tax}</span>円×{$num_units}{$unit}＝{$total_amount_without_tax}円　＋　消費税 {$tax_amount}円）
+TEXT;
+
+    if ($text_only) {
+        $price_with_notes = strip_tags($price_with_notes);
+    }
+
+    return $price_with_notes;
+}
 ?>

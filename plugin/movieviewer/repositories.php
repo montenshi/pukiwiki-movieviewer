@@ -38,6 +38,11 @@ function plugin_movieviewer_get_deal_pack_payment_confirmation_repository() {
     return new MovieViewerDealPackPaymentConfirmationRepositoryInFile($settings);
 }
 
+function plugin_movieviewer_get_review_pack_purchase_request_repository() {
+    $settings = plugin_movieviewer_get_global_settings();
+    return new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
+}
+
 class MovieViewerRepositoryObjectNotFoundException extends Exception {}
 
 class MovieViewerRepositoryObjectCantStoreException extends Exception {}
@@ -747,5 +752,127 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
     }
 }
 
+class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRepositoryInFile {
+
+    const PATH_DATETIME_FORMAT = "YmdHisO";
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+
+    public function findById($id) {
+        list($user_id, $date_requested) = mb_split("###", $id, 2);
+
+        return $this->findBy($user_id, $date_requested);
+    }
+
+    public function findBy($user_id, $date_requested) {
+
+        $file_path = $this->getFilePath($user_id, $date_requested);
+
+        if (!file_exists($file_path)) {
+            MovieViewerLogger::getLogger()->addError(
+                "ファイルオープンに失敗", array("file" => $file_path));
+
+            throw new MovieViewerRepositoryObjectNotFoundException();
+        }
+
+        $object = $this->createObject($file_path);
+
+        return $object;
+    }
+
+    function findAll() {
+
+        $objects = array();
+
+        $data_dir = $this->getGlobPath();
+        foreach( glob($data_dir) as $file_path ) {
+            $object = $this->createObject($file_path);
+            $objects[] = $object;
+        }
+
+        return $objects;
+    }
+
+    function store($object) {
+        $data = $this->serializeObject($object);
+        $file_path = $this->getFilePath($object->user_id, $object->getDateRequested());
+        $this->storeToYaml($file_path, $data);
+    }
+
+    function stash($object) {
+        $uid = uniqid("", TRUE);
+        $data = $this->serializeObject($object);
+        $file_path = $this->getFilePathForStash($uid);
+        $this->storeToYaml($file_path, $data);
+        return $uid;
+    }
+
+    function restore($stash_id) {
+        $file_path = $this->getFilePathForStash($stash_id);
+        $object = $this->createObject($file_path);
+        unlink($file_path);
+        return $object;
+    }
+
+    private function createObject($file_path) {
+        $yaml = Spyc::YAMLLoad($file_path);
+        $date_requested = $this->convertToDateTime($yaml["date_requested"]);
+
+        $course_id_and_session_ids = array();
+        foreach($yaml["review_pack"]["items"] as $item) {
+            $course_id_and_session_ids[] = $item["course_id"] . "_" . sprintf("%02d", $item["session_id"]);
+        }
+
+        $object = new MovieViewerReviewPackPurchaseRequest(
+            $yaml["user_id"], 
+            $yaml["purchase_method"], 
+            implode(",", $course_id_and_session_ids), 
+            $date_requested
+        );
+
+        return $object;
+    }
+
+    private function serializeObject($object) {
+        $data = array();
+        $data["user_id"] = $object->user_id;
+        $data["purchase_method"] = $object->purchase_method;
+        $data["review_pack"] = array();
+        $data["review_pack"]["items"] = array();
+        foreach($object->getItems() as $item) {
+            $data_item = array();
+            $data_item["course_id"] = $item->course_id;
+            $data_item["session_id"] = $item->session_id;
+            $data["review_pack"]["items"][] = $data_item;
+        }
+        $data["date_requested"] = $object->getDateRequested()->format(self::DEFAULT_DATETIME_FORMAT);
+        return $data;
+    }
+
+    private function getFilePath($user_id, $date_requested) {
+        $base_dir = $this->settings->data['dir'];
+        if (is_object($date_requested)) {
+            $formated_date = $date_requested->format(self::PATH_DATETIME_FORMAT);
+        } else {
+            $formated_date = $date_requested;
+        }
+        return "${base_dir}/purchase/review_pack/{$user_id}_{$formated_date}_purchase_request.yml";
+    }
+
+    private function getFilePathForStash($uid) {
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/review_pack/_stash/{$uid}.yml";
+    }
+
+    private function getGlobPathByUser($user_id) {
+        if ($user_id === "" || $user_id === NULL) {
+            $user_id = "*";
+        }
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/review_pack/${user_id}_*_purchase_request.yml";
+    }
+}
 
 ?>

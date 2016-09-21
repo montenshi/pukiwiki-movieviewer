@@ -811,6 +811,14 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
 
     function restore($stash_id) {
         $file_path = $this->getFilePathForStash($stash_id);
+
+        if (!file_exists($file_path)) {
+            MovieViewerLogger::getLogger()->addError(
+                "ファイルオープンに失敗", array("file" => $file_path));
+
+            throw new MovieViewerRepositoryObjectNotFoundException();
+        }
+
         $object = $this->createObject($file_path);
         unlink($file_path);
         return $object;

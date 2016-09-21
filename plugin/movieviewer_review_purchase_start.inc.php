@@ -158,17 +158,14 @@ function plugin_movieviewer_review_purchase_start_action(){
     }
     
     $settings = plugin_movieviewer_get_global_settings();
+    $service = new MovieViewerReviewPackPurchaseRequestService($settings);
 
     $request = null;
     try {
-        $repo = plugin_movieviewer_get_review_pack_purchase_request_repository();
-        $request = $repo->restore($request_stash_id);
-        $repo->store($request);
+        $request = $service->doRequest($user, $request_stash_id);
     } catch (Exception $ex) {
-        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+        return plugin_movieviewer_action_error_response($page, $ex->getMessage());
     }
-
-    // メール
 
     if ($request->purchase_method === "bank") {
         $messages = plugin_movieviewer_review_purchase_start_action_bank($settings, $user, $request);

@@ -63,6 +63,25 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $this->assertEquals("aaa@bbb.ccc", $object->user_id);
         $this->assertFalse(file_exists("test/models/resources/purchase/review_pack/_stash/{$stash_id}.yml"));
     }
+
+    public function testFindNotYetConfirmedReturnsObjects() {
+        $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        // 常にファイルの状態を同じにしたいなので、data dir を専用のものにする
+        $settings = new MovieViewerSettings();
+        $settings->data["dir"] = "test/models/resources_not_yet_confirmed";
+        $settings->timezone = new DateTimeZone("Asia/Tokyo");
+
+        $repo = new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
+
+        $objects = $repo->findNotYetConfirmed();
+
+        $this->assertEquals(1, count($objects));
+
+        $object = $objects[0];
+        $this->assertEquals("zzz@bbb.ccc", $object->user_id);
+    }
 }
 
 ?>

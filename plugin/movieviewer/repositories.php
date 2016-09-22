@@ -760,13 +760,13 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         parent::__construct($settings);
     }
 
-    public function findById($id) {
+    function findById($id) {
         list($user_id, $date_requested) = mb_split("###", $id, 2);
 
         return $this->findBy($user_id, $date_requested);
     }
 
-    public function findBy($user_id, $date_requested) {
+    function findBy($user_id, $date_requested) {
 
         $file_path = $this->getFilePath($user_id, $date_requested);
 
@@ -780,6 +780,24 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         $object = $this->createObject($file_path);
 
         return $object;
+    }
+
+    function findNotYetConfirmed() {
+
+        $objects = array();
+
+        $data_dir = $this->getGlobPath();
+        foreach( glob($data_dir) as $file_path ) {
+            $file_path_confirmed = MovieViewerReviewPackPaymentConfirmationRepositoryInFile::getFilePathFromRequestPath($file_path);
+            if ( file_exists($file_path_confirmed) ) {
+                continue;
+            }
+
+            $object = $this->createObject($file_path);
+            $objects[] = $object;
+        }
+
+        return $objects;
     }
 
     function findAll() {
@@ -874,12 +892,37 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return "${base_dir}/purchase/review_pack/_stash/{$uid}.yml";
     }
 
+    private function getGlobPath($user_id = NULL, $date_requested = NULL) {
+        if ($user_id === "" || $user_id === NULL) {
+            $user_id = "*";
+        }
+        if (is_object($date_requested)) {
+            $formated_date = $date_requested->format(self::PATH_DATETIME_FORMAT);
+        } else {
+            $formated_date = $date_requested;
+            if ($formated_date === "" || $formated_date === NULL) {
+                $formated_date = "*";
+            }
+        }
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/review_pack/{$user_id}_{$formated_date}_purchase_request.yml";
+    }
+
     private function getGlobPathByUser($user_id) {
         if ($user_id === "" || $user_id === NULL) {
             $user_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/review_pack/${user_id}_*_purchase_request.yml";
+    }
+}
+
+class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile {
+
+    static function getFilePathFromRequestPath($request_file_path) {
+        $file_path = str_replace("_purchase_request.yml", "_purchase_confirm_payment.yml", $request_file_path);
+        $file_path = str_replace("/review_pack/", "/review_pack/confirmed/", $file_path);
+        return $file_path;
     }
 }
 

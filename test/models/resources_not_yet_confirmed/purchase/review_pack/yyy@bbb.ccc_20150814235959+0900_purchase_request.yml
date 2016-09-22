@@ -1,0 +1,15 @@
+---
+user_id: yyy@bbb.ccc
+purchase_method: bank
+review_pack:
+  items:
+    -
+      course_id: K1Kiso
+      session_id: 01
+    -
+      course_id: K2Kiso
+      session_id: 02
+    -
+      course_id: K2Kiso
+      session_id: 05
+date_requested: 2015-08-14 23:59:59+09:00

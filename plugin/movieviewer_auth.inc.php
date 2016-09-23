@@ -3,7 +3,7 @@
 /**
  * Pukiwikiプラグイン::動画視聴用認証処理
  *
- * PHP version 5.3.4
+ * PHP version 5.3.10
  * Pukiwiki Version 1.4.7
  *
  * @category MovieViewerPlugin

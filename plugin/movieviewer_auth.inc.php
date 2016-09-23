@@ -1,12 +1,27 @@
 <?php
 
-require_once("movieviewer.ini.php");
+require_once "movieviewer.ini.php";
 
-function plugin_movieviewer_auth_init(){
-  plugin_movieviewer_set_global_settings();
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_auth_init()
+{
+    plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_auth_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 何もしない
+ * 認証情報が指定されている場合: 認証処理を行う
+ * 認証情報が指定されていない場合: 認証画面を生成する
+ *
+ * @return string 認証画面(html) または 空画面
+ */
+function plugin_movieviewer_auth_convert()
+{
     global $vars;
 
     $manager = plugin_movieviewer_get_auth_manager();
@@ -14,47 +29,74 @@ function plugin_movieviewer_auth_convert(){
     $req_user_id = filter_input(INPUT_POST, "movieviewer_user");
 
     // 認証開始
-    if ($req_user_id !== NULL && $req_user_id !== "") {
+    if ($req_user_id !== null && $req_user_id !== "") {
 
         try {
             plugin_movieviewer_validate_csrf_token();
         } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         try {
             plugin_movieviewer_validate_user_id($req_user_id);
         } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         try {
             $maybe_user = plugin_movieviewer_get_user_repository()->findById($req_user_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-            plugin_movieviewer_auth_move_to_authpage(TRUE);
+            plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         $user_password = filter_input(INPUT_POST, 'movieviewer_password');
 
         if (!$maybe_user->verifyPassword($user_password)) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         $manager->login($maybe_user);
 
-       return '';
+        return '';
     }
 
     // 認証済み
     if ($manager->isAuthenticated()) {
-       return '';
+        return '';
     }
 
     // 認証なし
-    return plugin_movieviewer_auth_move_to_authpage(FALSE);
+    return plugin_movieviewer_auth_move_to_authpage(false);
 }
 
-function plugin_movieviewer_auth_move_to_authpage($messages) {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * 認証画面を生成する
+ *
+ * @return array タイトル、及び、認証画面(html)
+ */
+function plugin_movieviewer_auth_action()
+{
+    global $vars;
+
+    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    $title = "${page}（認証）";
+
+    $body = plugin_movieviewer_auth_generate_signin_page();
+    return array('msg'=>$title, 'body'=>$body);
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * 認証画面に移動するようLocationヘッダを返す
+ *
+ * @param string $messages 認証画面に表示するメッセージ
+ *
+ * @return void
+ */
+function plugin_movieviewer_auth_move_to_authpage($messages)
+{
 
     global $vars, $script;
 
@@ -70,18 +112,15 @@ function plugin_movieviewer_auth_move_to_authpage($messages) {
     exit();
 }
 
-function plugin_movieviewer_auth_action(){
-
-    global $vars;
-
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
-    $title = "${page}（認証）";
-
-    $body = plugin_movieviewer_auth_generate_signin_page();
-    return array('msg'=>$title, 'body'=>$body);
-}
-
-function plugin_movieviewer_auth_generate_signin_page($messages){
+/**
+ * 認証画面を生成する
+ *
+ * @param string $messages 認証画面に表示するメッセージ
+ *
+ * @return string 認証画面(html)
+ */
+function plugin_movieviewer_auth_generate_signin_page($messages)
+{
     $manager = plugin_movieviewer_get_auth_manager();
     $manager->logout();
 
@@ -134,6 +173,7 @@ TEXT;
         <button class="movieviewer-button" type="submit">ログインする</button>
     </form>
 TEXT;
+
     return $body;
 }
 

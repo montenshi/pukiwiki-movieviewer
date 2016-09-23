@@ -1,12 +1,26 @@
 <?php
 
-require_once("movieviewer.ini.php");
+require_once "movieviewer.ini.php";
 
-function plugin_movieviewer_init() {
+/**
+ * プラグイン必須関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_convert(){
+/**
+ * プラグイン必須関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 視聴画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * @return string 視聴画面またはエラー画面(html)
+ */
+function plugin_movieviewer_convert()
+{
     global $vars;
 
     // 認証済み
@@ -19,7 +33,48 @@ function plugin_movieviewer_convert(){
     return plugin_movieviewer_convert_show_alert();
 }
 
-function plugin_movieviewer_convert_show_alert($messages){
+/**
+ * プラグイン必須関数::アクション型で呼び出された場合の処理
+ * パラメータ ope_type の値により、以下の処理を行う
+ * show-movie: 動画再生画面を返す
+ * download-text: 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ * download-hls-key: 動画(HLS)再生用のキーを返す
+ * 
+ * @return array ページ名、内容
+ */
+function plugin_movieviewer_action()
+{
+
+    $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
+
+    $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
+
+    if ($current_user == null) {
+        plugin_movieviewer_action_access_denied();
+    }
+
+    $ope_type = plugin_movieviewer_action_get_ope_type();
+
+    if ($ope_type === 'show-movie') {
+        return plugin_movieviewer_action_show_movie();
+    } else if ($ope_type === 'download-text') {
+        return plugin_movieviewer_action_download_text();
+    } else if ($ope_type === 'download-hls-key') {
+        return plugin_movieviewer_action_download_hls_key();
+    }
+
+    return plugin_movieviewer_action_invalid_request();
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] 未認証時のエラー画面を生成する
+ *
+ * @return string エラー画面(html)
+ */
+function plugin_movieviewer_convert_show_alert()
+{
     plugin_movieviewer_get_auth_manager()->logout();
 
     $body =<<<TEXT
@@ -29,7 +84,14 @@ TEXT;
     return $body;
 }
 
-function plugin_movieviewer_convert_show_contents(){
+/**
+ * [ブロック] 視聴画面を生成する
+ * 視聴可能な単元、受講済みの単元を一覧で表示する
+ *
+ * @return string 視聴画面(html)
+ */
+function plugin_movieviewer_convert_show_contents()
+{
 
     global $script;
 
@@ -88,7 +150,15 @@ TEXT;
     return $body;
 }
 
-function plugin_movieviewer_convert_render_courses($viewing_periods) {
+/**
+ * [ブロック] 視聴期限から単元の一覧を生成する
+ *
+ * @param array $viewing_periods 視聴期限
+ *
+ * @return string 単元の一覧(html)
+ */
+function plugin_movieviewer_convert_render_courses($viewing_periods) 
+{
 
     if (count($viewing_periods) == 0) {
         return "<div>対象の動画はありません。</div>";
@@ -179,30 +249,13 @@ TEXT;
     return $body_courses;
 }
 
-function plugin_movieviewer_action(){
-
-    $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
-
-    $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
-
-    if ($current_user == null) {
-        plugin_movieviewer_action_access_denied();
-    }
-
-    $ope_type = plugin_movieviewer_action_get_ope_type();
-
-    if ($ope_type === 'show-movie') {
-        return plugin_movieviewer_action_show_movie();
-    } else if ($ope_type === 'download-text') {
-        return plugin_movieviewer_action_download_text();
-    } else if ($ope_type === 'download-hls-key') {
-        return plugin_movieviewer_action_download_hls_key();
-    }
-
-    return plugin_movieviewer_action_invalid_request();
-}
-
-function plugin_movieviewer_action_get_ope_type(){
+/**
+ * [アクション] POSTまたはGETで指定されたope_type(処理区分)の値取得する
+ *
+ * @return string ope_type(処理区分)の値
+ */
+function plugin_movieviewer_action_get_ope_type()
+{
     $ope_type = 'unknown';
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $ope_type = filter_input(INPUT_GET, 'ope_type');
@@ -213,15 +266,33 @@ function plugin_movieviewer_action_get_ope_type(){
     return $ope_type;
 }
 
-function plugin_movieviewer_action_invalid_request(){
+/**
+ * [アクション] エラー処理(リクエスト内容の誤り)
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_invalid_request()
+{
     plugin_movieviewer_abort("リクエストの内容に誤りがあります。");
 }
 
-function plugin_movieviewer_action_access_denied(){
+/**
+ * [アクション] エラー処理(認証なし)
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_access_denied()
+{
     plugin_movieviewer_abort("動画を見るにはログインが必要です。");
 }
 
-function plugin_movieviewer_action_download_text(){
+/**
+ * [アクション] 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_download_text()
+{
     date_default_timezone_set("Asia/Tokyo");
 
     $settings = plugin_movieviewer_load_settings();
@@ -261,7 +332,13 @@ function plugin_movieviewer_action_download_text(){
     exit();
 }
 
-function plugin_movieviewer_action_show_movie(){
+/**
+ * [アクション] 動画再生画面を返す
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_show_movie()
+{
     date_default_timezone_set("Asia/Tokyo");
 
     $settings = MovieViewerSettings::loadFromYaml(PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS);
@@ -322,7 +399,13 @@ EOC;
     exit();
 }
 
-function plugin_movieviewer_action_download_hls_key() {
+/**
+ * [アクション] 動画(HLS)再生用のキーを返す
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_download_hls_key()
+{
     pkwk_common_headers();
     header('Content-type: application/octet-stream');
 

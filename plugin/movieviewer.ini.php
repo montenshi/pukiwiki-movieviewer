@@ -54,6 +54,7 @@ require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/models/index.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/repositories.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/validators.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/managers.php");
+require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/services.php");
 require_once(PLUGIN_MOVIEVIEWER_MOVIEVIEWER_DIR . "/vendor/autoload.php");
 require_once(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/lib/qdmail.php");
 require_once(PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR . "/lib/qdsmtp.php");

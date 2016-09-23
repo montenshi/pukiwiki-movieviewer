@@ -24,6 +24,8 @@ class MovieViewerReviewPackItem {
     public $course_id;
     public $session_id;
 
+    private $course;
+
     function __construct($course_and_session_id) {
         $params = split("_", $course_and_session_id);
         if (count($params) !== 2) {
@@ -31,6 +33,21 @@ class MovieViewerReviewPackItem {
         }
         $this->course_id = $params[0];
         $this->session_id = $params[1];
+
+        $courses = plugin_movieviewer_get_courses_repository()->find();
+        $this->course = $courses->getCourse($this->course_id);
+    }
+
+    function getCourse() {
+        return $this->course;
+    }
+
+    function getSession() {
+        return $this->getCourse()->getSession($this->session_id);
+    }
+
+    function describe() {
+        return "{$this->getCourse()->describe()} {$this->getSession()->describe()}";
     }
 }
 
@@ -73,6 +90,33 @@ class MovieViewerReviewPack {
             $sorted[$item->course_id][] = $item;
         }
         return $sorted;
+    }
+
+    function describe() {
+        $item_count = count($this->items);
+        if ($item_count === 0) {
+            return "(なし)";
+        }
+
+        $first_item = $this->items[0];
+
+        $description = "再視聴 {$first_item->describe()}";
+
+        if ($item_count > 1) {
+            $others_count = $item_count - 1;
+            $description = "{$description} 他{$others_count}個";
+        }
+
+        return $description;
+    }
+
+    function describeShort() {
+        $item_count = count($this->items);
+        if ($item_count === 0) {
+            return "(なし)";
+        }
+
+        return "再視聴 {$item_count}個";
     }
 }
 

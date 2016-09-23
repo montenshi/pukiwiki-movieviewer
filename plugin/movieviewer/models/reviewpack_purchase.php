@@ -5,6 +5,23 @@ class MovieViewerReviewPackPurchaseRequest {
     public  $purchase_method;
     private $review_pack;
     private $date_requested;
+    private $user = NULL;
+
+    static function compareByMemberId($a, $b) {
+        $aUser = $a->getUser();
+        $bUser = $b->getUser();
+        if (!$aUser->hasMemberId()) {
+            if ($bUser->hasMemberId()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        if ($aUser->memberId === $bUser->memberId) {
+            return 0;
+        }
+        return ($aUser->memberId < $bUser->memberId) ? -1 : 1;
+    }
 
     function __construct($user_id, $purchase_method, $course_and_session_ids, $date_requested = NULL) {
         $this->user_id = $user_id;
@@ -14,6 +31,17 @@ class MovieViewerReviewPackPurchaseRequest {
             $date_requested = plugin_movieviewer_now();
         }
         $this->date_requested = $date_requested;
+    }
+
+    function getId() {
+        return "{$this->user_id}###{$this->date_requested->format(MovieViewerReviewPackPurchaseRequestRepositoryInFile::PATH_DATETIME_FORMAT)}";
+    }
+
+    function getUser() {
+        if ($this->user === NULL) {
+            $this->user = plugin_movieviewer_get_user_repository()->findById($this->user_id);
+        }
+        return $this->user;
     }
 
     function getItems() {
@@ -28,9 +56,12 @@ class MovieViewerReviewPackPurchaseRequest {
         return $this->review_pack->getPrice();
     }
 
+    function describePack() {
+        return $this->review_pack->describe();
+    }
+
     function describePackShort() {
-        $item_count = count($this->getItems());
-        return "再視聴 {$item_count}個分";
+        return $this->review_pack->describeShort();
     }
 
     function getDateRequested() {
@@ -141,98 +172,6 @@ class MovieViewerReviewPackRequestNotificationMailBuilder extends MovieViewerMai
         $mail->Subject = $subject;
         $mail->Body = $body;
         return $mail;
-    }
-
-}
-
-class MovieViewerReviewPackPurchaseRequestService {
-
-    private $settings;
-
-    function __construct($settings) {
-        $this->settings = $settings;
-    }
-
-    function doRequest($user, $request_stash_id) {
-
-        $request = $this->createRequest($request_stash_id);
-
-        $this->sendBankTransferInformation($user, $request);
-
-        $this->sendRequestNotifycation($user, $request);
-
-        return $request;
-    }
-
-    private function createRequest($request_stash_id) {
-
-        $repo = plugin_movieviewer_get_review_pack_purchase_request_repository();
-
-        $request = null;
-        try {
-            $request = $repo->restore($request_stash_id);
-        } catch (Exception $ex) {
-            throw new Exception("指定した内容に誤りがあります。");
-        }
-
-        try {
-            $repo->store($request);
-        } catch (Exception $ex) {
-            throw new Exception("データの保存に失敗しました。");
-        }
-
-        return $request;
-    }
-
-    private function sendBankTransferInformation($user, $request) {
-
-        $payment_guide = MovieViewerReviewPackPurchasePaymentGuide::create($this->settings->payment, $request);
-        $price_with_notes = plugin_movieviewer_render_price_with_notes($request->getPrice(), "回", TRUE);
-        $item_names = $this->getItemNames($request);
-
-        $mail_builder = new MovieViewerReviewPackBankTransferInformationMailBuilder($this->settings->mail);
-        $mail = $mail_builder->build($user, $item_names, $price_with_notes, $payment_guide->bank_transfer, $payment_guide->deadline);
-        $result = $mail->send();
-
-        if (!$result) {
-            MovieViewerLogger::getLogger()->addError(
-                "再視聴案内通知エラー", array("error_statement"=>$mail->ErrorInfo)
-            );
-
-            throw new Exception("メールの送信に失敗しました。");
-        }
-    }
-
-    private function sendRequestNotifycation($user, $request) {
-
-        $payment_guide = MovieViewerReviewPackPurchasePaymentGuide::create($this->settings->payment, $request);
-        $price_with_notes = plugin_movieviewer_render_price_with_notes($request->getPrice(), "回", TRUE);
-        $item_names = $this->getItemNames($request);
-
-        $mail_builder = new MovieViewerReviewPackRequestNotificationMailBuilder($this->settings->mail);
-        $mail = $mail_builder->build($user, $item_names, $price_with_notes, $payment_guide->bank_transfer, $payment_guide->deadline);
-        $result = $mail->send();
-
-        if (!$result) {
-            MovieViewerLogger::getLogger()->addError(
-                "再視聴申し込み通知エラー", array("error_statement"=>$mail->ErrorInfo)
-            );
-
-            // スタッフ向けはログのみで終わらせる
-        }
-    }
-
-    private function getItemNames($request) {
-        $item_names = array();
-        $courses = plugin_movieviewer_get_courses_repository()->find();
-        foreach($request->getItemsByCourse() as $course_id => $items) {
-            $course = $courses->getCourse($course_id);
-            foreach($items as $item) {
-                $session = $course->getSession($item->session_id);
-                $item_names[] = "{$course->describe()} {$session->describe()}";
-            }
-        }
-        return $item_names;
     }
 
 }

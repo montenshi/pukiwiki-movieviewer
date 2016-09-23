@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Pukiwikiプラグイン::動画視聴画面
+ *
+ * PHP version 5.3.4
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  Base
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
+
 require_once "movieviewer.ini.php";
 
 /**

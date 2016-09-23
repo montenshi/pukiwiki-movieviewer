@@ -43,6 +43,11 @@ function plugin_movieviewer_get_review_pack_purchase_request_repository() {
     return new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
 }
 
+function plugin_movieviewer_get_review_pack_payment_confirmation_repository() {
+    $settings = plugin_movieviewer_get_global_settings();
+    return new MovieViewerReviewPackPaymentConfirmationRepositoryInFile($settings);
+}
+
 class MovieViewerRepositoryObjectNotFoundException extends Exception {}
 
 class MovieViewerRepositoryObjectCantStoreException extends Exception {}
@@ -756,6 +761,15 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
 
     const PATH_DATETIME_FORMAT = "YmdHisO";
 
+    static function convertDateTimeToPathParamater($target) {
+        if (is_object($target)) {
+            $formated_date = $target->format(self::PATH_DATETIME_FORMAT);
+        } else {
+            $formated_date = $target;
+        }
+        return $formated_date;
+    }
+
     function __construct($settings) {
         parent::__construct($settings);
     }
@@ -846,15 +860,15 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
 
-        $course_id_and_session_ids = array();
+        $item_ids = array();
         foreach($yaml["review_pack"]["items"] as $item) {
-            $course_id_and_session_ids[] = $item["course_id"] . "_" . sprintf("%02d", $item["session_id"]);
+            $item_ids[] = $item["course_id"] . "_" . sprintf("%02d", $item["session_id"]);
         }
 
         $object = new MovieViewerReviewPackPurchaseRequest(
             $yaml["user_id"], 
             $yaml["purchase_method"], 
-            implode(",", $course_id_and_session_ids), 
+            $item_ids,
             $date_requested
         );
 
@@ -879,11 +893,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
 
     private function getFilePath($user_id, $date_requested) {
         $base_dir = $this->settings->data['dir'];
-        if (is_object($date_requested)) {
-            $formated_date = $date_requested->format(self::PATH_DATETIME_FORMAT);
-        } else {
-            $formated_date = $date_requested;
-        }
+        $formated_date = self::convertDateTimeToPathParamater($date_requested);
+
         return "${base_dir}/purchase/review_pack/{$user_id}_{$formated_date}_purchase_request.yml";
     }
 
@@ -919,10 +930,162 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
 
 class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile {
 
+    const PATH_DATETIME_FORMAT = "YmdHisO";
+
+    static function convertDateTimeToPathParamater($target) {
+        if (is_object($target)) {
+            $formated_date = $target->format(self::PATH_DATETIME_FORMAT);
+        } else {
+            $formated_date = $target;
+        }
+        return $formated_date;
+    }
+
     static function getFilePathFromRequestPath($request_file_path) {
         $file_path = str_replace("_purchase_request.yml", "_purchase_confirm_payment.yml", $request_file_path);
         $file_path = str_replace("/review_pack/", "/review_pack/confirmed/", $file_path);
         return $file_path;
+    }
+
+    function __construct($settings) {
+        parent::__construct($settings);
+    }
+
+    function exists($user_id, $date_requested) {
+        $file_path = $this->getFilePath($user_id, $date_requested);
+        return file_exists($file_path);
+    }
+    
+    function findById($confirmation_id) {
+        list($user_id, $date_requested) = mb_split("###", $confirmation_id, 2);
+
+        return $this->findBy($user_id, $date_requested);
+    }
+
+    function findBy($user_id, $date_requested) {
+
+        $file_path = $this->getFilePath($user_id, $date_requested);
+
+        if (!file_exists($file_path)) {
+            MovieViewerLogger::getLogger()->addError(
+                "ファイルオープンに失敗", array("file" => $file_path));
+
+            throw new MovieViewerRepositoryObjectNotFoundException();
+        }
+
+        $object = $this->createObject($file_path);
+
+        return $object;
+    }
+
+    function findValidsByUser($user_id, $date_target = null) {
+        if ($date_target === null) {
+            $date_target = plugin_movieviewer_now();
+        }
+
+        $data_dir = $this->getGlobPathByUser($user_id);
+
+        $objects = array();
+        foreach( glob($data_dir) as $file_path ) {
+            $object = $this->createObject($file_path);
+            if ( $object->viewing_period->isBetween($date_target) ) {
+                $objects[] = $object;
+            }
+        }
+
+        return $objects;
+    }
+
+    function findNotYetStartedByUser($user_id) {
+
+        $candidates = $this->findBy($user_id, "*");
+
+        $objects = array();
+        foreach($candidates as $candidate) {
+            if ($candidate->getViewingPeriod()->isBefore()) {
+                $objects[] = $candidate;
+            }
+        }
+
+        return $objects;
+    }
+
+    function findAll() {
+
+        $objects = array();
+
+        $data_dir = $this->getGlobPath();
+        foreach( glob($data_dir) as $file_path ) {
+            $object = $this->createObject($file_path);
+            $objects[] = $object;
+        }
+
+        return $objects;
+    }
+
+    function store($object) {
+
+        $data = array();
+        $data["user_id"] = $object->user_id;
+        $data["purchase_method"] = $object->purchase_method;
+        $data["review_pack"] = array();
+        $data["review_pack"]["items"] = array();
+        foreach($object->getItems() as $item) {
+            $data_item = array();
+            $data_item["course_id"] = $item->course_id;
+            $data_item["session_id"] = $item->session_id;
+            $data["review_pack"]["items"][] = $data_item;
+        }
+        $data["date_requested"] = $object->date_requested->format(self::DEFAULT_DATETIME_FORMAT);
+        $data["date_confirmed"] = $object->date_confirmed->format(self::DEFAULT_DATETIME_FORMAT);
+        $date["viewing_period"] = array();
+        $data["viewing_period"]["date_begin"] = $object->getViewingPeriod()->date_begin->format(self::DEFAULT_DATETIME_FORMAT);
+        $data["viewing_period"]["date_end"] = $object->getViewingPeriod()->date_end->format(self::DEFAULT_DATETIME_FORMAT);
+
+        $file_path = $this->getFilePath($object->user_id, $object->date_requested);
+        $this->storeToYaml($file_path, $data);
+    }
+
+    private function createObject($file_path) {
+        $yaml = Spyc::YAMLLoad($file_path);
+        $date_requested = $this->convertToDateTime($yaml["date_requested"]);
+        $date_confirmed = $this->convertToDateTime($yaml["date_confirmed"]);
+        $item_ids = array();
+        foreach($yaml["review_pack"]["items"] as $item) {
+            $item_ids[] = $item["course_id"] . "_" . sprintf("%02d", $item["session_id"]);
+        }
+        $viewing_period = array();
+        $viewing_period["date_begin"] = $this->convertToDateTime($yaml["viewing_period"]["date_begin"]);
+        $viewing_period["date_end"] = $this->convertToDateTime($yaml["viewing_period"]["date_end"]);
+        $object = new MovieViewerReviewPackPaymentConfirmation(
+              $yaml["user_id"]
+            , $yaml["purchase_method"]
+            , $item_ids
+            , $date_requested
+            , $date_confirmed
+            , $viewing_period
+        );
+
+        return $object;
+    }
+
+    private function getFilePath($user_id, $date_requested) {
+        $base_dir = $this->settings->data['dir'];
+        $formated_date = self::convertDateTimeToPathParamater($date_requested);
+        return "${base_dir}/purchase/review_pack/confirmed/{$user_id}_{$formated_date}_purchase_confirm_payment.yml";
+    }
+
+    private function getGlobPath() {
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/review_pack/confirmed/*_purchase_confirm_payment.yml";
+    }
+
+    private function getGlobPathByUser($user_id) {
+        if ($user_id === "" || $user_id === NULL) {
+            $user_id = "*";
+        }
+        $base_dir = $this->settings->data['dir'];
+        return "${base_dir}/purchase/review_pack/confirmed/{$user_id}_*_purchase_confirm_payment.yml";
     }
 }
 

@@ -20,7 +20,7 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $settings = plugin_movieviewer_get_global_settings();
         $repo = new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
 
-        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", "K1Kiso_01");
+        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", array("K1Kiso_01"));
         $repo->store($object);
 
         $object = $repo->findBy("aaa@bbb.ccc", "20150814235959+0900");
@@ -41,7 +41,7 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $settings = plugin_movieviewer_get_global_settings();
         $repo = new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
 
-        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", "K1Kiso_01");
+        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", array("K1Kiso_01"));
         $stash_id = $repo->stash($object);
 
         $this->assertTrue($stash_id !== '');
@@ -55,7 +55,7 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $settings = plugin_movieviewer_get_global_settings();
         $repo = new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
 
-        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", "K1Kiso_01");
+        $object = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", array("K1Kiso_01"));
         $stash_id = $repo->stash($object);
 
         $object = $repo->restore($stash_id);

@@ -92,4 +92,42 @@ class MovieViewerReviewPackPurchaseRequestService {
 
 }
 
+class MovieViewerReviewPackPurchaseConfirmationService {
+
+    private $settings;
+
+    function __construct($settings) {
+        $this->settings = $settings;
+    }
+
+    function preConfirm($request, $date_begin) {
+        return MovieViewerReviewPackPaymentConfirmation::createFromRequest($request, $date_begin);
+    }
+
+    function confirm($request, $date_begin) {
+        $confirmation = MovieViewerReviewPackPaymentConfirmation::createFromRequest($request, $date_begin);
+
+        $periods = $this->addViewingPeriods($confirmation);
+
+        plugin_movieviewer_get_viewing_periods_by_user_repository()->store($periods);
+        plugin_movieviewer_get_review_pack_payment_confirmation_repository()->store($confirmation);
+
+        return $confirmation;
+    }
+
+    private function addViewingPeriods($confirmation) {
+
+        $periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($confirmation->getUser()->id);
+
+        $date_begin = $confirmation->getViewingPeriod()->date_begin;
+        $date_end = $confirmation->getViewingPeriod()->date_end;
+
+        foreach($confirmation->getPack()->getItems() as $item) {
+            $periods->addPeriod($item->course_id, $item->session_id, $date_begin, $date_end);
+        }
+
+        return $periods;
+    }
+}
+
 ?>

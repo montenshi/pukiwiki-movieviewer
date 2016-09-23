@@ -101,10 +101,22 @@ function plugin_movieviewer_convert_error_response($message) {
     <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
     <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
     <p class="caution">{$hsc($message)}</p>
-    <p>
-    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
-    </p>
 TEXT;
+
+    try {
+        $user = plugin_movieviewer_get_current_user();
+
+        if (!$user->isAdmin()) {
+            $content =<<<TEXT
+            $content
+            <p>
+            <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
+            </p>
+TEXT;
+        }
+    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+        // ログインしていない場合は情報を出さない
+    }
 
     return $content;
 }

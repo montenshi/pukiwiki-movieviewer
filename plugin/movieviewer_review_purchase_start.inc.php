@@ -15,7 +15,7 @@ function plugin_movieviewer_review_purchase_start_convert(){
     }
     
     $purchase_method = filter_input(INPUT_GET, "purchase_method");
-    $items = filter_input(INPUT_GET, "items");
+    $items_value = filter_input(INPUT_GET, "items");
 
     try {
         plugin_movieviewer_validate_purchase_method($purchase_method);
@@ -34,6 +34,7 @@ function plugin_movieviewer_review_purchase_start_convert(){
 
     $request = null;
     try {
+        $items = split(',', $items_value);
         $request = new MovieViewerReviewPackPurchaseRequest($user->id, $purchase_method, $items);
     } catch (InvalidArgumentException $ex) {
         return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");

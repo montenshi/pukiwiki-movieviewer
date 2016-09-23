@@ -21,21 +21,31 @@ class MovieViewerReviewPackPrice {
 }
 
 class MovieViewerReviewPackItem {
+
+    static function createInstanceFromId($id) {
+        $params = split("_", $id);
+        if (count($params) !== 2) {
+            throw new InvalidArgumentException();
+        }
+        $object = new MovieViewerReviewPackItem($params[0], $params[1]);
+        return $object;
+    }
+
     public $course_id;
     public $session_id;
 
     private $course;
 
-    function __construct($course_and_session_id) {
-        $params = split("_", $course_and_session_id);
-        if (count($params) !== 2) {
-            throw new InvalidArgumentException();
-        }
-        $this->course_id = $params[0];
-        $this->session_id = $params[1];
+    function __construct($course_id, $session_id) {
+        $this->course_id = $course_id;
+        $this->session_id = $session_id;
 
         $courses = plugin_movieviewer_get_courses_repository()->find();
         $this->course = $courses->getCourse($this->course_id);
+    }
+
+    function getId() {
+        return "{$this->course_id}_{$this->session_id}";
     }
 
     function getCourse() {
@@ -55,13 +65,12 @@ class MovieViewerReviewPack {
     private $items;
     private $price;
 
-    function __construct($course_and_session_ids) {
+    function __construct($item_ids) {
         $this->items = array();
 
-        $params = split(",", $course_and_session_ids);
-        foreach($params as $param) {
-            if ($param !== '') {
-                $this->items[] = new MovieViewerReviewPackItem($param);
+        foreach($item_ids as $item_id) {
+            if ($item_id !== '') {
+                $this->items[] = MovieViewerReviewPackItem::createInstanceFromId($item_id);
             }
         }
 

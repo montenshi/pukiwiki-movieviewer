@@ -14,8 +14,12 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
     }
 
     public function testConstructorCreatesReviewItems() {
-        $sessions_string = "K1Kiso_01,K2Kiso_02,K2Kiso_06,K2Kiso_08";
-        $object = new MovieViewerReviewPack($sessions_string);
+        $params = array();
+        $params[] = "K1Kiso_01";
+        $params[] = "K2Kiso_02";
+        $params[] = "K2Kiso_06";
+        $params[] = "K2Kiso_08";
+        $object = new MovieViewerReviewPack($params);
 
         $items = $object->getItems();
         $this->assertEquals(4, count($items));
@@ -26,8 +30,12 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
     }
 
     public function testGetItemsByCourseReturnsSortedObjectsByCourse() {
-        $sessions_string = "K1Kiso_01,K2Kiso_02,K2Kiso_06,K2Kiso_08";
-        $object = new MovieViewerReviewPack($sessions_string);
+        $params = array();
+        $params[] = "K1Kiso_01";
+        $params[] = "K2Kiso_02";
+        $params[] = "K2Kiso_06";
+        $params[] = "K2Kiso_08";
+        $object = new MovieViewerReviewPack($params);
 
         $courses = $object->getItemsByCourse();
         $this->assertEquals(2, count($courses));
@@ -44,8 +52,12 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
     }
 
     public function testGetPriceReturnsPackPrice() {
-        $sessions_string = "K1Kiso_01,K2Kiso_02,K2Kiso_06,K2Kiso_08";
-        $object = new MovieViewerReviewPack($sessions_string);
+        $params = array();
+        $params[] = "K1Kiso_01";
+        $params[] = "K2Kiso_02";
+        $params[] = "K2Kiso_06";
+        $params[] = "K2Kiso_08";
+        $object = new MovieViewerReviewPack($params);
 
         $price = $object->getPrice();
         $this->assertEquals(500 * 4, $price->getTotalAmountWithoutTax());

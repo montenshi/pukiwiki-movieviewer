@@ -1,104 +1,135 @@
 <?php
 
-require_once(PLUGIN_MOVIEVIEWER_PLUGIN_DIR . "/movieviewer/spyc.php");
-require_once(PLUGIN_MOVIEVIEWER_COMMU_DIR . '/cheetan/db/textsql.php');
+/**
+ * Pukiwikiプラグイン::動画視聴 リポジトリ(永続化)
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Repositories
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_get_user_repository() {
+require_once PLUGIN_MOVIEVIEWER_PLUGIN_DIR . "/movieviewer/spyc.php";
+require_once PLUGIN_MOVIEVIEWER_COMMU_DIR . '/cheetan/db/textsql.php';
+
+function plugin_movieviewer_get_user_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return MovieViewerUserRepositoryFactory::createInstance($settings->auth_module, $settings);
 }
 
-function plugin_movieviewer_get_courses_repository() {
+function plugin_movieviewer_get_courses_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerCoursesRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_viewing_periods_by_user_repository() {
+function plugin_movieviewer_get_viewing_periods_by_user_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerViewingPeriodsByUserRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_user_reset_password_token_repository() {
+function plugin_movieviewer_get_user_reset_password_token_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerUserResetPasswordTokenRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_deal_pack_repository() {
+function plugin_movieviewer_get_deal_pack_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerDealPackRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_deal_pack_purchase_request_repository() {
+function plugin_movieviewer_get_deal_pack_purchase_request_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerDealPackPurchaseRequestRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_deal_pack_payment_confirmation_repository() {
+function plugin_movieviewer_get_deal_pack_payment_confirmation_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerDealPackPaymentConfirmationRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_review_pack_purchase_request_repository() {
+function plugin_movieviewer_get_review_pack_purchase_request_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
 }
 
-function plugin_movieviewer_get_review_pack_payment_confirmation_repository() {
+function plugin_movieviewer_get_review_pack_payment_confirmation_repository()
+{
     $settings = plugin_movieviewer_get_global_settings();
     return new MovieViewerReviewPackPaymentConfirmationRepositoryInFile($settings);
 }
 
-class MovieViewerRepositoryObjectNotFoundException extends Exception {}
+class MovieViewerRepositoryObjectNotFoundException extends Exception
+{
+}
 
-class MovieViewerRepositoryObjectCantStoreException extends Exception {}
+class MovieViewerRepositoryObjectCantStoreException extends Exception
+{
+}
 
-class MovieViewerRepositoryInFile {
-
+class MovieViewerRepositoryInFile
+{
     const DEFAULT_DATETIME_FORMAT = "Y-m-d H:i:sP";
 
     protected $settings = array();
 
-    function __construct($settings) {
+    function __construct($settings)
+    {
         $this->settings = $settings;
     }
 
-    protected function storeToYaml($file_path, $data) {
-
+    protected function storeToYaml($file_path, $data)
+    {
         $dir_path = dirname($file_path);
 
         if (!file_exists($dir_path)) {
-            mkdir($dir_path, 0777, TRUE);
+            mkdir($dir_path, 0777, true);
         }
 
         $fp = fopen($file_path, 'w');
 
-        if ($fp === FALSE) {
+        if ($fp === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルオープンに失敗");
         }
 
         if (!flock($fp, LOCK_EX)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのロックに失敗", array("file" => $file_path));
+                "ファイルのロックに失敗", array("file" => $file_path)
+            );
 
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロックに失敗");
         }
 
-        if (fputs($fp, Spyc::YAMLDump($data)) === FALSE) {
+        if (fputs($fp, Spyc::YAMLDump($data)) === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルの書きこみに失敗", array("file" => $file_path));
+                "ファイルの書きこみに失敗", array("file" => $file_path)
+            );
 
             flock($fp, LOCK_UN);
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルの書きこみに失敗");
         }
 
-        if (fflush($fp) === FALSE) {
+        if (fflush($fp) === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのフラッシュに失敗", array("file" => $file_path));
+                "ファイルのフラッシュに失敗", array("file" => $file_path)
+            );
 
             flock($fp, LOCK_UN);
             fclose($fp);
@@ -107,7 +138,8 @@ class MovieViewerRepositoryInFile {
 
         if (!flock($fp, LOCK_UN)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのロック解除に失敗", array("file" => $file_path));
+                "ファイルのロック解除に失敗", array("file" => $file_path)
+            );
 
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロック解除に失敗");
@@ -115,21 +147,25 @@ class MovieViewerRepositoryInFile {
 
         if (!fclose($fp)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのクローズに失敗", array("file" => $file_path));
+                "ファイルのクローズに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのクローズに失敗");
         }
     }
 
-    function convertToDateTime($yaml_value) {
+    protected function convertToDateTime($yaml_value)
+    {
         $date_target = new DateTime(null, $this->settings->timezone);
         $date_target->setTimestamp(strtotime($yaml_value));
         return $date_target;
     }
 }
 
-class MovieViewerUserRepositoryFactory {
-    public static function createInstance($auth_module, $settings) {
+class MovieViewerUserRepositoryFactory
+{
+    static function createInstance($auth_module, $settings)
+    {
         if ($auth_module === PLUGIN_MOVIEVIEWER_AUTH_MODULE_COMMU) {
             return new MovieViewerUserRepositoryInCommuDb($settings);
         } else {
@@ -138,13 +174,15 @@ class MovieViewerUserRepositoryFactory {
     }
 }
 
-class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
-    function __construct($settings) {
+class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($id) {
-
+    function findById($id)
+    {
         if ($this->isAdmin($id)) {
             return $this->createAdmin();
         }
@@ -154,7 +192,8 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
 
         if (count($result) !== 1) {
             MovieViewerLogger::getLogger()->addError(
-                "ユーザが見つからない", array("id" => $id));
+                "ユーザが見つからない", array("id" => $id)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -173,22 +212,25 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         return $object;
     }
 
-    public function updateLastLogin($object) {        
+    function updateLastLogin($object)
+    {
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
         $db->update(array("last_login" => date(self::DEFAULT_DATETIME_FORMAT)), "\$id=='{$object->commuId}'");
     }
     
-    public function store($object) {
+    function store($object)
+    {
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/user.txt");
         $db->update(array("id" => $object->commuId, "password" => $object->hashedPassword), "\$id=='{$object->commuId}'");
     }
 
-    function isAdmin($id) {
+    function isAdmin($id)
+    {
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/admin.txt");
         $result = $db->select('$id==\'1\'');
 
         if (count($result) !== 1) {
-            return FALSE;
+            return false;
         }
 
         $adminId = $result[0]['value'];
@@ -196,7 +238,8 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
         return ($adminId === $id);
     }
 
-    function createAdmin() {
+    function createAdmin()
+    {
         $db = new CTextDB(PLUGIN_MOVIEVIEWER_COMMU_DIR . "/data/admin.txt");
         $result = $db->select('$id==\'1\'');
         $id = $result[0]['value'];
@@ -214,19 +257,21 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile {
     }
 }
 
-class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($id) {
-
+    function findById($id)
+    {
         $file_path = $this->getFilePath($id);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -243,22 +288,24 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
         return $object;
     }
 
-    public function store($object) {
-
+    function store($object)
+    {
         $file_path = $this->getFilePath($object->id);
 
         $fp = fopen($file_path, 'w');
 
-        if ($fp === FALSE) {
+        if ($fp === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルオープンに失敗");
         }
 
         if (!flock($fp, LOCK_EX)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのロックに失敗", array("file" => $file_path));
+                "ファイルのロックに失敗", array("file" => $file_path)
+            );
 
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロックに失敗");
@@ -272,18 +319,20 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
         $data["hashedPassword"] = $object->hashedPassword;
         $data["memberId"] = $object->memberId;
 
-        if (fputs($fp, Spyc::YAMLDump($data)) === FALSE) {
+        if (fputs($fp, Spyc::YAMLDump($data)) === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルの書きこみに失敗", array("file" => $file_path));
+                "ファイルの書きこみに失敗", array("file" => $file_path)
+            );
 
             flock($fp, LOCK_UN);
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルの書きこみに失敗");
         }
 
-        if (fflush($fp) === FALSE) {
+        if (fflush($fp) === false) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのフラッシュに失敗", array("file" => $file_path));
+                "ファイルのフラッシュに失敗", array("file" => $file_path)
+            );
 
             flock($fp, LOCK_UN);
             fclose($fp);
@@ -292,7 +341,8 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
 
         if (!flock($fp, LOCK_UN)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのロック解除に失敗", array("file" => $file_path));
+                "ファイルのロック解除に失敗", array("file" => $file_path)
+            );
 
             fclose($fp);
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのロック解除に失敗");
@@ -300,25 +350,29 @@ class MovieViewerUserRepositoryInFile extends MovieViewerRepositoryInFile {
 
         if (!fclose($fp)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルのクローズに失敗", array("file" => $file_path));
+                "ファイルのクローズに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectCantStoreException("ファイルのクローズに失敗");
         }
     }
 
-    function getFilePath($id) {
+    private function getFilePath($id)
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/users/${id}/user.yml";
     }
 }
 
-class MovieViewerCoursesRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerCoursesRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function find() {
+    function find()
+    {
         $object = new MovieViewerCourses();
         $yaml = Spyc::YAMLLoad($this->getFilePath());
         foreach ($yaml["courses"] as $data) {
@@ -349,20 +403,22 @@ class MovieViewerCoursesRepositoryInFile extends MovieViewerRepositoryInFile {
         return $object;
     }
 
-    function getFilePath() {
+    private function getFilePath()
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/courses.yml";
     }
 }
 
-class MovieViewerViewingPeriodsByUserRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerViewingPeriodsByUserRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($id) {
-
+    function findById($id)
+    {
         $yaml = Spyc::YAMLLoad($this->getFilePath($id));
         $object = new MovieViewerViewingPeriodsByUser($id);
 
@@ -374,19 +430,21 @@ class MovieViewerViewingPeriodsByUserRepositoryInFile extends MovieViewerReposit
 
             $period["session_id"] = sprintf("%02d", $period["session_id"]);
 
-            $object->addPeriod($period["course_id"], $period["session_id"],
-                               $date_begin, $date_end);
+            $object->addPeriod(
+                $period["course_id"], $period["session_id"],
+                $date_begin, $date_end
+            );
         }
 
         return $object;
     }
 
-    public function store($object) {
-
+    function store($object)
+    {
         $data = array();
         $data["viewing_periods"] = array();
 
-        foreach($object->getAllPeriods() as $period) {
+        foreach ($object->getAllPeriods() as $period) {
             $data_period = array();
             $data_period["course_id"] = $period->course_id;
             $data_period["session_id"] = $period->session_id;
@@ -400,25 +458,29 @@ class MovieViewerViewingPeriodsByUserRepositoryInFile extends MovieViewerReposit
         $this->storeToYaml($file_path, $data);
     }
 
-    function getFilePath($id) {
+    private function getFilePath($id)
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/users/${id}/viewing_periods.yml";
     }
 }
 
-class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($id) {
+    function findById($id)
+    {
         $data_dir = $this->getDirPath();
         $files = glob("${data_dir}/${id}_*.yml");
 
         if (count($files) === 0) {
             MovieViewerLogger::getLogger()->addError(
-                "トークンが見つからない", array("data_dir" => $data_dir, "token_id" => $id));
+                "トークンが見つからない", array("data_dir" => $data_dir, "token_id" => $id)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -433,8 +495,8 @@ class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepos
         return $token;
     }
 
-    public function store($object) {
-
+    function store($object)
+    {
         $this->cleanUpToken($object->user_id);
 
         $data = array();
@@ -446,12 +508,14 @@ class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepos
         $this->storeToYaml($file_path, $data);
     }
 
-    public function delete($object) {
+    function delete($object)
+    {
         $file_path = $this->getFilePath($object->id, $object->user_id);
         unlink($file_path);
     }
 
-    public function deleteExpiredTokens($date_target = null) {
+    function deleteExpiredTokens($date_target = null)
+    {
         // 指定のない場合は現在日時
         if ($date_target == null) {
             $timezone = $this->settings->timezone;
@@ -459,51 +523,58 @@ class MovieViewerUserResetPasswordTokenRepositoryInFile extends MovieViewerRepos
         }
 
         $data_dir = $this->getDirPath();
-        foreach( glob("${data_dir}/*.yml") as $file ) {
+        foreach (glob("${data_dir}/*.yml") as $file) {
             $yaml = Spyc::YAMLLoad($file);
             $date_expire = $this->convertToDateTime($yaml["date_expire"]);
 
             if ($date_expire < $date_target) {
                 MovieViewerLogger::getLogger()->addInfo(
-                    "期限切れのトークンを削除", array("file" => $file, "date_expire" => $yaml["date_expire"]));
+                    "期限切れのトークンを削除", array("file" => $file, "date_expire" => $yaml["date_expire"])
+                );
 
                 unlink($file);
             }
         }
     }
 
-    function cleanUpToken($user_id) {
+    function cleanUpToken($user_id)
+    {
         $data_dir = $this->getDirPath();
-        foreach( glob("${data_dir}/*_${user_id}.yml") as $file ) {
+        foreach (glob("${data_dir}/*_${user_id}.yml") as $file) {
             unlink($file);
         }
     }
 
-    function getFilePath($token_id, $user_id) {
+    private function getFilePath($token_id, $user_id)
+    {
         $data_dir = $this->getDirPath();
         return "${data_dir}/${token_id}_${user_id}.yml";
     }
 
-    function getDirPath() {
+    private function getDirPath()
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/reset_password";
     }
 }
 
-class MovieViewerDealPackRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerDealPackRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($pack_id) {
+    function findById($pack_id)
+    {
         //TODO: DealPackを永続化する方法を検討する
         $container = new MovieViewerS4DealContainer();
         $pack = $container->getPack($pack_id);
 
-        if ($pack === NULL) {
+        if ($pack === null) {
             MovieViewerLogger::getLogger()->addError(
-                "パックが見つからない", array("pack_id" => $pack_id));
+                "パックが見つからない", array("pack_id" => $pack_id)
+            );
 
             throw new MovieViewerRepositoryObjectCantStoreException();
         }
@@ -512,25 +583,28 @@ class MovieViewerDealPackRepositoryInFile extends MovieViewerRepositoryInFile {
     }
 }
 
-class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function findById($request_id) {
+    function findById($request_id)
+    {
         list($user_id, $pack_id) = mb_split("###", $request_id, 2);
 
         return $this->findBy($user_id, $pack_id);
     }
 
-    public function findBy($user_id, $pack_id) {
-
+    function findBy($user_id, $pack_id)
+    {
         $file_path = $this->getFilePath($user_id, $pack_id);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -540,14 +614,14 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         return $object;
     }
 
-    public function findRequestingByUser($user_id) {
-
+    function findRequestingByUser($user_id)
+    {
         $objects = array();
 
         $repo_conf = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
 
         $data_dir = $this->getGlobPathByUser($user_id);
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
 
             if ($repo_conf->exists($object->user_id, $object->pack_id)) {
@@ -560,12 +634,12 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         return $objects;
     }
 
-    public function findAll() {
-
+    function findAll()
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPath();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
             $objects[] = $object;
         }
@@ -573,8 +647,8 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         return $objects;
     }
 
-    public function store($object) {
-
+    function store($object)
+    {
         $data = array();
         $data["user_id"] = $object->user_id;
         $data["pack_id"] = $object->pack_id;
@@ -584,7 +658,8 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         $this->storeToYaml($file_path, $data);
     }
 
-    function createObject($file_path) {
+    private function createObject($file_path)
+    {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
         $object = new MovieViewerDealPackPurchaseRequest($yaml["user_id"], $yaml["pack_id"], $date_requested);
@@ -592,21 +667,24 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
         return $object;
     }
 
-    function getFilePath($user_id, $pack_id) {
+    private function getFilePath($user_id, $pack_id)
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/deal_pack/{$pack_id}/{$user_id}_purchase_request.yml";
     }
 
-    function getGlobPath($pack_id) {
-        if ($pack_id === "" || $pack_id === NULL) {
+    private function getGlobPath($pack_id)
+    {
+        if ($pack_id === "" || $pack_id === null) {
             $pack_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/deal_pack/${pack_id}/*_purchase_request.yml";
     }
 
-    function getGlobPathByUser($user_id) {
-        if ($user_id === "" || $user_id === NULL) {
+    private function getGlobPathByUser($user_id)
+    {
+        if ($user_id === "" || $user_id === null) {
             $user_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
@@ -614,31 +692,35 @@ class MovieViewerDealPackPurchaseRequestRepositoryInFile extends MovieViewerRepo
     }
 }
 
-class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile {
-
-    function __construct($settings) {
+class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile
+{
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    public function exists($user_id, $pack_id) {
+    function exists($user_id, $pack_id)
+    {
         $file_path = $this->getFilePath($user_id, $pack_id);
 
         return file_exists($file_path);
     }
     
-    public function findById($confirmation_id) {
+    function findById($confirmation_id)
+    {
         list($user_id, $pack_id) = mb_split("###", $confirmation_id, 2);
 
         return $this->findBy($user_id, $pack_id);
     }
 
-    public function findBy($user_id, $pack_id) {
-
+    function findBy($user_id, $pack_id)
+    {
         $file_path = $this->getFilePath($user_id, $pack_id);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -648,13 +730,13 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $object;
     }
 
-    public function findByCourse($user_id, $course_id) {
-
+    function findByCourse($user_id, $course_id)
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPathByCourse($user_id, $course_id);
 
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
             $objects[] = $object;
         }
@@ -662,7 +744,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
     
-    public function findValidsByUser($user_id, $date_target = null) {
+    function findValidsByUser($user_id, $date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
@@ -670,9 +753,9 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         $data_dir = $this->getGlobPathByCourse($user_id, "*");
 
         $objects = array();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
-            if ( $object->viewing_period->isBetween($date_target) ) {
+            if ($object->viewing_period->isBetween($date_target)) {
                 $objects[] = $object;
             }
         }
@@ -680,12 +763,12 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
 
-    public function findByNotYetStartedUser($user_id) {
-
+    function findByNotYetStartedUser($user_id)
+    {
         $candidates = $this->findByCourse($user_id, "*");
 
         $objects = array();
-        foreach($candidates as $candidate) {
+        foreach ($candidates as $candidate) {
             if ($candidate->getViewingPeriod()->isBefore()) {
                 $objects[] = $candidate;
             }
@@ -694,12 +777,12 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
 
-    public function findAll() {
-
+    function findAll()
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPath();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
             $objects[] = $object;
         }
@@ -707,8 +790,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $objects;
     }
 
-    public function store($object) {
-
+    function store($object)
+    {
         $data = array();
         $data["user_id"] = $object->user_id;
         $data["pack_id"] = $object->pack_id;
@@ -721,7 +804,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         $this->storeToYaml($file_path, $data);
     }
 
-    function createObject($file_path) {
+    private function createObject($file_path)
+    {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_confirmed = $this->convertToDateTime($yaml["date_confirmed"]);
         $viewing_period = array();
@@ -732,24 +816,27 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
         return $object;
     }
 
-    function getFilePath($user_id, $pack_id) {
+    private function getFilePath($user_id, $pack_id)
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/deal_pack/{$pack_id}/confirmed/{$user_id}_purchase_confirm_payment.yml";
     }
 
-    function getGlobPath($pack_id) {
-        if ($pack_id === "" || $pack_id === NULL) {
+    private function getGlobPath($pack_id)
+    {
+        if ($pack_id === "" || $pack_id === null) {
             $pack_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/deal_pack/${pack_id}/confirmed/*_purchase_confirm_payment.yml";
     }
 
-    function getGlobPathByCourse($user_id, $course_id) {
-        if ($user_id === "" || $user_id === NULL) {
+    private function getGlobPathByCourse($user_id, $course_id)
+    {
+        if ($user_id === "" || $user_id === null) {
             $user_id = "*";
         }
-        if ($course_id === "" || $course_id === NULL) {
+        if ($course_id === "" || $course_id === null) {
             $course_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
@@ -757,11 +844,12 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFile extends MovieViewer
     }
 }
 
-class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRepositoryInFile {
-
+class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRepositoryInFile
+{
     const PATH_DATETIME_FORMAT = "YmdHisO";
 
-    static function convertDateTimeToPathParamater($target) {
+    static function convertDateTimeToPathParamater($target)
+    {
         if (is_object($target)) {
             $formated_date = $target->format(self::PATH_DATETIME_FORMAT);
         } else {
@@ -770,23 +858,26 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $formated_date;
     }
 
-    function __construct($settings) {
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    function findById($id) {
+    function findById($id)
+    {
         list($user_id, $date_requested) = mb_split("###", $id, 2);
 
         return $this->findBy($user_id, $date_requested);
     }
 
-    function findBy($user_id, $date_requested) {
-
+    function findBy($user_id, $date_requested)
+    {
         $file_path = $this->getFilePath($user_id, $date_requested);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -796,14 +887,14 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $object;
     }
 
-    function findNotYetConfirmed() {
-
+    function findNotYetConfirmed()
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPath();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $file_path_confirmed = MovieViewerReviewPackPaymentConfirmationRepositoryInFile::getFilePathFromRequestPath($file_path);
-            if ( file_exists($file_path_confirmed) ) {
+            if (file_exists($file_path_confirmed)) {
                 continue;
             }
 
@@ -814,12 +905,12 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $objects;
     }
 
-    function findAll() {
-
+    function findAll()
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPath();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
             $objects[] = $object;
         }
@@ -827,26 +918,30 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $objects;
     }
 
-    function store($object) {
+    function store($object)
+    {
         $data = $this->serializeObject($object);
         $file_path = $this->getFilePath($object->user_id, $object->getDateRequested());
         $this->storeToYaml($file_path, $data);
     }
 
-    function stash($object) {
-        $uid = uniqid("", TRUE);
+    function stash($object)
+    {
+        $uid = uniqid("", true);
         $data = $this->serializeObject($object);
         $file_path = $this->getFilePathForStash($uid);
         $this->storeToYaml($file_path, $data);
         return $uid;
     }
 
-    function restore($stash_id) {
+    function restore($stash_id)
+    {
         $file_path = $this->getFilePathForStash($stash_id);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -856,7 +951,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $object;
     }
 
-    private function createObject($file_path) {
+    private function createObject($file_path)
+    {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
 
@@ -875,13 +971,14 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $object;
     }
 
-    private function serializeObject($object) {
+    private function serializeObject($object)
+    {
         $data = array();
         $data["user_id"] = $object->user_id;
         $data["purchase_method"] = $object->purchase_method;
         $data["review_pack"] = array();
         $data["review_pack"]["items"] = array();
-        foreach($object->getItems() as $item) {
+        foreach ($object->getItems() as $item) {
             $data_item = array();
             $data_item["course_id"] = $item->course_id;
             $data_item["session_id"] = $item->session_id;
@@ -891,27 +988,30 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $data;
     }
 
-    private function getFilePath($user_id, $date_requested) {
+    private function getFilePath($user_id, $date_requested)
+    {
         $base_dir = $this->settings->data['dir'];
         $formated_date = self::convertDateTimeToPathParamater($date_requested);
 
         return "${base_dir}/purchase/review_pack/{$user_id}_{$formated_date}_purchase_request.yml";
     }
 
-    private function getFilePathForStash($uid) {
+    private function getFilePathForStash($uid)
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/review_pack/_stash/{$uid}.yml";
     }
 
-    private function getGlobPath($user_id = NULL, $date_requested = NULL) {
-        if ($user_id === "" || $user_id === NULL) {
+    private function getGlobPath($user_id = null, $date_requested = null)
+    {
+        if ($user_id === "" || $user_id === null) {
             $user_id = "*";
         }
         if (is_object($date_requested)) {
             $formated_date = $date_requested->format(self::PATH_DATETIME_FORMAT);
         } else {
             $formated_date = $date_requested;
-            if ($formated_date === "" || $formated_date === NULL) {
+            if ($formated_date === "" || $formated_date === null) {
                 $formated_date = "*";
             }
         }
@@ -919,8 +1019,9 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return "${base_dir}/purchase/review_pack/{$user_id}_{$formated_date}_purchase_request.yml";
     }
 
-    private function getGlobPathByUser($user_id) {
-        if ($user_id === "" || $user_id === NULL) {
+    private function getGlobPathByUser($user_id)
+    {
+        if ($user_id === "" || $user_id === null) {
             $user_id = "*";
         }
         $base_dir = $this->settings->data['dir'];
@@ -928,11 +1029,12 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
     }
 }
 
-class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile {
-
+class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieViewerRepositoryInFile
+{
     const PATH_DATETIME_FORMAT = "YmdHisO";
 
-    static function convertDateTimeToPathParamater($target) {
+    static function convertDateTimeToPathParamater($target)
+    {
         if (is_object($target)) {
             $formated_date = $target->format(self::PATH_DATETIME_FORMAT);
         } else {
@@ -941,34 +1043,39 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         return $formated_date;
     }
 
-    static function getFilePathFromRequestPath($request_file_path) {
+    static function getFilePathFromRequestPath($request_file_path)
+    {
         $file_path = str_replace("_purchase_request.yml", "_purchase_confirm_payment.yml", $request_file_path);
         $file_path = str_replace("/review_pack/", "/review_pack/confirmed/", $file_path);
         return $file_path;
     }
 
-    function __construct($settings) {
+    function __construct($settings)
+    {
         parent::__construct($settings);
     }
 
-    function exists($user_id, $date_requested) {
+    function exists($user_id, $date_requested)
+    {
         $file_path = $this->getFilePath($user_id, $date_requested);
         return file_exists($file_path);
     }
     
-    function findById($confirmation_id) {
+    function findById($confirmation_id)
+    {
         list($user_id, $date_requested) = mb_split("###", $confirmation_id, 2);
 
         return $this->findBy($user_id, $date_requested);
     }
 
-    function findBy($user_id, $date_requested) {
-
+    function findBy($user_id, $date_requested)
+    {
         $file_path = $this->getFilePath($user_id, $date_requested);
 
         if (!file_exists($file_path)) {
             MovieViewerLogger::getLogger()->addError(
-                "ファイルオープンに失敗", array("file" => $file_path));
+                "ファイルオープンに失敗", array("file" => $file_path)
+            );
 
             throw new MovieViewerRepositoryObjectNotFoundException();
         }
@@ -978,7 +1085,8 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         return $object;
     }
 
-    function findValidsByUser($user_id, $date_target = null) {
+    function findValidsByUser($user_id, $date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
@@ -986,9 +1094,9 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         $data_dir = $this->getGlobPathByUser($user_id);
 
         $objects = array();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
-            if ( $object->viewing_period->isBetween($date_target) ) {
+            if ($object->viewing_period->isBetween($date_target)) {
                 $objects[] = $object;
             }
         }
@@ -996,12 +1104,12 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         return $objects;
     }
 
-    function findNotYetStartedByUser($user_id) {
-
+    function findNotYetStartedByUser($user_id)
+    {
         $candidates = $this->findBy($user_id, "*");
 
         $objects = array();
-        foreach($candidates as $candidate) {
+        foreach ($candidates as $candidate) {
             if ($candidate->getViewingPeriod()->isBefore()) {
                 $objects[] = $candidate;
             }
@@ -1010,12 +1118,12 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         return $objects;
     }
 
-    function findAll() {
-
+    function findAll()
+    {
         $objects = array();
 
         $data_dir = $this->getGlobPath();
-        foreach( glob($data_dir) as $file_path ) {
+        foreach (glob($data_dir) as $file_path) {
             $object = $this->createObject($file_path);
             $objects[] = $object;
         }
@@ -1023,14 +1131,14 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         return $objects;
     }
 
-    function store($object) {
-
+    function store($object)
+    {
         $data = array();
         $data["user_id"] = $object->user_id;
         $data["purchase_method"] = $object->purchase_method;
         $data["review_pack"] = array();
         $data["review_pack"]["items"] = array();
-        foreach($object->getItems() as $item) {
+        foreach ($object->getItems() as $item) {
             $data_item = array();
             $data_item["course_id"] = $item->course_id;
             $data_item["session_id"] = $item->session_id;
@@ -1046,42 +1154,46 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
         $this->storeToYaml($file_path, $data);
     }
 
-    private function createObject($file_path) {
+    private function createObject($file_path)
+    {
         $yaml = Spyc::YAMLLoad($file_path);
         $date_requested = $this->convertToDateTime($yaml["date_requested"]);
         $date_confirmed = $this->convertToDateTime($yaml["date_confirmed"]);
         $item_ids = array();
-        foreach($yaml["review_pack"]["items"] as $item) {
+        foreach ($yaml["review_pack"]["items"] as $item) {
             $item_ids[] = $item["course_id"] . "_" . sprintf("%02d", $item["session_id"]);
         }
         $viewing_period = array();
         $viewing_period["date_begin"] = $this->convertToDateTime($yaml["viewing_period"]["date_begin"]);
         $viewing_period["date_end"] = $this->convertToDateTime($yaml["viewing_period"]["date_end"]);
         $object = new MovieViewerReviewPackPaymentConfirmation(
-              $yaml["user_id"]
-            , $yaml["purchase_method"]
-            , $item_ids
-            , $date_requested
-            , $date_confirmed
-            , $viewing_period
+            $yaml["user_id"],
+            $yaml["purchase_method"],
+            $item_ids,
+            $date_requested,
+            $date_confirmed,
+            $viewing_period
         );
 
         return $object;
     }
 
-    private function getFilePath($user_id, $date_requested) {
+    private function getFilePath($user_id, $date_requested)
+    {
         $base_dir = $this->settings->data['dir'];
         $formated_date = self::convertDateTimeToPathParamater($date_requested);
         return "${base_dir}/purchase/review_pack/confirmed/{$user_id}_{$formated_date}_purchase_confirm_payment.yml";
     }
 
-    private function getGlobPath() {
+    private function getGlobPath()
+    {
         $base_dir = $this->settings->data['dir'];
         return "${base_dir}/purchase/review_pack/confirmed/*_purchase_confirm_payment.yml";
     }
 
-    private function getGlobPathByUser($user_id) {
-        if ($user_id === "" || $user_id === NULL) {
+    private function getGlobPathByUser($user_id)
+    {
+        if ($user_id === "" || $user_id === null) {
             $user_id = "*";
         }
         $base_dir = $this->settings->data['dir'];

@@ -1,17 +1,35 @@
 <?php
 
-class MovieViewerUserResetPasswordToken {
+/**
+ * Pukiwikiプラグイン::動画視聴 視聴期限
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.ViewingPeriod
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
+
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
+
+class MovieViewerUserResetPasswordToken
+{
     public $id;
     public $user_id;
     public $date_exipire;
 
-    function __construct($user_id) {
+    function __construct($user_id)
+    {
         $this->id = hash("md5", mt_rand());
         $this->user_id = $user_id;
         $this->date_expire = plugin_movieviewer_now()->add(new DateInterval('PT1H'));
     }
 
-    public function isValid($date_target = null) {
+    function isValid($date_target = null)
+    {
         // 指定のない場合は現在日時
         if ($date_target == null) {
             $timezone = plugin_movieviewer_get_global_settings()->timezone;
@@ -19,22 +37,26 @@ class MovieViewerUserResetPasswordToken {
         }
 
         if ($this->date_expire >= $date_target) {
-            return TRUE;
+            return true;
         }
-        return FALSE;
+
+        return false;
     }
 }
 
-class MovieViewerPeriod {
+class MovieViewerPeriod
+{
     public $date_begin;
     public $date_end;
 
-    function __construct($date_begin, $date_end) {
+    function __construct($date_begin, $date_end)
+    {
         $this->date_begin = $date_begin;
         $this->date_end = $date_end;
     }
 
-    public function isBefore($date_target = null) {
+    function isBefore($date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
@@ -42,7 +64,8 @@ class MovieViewerPeriod {
         return ($this->date_begin > $date_target);
     }
 
-    public function isBetween($date_target = null) {
+    function isBetween($date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
@@ -50,7 +73,8 @@ class MovieViewerPeriod {
         return ($this->date_begin <= $date_target && $date_target <= $this->date_end);
     }
 
-    public function isExpired($date_target = null) {
+    function isExpired($date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
@@ -58,13 +82,14 @@ class MovieViewerPeriod {
         return ($this->date_end < $date_target);
     }
 
-    public function aboutToExpire($date_target = null) {
+    function aboutToExpire($date_target = null)
+    {
         if ($date_target === null) {
             $date_target = plugin_movieviewer_now();
         }
 
         if ($this->isExpired($date_target)) {
-            return FALSE;
+            return false;
         }
 
         $date_calc = new DateTime($date_target->format('Y-m-d H:i:sP'));
@@ -73,9 +98,10 @@ class MovieViewerPeriod {
     }
 }
 
-class MovieViewerViewingPeriod {
-
-    public static function sortByCourse($periods) {
+class MovieViewerViewingPeriod
+{
+    static function sortByCourse($periods)
+    {
         $viewing_periods_by_course = array();
         $current_course_id = '';
         foreach ($periods as $period) {
@@ -100,27 +126,32 @@ class MovieViewerViewingPeriod {
         $this->date_end = $date_end;
     }
 
-    public function isExpired($target) {
+    function isExpired($target)
+    {
         $timezone = plugin_movieviewer_get_global_settings()->timezone;
         $target_dateonly = new DateTime($target->format('Y-m-d'), $timezone);
 
         if ($this->date_end < $target_dateonly) {
-            return TRUE;
+            return true;
         }
-        return FALSE;
+
+        return false;
     }
 
-    public function isValid($target) {
+    function isValid($target)
+    {
         $timezone = plugin_movieviewer_get_global_settings()->timezone;
         $target_dateonly = new DateTime($target->format('Y-m-d'), $timezone);
 
         if (($this->date_end >= $target_dateonly) && ($this->date_begin <= $target_dateonly)) {
-            return TRUE;
+            return true;
         }
-        return FALSE;
+
+        return false;
     }
 
-    public function getDurationToEnd($target) {
+    function getDurationToEnd($target)
+    {
         $timezone = plugin_movieviewer_get_global_settings()->timezone;
         $target_dateonly = new DateTime($target->format('Y-m-d'), $timezone);
 
@@ -128,15 +159,18 @@ class MovieViewerViewingPeriod {
     }
 }
 
-class MovieViewerViewingPeriodsByUser {
+class MovieViewerViewingPeriodsByUser
+{
     public $user_id;
-    private $periods = array();
+    private $_periods = array();
 
-    function __construct($user_id) {
+    function __construct($user_id)
+    {
         $this->user_id = $user_id;
     }
 
-    public function getValidPeriods($date_target = null) {
+    function getValidPeriods($date_target = null)
+    {
         // 指定のない場合は現在日時
         if ($date_target == null) {
             $timezone = plugin_movieviewer_get_global_settings()->timezone;
@@ -145,7 +179,7 @@ class MovieViewerViewingPeriodsByUser {
 
         $objects = array();
 
-        foreach ($this->periods as $period) {
+        foreach ($this->_periods as $period) {
             if ($period->isValid($date_target)) {
                 $objects[] = $period;
             }
@@ -154,7 +188,8 @@ class MovieViewerViewingPeriodsByUser {
         return $objects;
     }
 
-    public function getExpiredPeriods($date_target = null) {
+    function getExpiredPeriods($date_target = null)
+    {
         // 指定のない場合は現在日時
         if ($date_target == null) {
             $timezone = plugin_movieviewer_get_global_settings()->timezone;
@@ -163,7 +198,7 @@ class MovieViewerViewingPeriodsByUser {
 
         $objects = array();
 
-        foreach ($this->periods as $period) {
+        foreach ($this->_periods as $period) {
             if ($period->isExpired($date_target)) {
                 $objects[] = $period;
             }
@@ -172,38 +207,42 @@ class MovieViewerViewingPeriodsByUser {
         return $objects;
     }
 
-    public function getAllPeriods() {
+    function getAllPeriods()
+    {
         $objects = array();
 
-        foreach ($this->periods as $period) {
+        foreach ($this->_periods as $period) {
             $objects[] = $period;
         }
 
         return $objects;
     }
 
-    public function addPeriod($course_id, $session_id, $date_begin, $date_end) {
+    function addPeriod($course_id, $session_id, $date_begin, $date_end)
+    {
         $period = new MovieViewerViewingPeriod($course_id, $session_id, $date_begin, $date_end);
-        $this->periods[$this->getKey($course_id, $session_id)] = $period;
+        $this->_periods[$this->getKey($course_id, $session_id)] = $period;
     }
 
-    public function canView($course_id, $session_id, $date_target = null) {
+    function canView($course_id, $session_id, $date_target = null)
+    {
         // 指定のない場合は現在日時
         if ($date_target == null) {
             $timezone = plugin_movieviewer_get_global_settings()->timezone;
             $date_target = new DateTime(null, $timezone);
         }
 
-        $period = $this->periods[$this->getKey($course_id, $session_id)];
+        $period = $this->_periods[$this->getKey($course_id, $session_id)];
 
         if ($period == null) {
-            return FALSE;
+            return false;
         }
 
         return $period->isValid($date_target);
     }
 
-    private function getKey($course_id, $session_id) {
+    private function getKey($course_id, $session_id)
+    {
         return $course_id . ":" . $session_id;
     }
 }

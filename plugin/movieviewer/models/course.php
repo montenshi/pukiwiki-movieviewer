@@ -1,69 +1,99 @@
 <?php
 
-class MovieViewerCourse {
+/**
+ * Pukiwikiプラグイン::動画視聴 コース情報
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.Course
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
+
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
+
+class MovieViewerCourse
+{
     public $id = '';
     public $name = '';
     public $sessions = array();
 
-    public function getId() {
+    function getId()
+    {
         return $this->id;
     }
 
-    public function getIdShort() {
+    function getIdShort()
+    {
         return substr($this->id, 0, 2);
     }
 
-    public function getSession($session_id) {
+    function getSession($session_id)
+    {
         return $this->sessions[$session_id];
     }
 
-    public function describe() {
+    function describe()
+    {
         return $this->name;
     }
 
-    public function describeShort() {
+    function describeShort()
+    {
         return $this->name;
     }
 
 }
 
-class MovieViewerCourses {
+class MovieViewerCourses
+{
 
-    private $courses = array();
+    private $_courses = array();
 
-    public function addCourse($course) {
-        $this->courses[$course->id] = $course;
+    function addCourse($course)
+    {
+        $this->_courses[$course->id] = $course;
     }
 
-    public function getCourse($course_id) {
-        return $this->courses[$course_id];
+    function getCourse($course_id)
+    {
+        return $this->_courses[$course_id];
     }
 }
 
-class MovieViewerSession {
+class MovieViewerSession
+{
     public $id = '';
     public $name = '';
     public $chapters = array();
 
-    public function getChapter($chapter_id) {
+    function getChapter($chapter_id)
+    {
         return $this->sessions[$chapter_id];
     }
 
-    public function describe() {
+    function describe()
+    {
         return $this->name;
     }
 
-    public function describeShort() {
+    function describeShort()
+    {
         return mb_substr($this->name, 1, mb_strrpos($this->name, "回")-1);
     }
 }
 
-class MovieViewerChapter {
+class MovieViewerChapter
+{
     public $id = '';
     public $name = '';
     public $time = 0;
 
-    public function describe() {
+    function describe()
+    {
         return $this->id . ". " . $this->name . " (" . $this->time . "分)";
     }
 }

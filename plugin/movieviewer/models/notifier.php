@@ -1,15 +1,29 @@
 <?php
 
-class MovieViewerNotifier {
-    
-    public function generateMessage($user, $context) {
-    }
-    
+/**
+ * Pukiwikiプラグイン::動画視聴 お知らせ
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.Notifier
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
+
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
+
+abstract class MovieViewerNotifier
+{
+    abstract function generateMessage($user, $context);    
 }
 
-class MovieViewerPurchaseOfferNotifier extends MovieViewerNotifier {
-    
-    public function generateMessage($user, $context) {
+class MovieViewerPurchaseOfferNotifier extends MovieViewerNotifier
+{
+    function generateMessage($user, $context)
+    {
         $settings = plugin_movieviewer_get_global_settings();
         $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
 
@@ -30,7 +44,7 @@ class MovieViewerPurchaseOfferNotifier extends MovieViewerNotifier {
 
         if ($settings->payment->isCreditEnabled()) {
             $acceptable_brands = "";
-            foreach($offer->getPaymentGuide()->credit_card->acceptable_brands as $brand) {
+            foreach ($offer->getPaymentGuide()->credit_card->acceptable_brands as $brand) {
                 $file_name = "logo_" . strtolower($brand) . ".gif";
                 $acceptable_brand=<<<TEXT
                 <img src="img/{$file_name}" ALT="{$brand}">
@@ -111,12 +125,13 @@ TEXT;
         </div>
 TEXT;
         return $content;
-    }    
+    }
 }
 
-class MovieViewerPurchaseStatusNotifier extends MovieViewerNotifier {
-
-    public function generateMessage($user, $context) {
+class MovieViewerPurchaseStatusNotifier extends MovieViewerNotifier
+{
+    function generateMessage($user, $context)
+    {
         $message = $this->generateMessageRequesting($user, $context);
 
         if ($message !== "") {
@@ -128,7 +143,8 @@ class MovieViewerPurchaseStatusNotifier extends MovieViewerNotifier {
         return $message;
     }
     
-    private function generateMessageRequesting($user, $context) {
+    private function generateMessageRequesting($user, $context)
+    {
         $repo_req = plugin_movieviewer_get_deal_pack_purchase_request_repository();
         $objects = $repo_req->findRequestingByUser($user->id);
 
@@ -161,8 +177,8 @@ TEXT;
         return $content;
     }
 
-    private function generateMessageConfirmed($user, $context) {
-        
+    private function generateMessageConfirmed($user, $context)
+    {
         $repo_req = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
         $objects = $repo_req->findByNotYetStartedUser($user->id);
 
@@ -191,10 +207,11 @@ TEXT;
     }
 }
 
-class MovieViewerReportNotifier extends MovieViewerNotifier {
-    public function generateMessage($user, $context) {
-
-        if (mb_ereg_match('N1-',$user->memberId) == TRUE){    //N1- 会員の場合、非表示
+class MovieViewerReportNotifier extends MovieViewerNotifier
+{
+    function generateMessage($user, $context)
+    {
+        if (mb_ereg_match('N1-', $user->memberId) == true) {    //N1- 会員の場合、非表示
             return;
         }
         
@@ -226,6 +243,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier {
             {$reportName}</a></div><br>
 TEXT;
         }
+
         return $context;
     }
 }

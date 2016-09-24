@@ -175,7 +175,6 @@ TEXT;
  */
 function plugin_movieviewer_review_purchase_confirm_payment_render_requests($requests)
 {
-
     $hsc = "plugin_movieviewer_hsc";
 
     usort($requests, "MovieViewerReviewPackPurchaseRequest::compareByMemberId");
@@ -271,6 +270,8 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_confirm()
     $service = new MovieViewerReviewPackPurchaseConfirmationService($settings);
 
     usort($requests, "MovieViewerReviewPackPurchaseRequest::compareByMemberId");
+
+    $hsc = "plugin_movieviewer_hsc";
 
     $content_rows = "";
     foreach ($requests as $request) {

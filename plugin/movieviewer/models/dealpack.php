@@ -1,170 +1,219 @@
 <?php
 
-class MovieViewerTransferDeadline extends DateTime {
+/**
+ * Pukiwikiプラグイン::動画視聴 受講申し込み
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.DealPack
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-    function __construct($params) {
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
+
+class MovieViewerTransferDeadline extends DateTime
+{
+    function __construct($params)
+    {
         parent::__construct($params);
     }
 }
 
-class MovieViewerDealPackPrice {
+class MovieViewerDealPackPrice
+{
     public $unit_amount_without_tax;
     public $num_units;
     public $tax_amount;
 
-    function __construct($unit_amount_without_tax, $num_units, $tax_amount) {
+    function __construct($unit_amount_without_tax, $num_units, $tax_amount)
+    {
         $this->unit_amount_without_tax = $unit_amount_without_tax;
         $this->num_units = $num_units;
         $this->tax_amount = $tax_amount;
     }
 
-    public function getTotalAmountWithoutTax() {
+    function getTotalAmountWithoutTax()
+    {
         return $this->unit_amount_without_tax * $this->num_units;
     }
 
-    public function getTotalAmountWithTax() {
+    function getTotalAmountWithTax()
+    {
         return $this->getTotalAmountWithoutTax() + $this->tax_amount;
     }
 }
 
-class MovieViewerDealPackFixedPrice extends MovieViewerDealPackPrice {
+class MovieViewerDealPackFixedPrice extends MovieViewerDealPackPrice
+{
 }
 
-class MovieViewerDealPackDiscountPrice extends MovieViewerDealPackPrice {
+class MovieViewerDealPackDiscountPrice extends MovieViewerDealPackPrice
+{
 }
 
-class MovieViewerDiscountPeriod extends MovieViewerPeriod {
-    function __construct($date_begin, $date_end) {
+class MovieViewerDiscountPeriod extends MovieViewerPeriod
+{
+    function __construct($date_begin, $date_end)
+    {
         parent::__construct($date_begin, $date_end);
     }
 
-    public function canDiscount($date_target = null) {
+    function canDiscount($date_target = null)
+    {
         return $this->isBetween($date_target);
     }
 }
 
-class MovieViewerNeverDiscountPeriod {
-    public function canDiscount($date_target = null) {
-        return FALSE;
+class MovieViewerNeverDiscountPeriod
+{
+    function canDiscount($date_target = null)
+    {
+        return false;
     }
 }
 
-class MovieViewerDealPack {
-    private $course_id = '';
-    private $pack_number;
-    private $session_ids = array();
-    private $fixed_price;
-    private $discount_price;
-    private $report_form_id;
-    private $course;
+class MovieViewerDealPack
+{
+    private $_course_id = '';
+    private $_pack_number;
+    private $_session_ids = array();
+    private $_fixed_price;
+    private $_discount_price;
+    private $_report_form_id;
+    private $_course;
 
     function __construct($course_id, $pack_number, $session_ids, $fixed_price, $discount_price, $report_form_id) {
-        $this->course_id = $course_id;
-        $this->pack_number = $pack_number;
-        $this->session_ids = $session_ids;
-        $this->fixed_price = $fixed_price;
-        $this->discount_price = $discount_price;
-        $this->report_form_id = $report_form_id;
+        $this->_course_id = $course_id;
+        $this->_pack_number = $pack_number;
+        $this->_session_ids = $session_ids;
+        $this->_fixed_price = $fixed_price;
+        $this->_discount_price = $discount_price;
+        $this->_report_form_id = $report_form_id;
 
         $courses = plugin_movieviewer_get_courses_repository()->find();
-        $this->course = $courses->getCourse($this->course_id);
+        $this->_course = $courses->getCourse($this->_course_id);
     }
 
-    public function getId() {
-        return "{$this->course_id}-{$this->pack_number}";
+    function getId()
+    {
+        return "{$this->_course_id}-{$this->_pack_number}";
     }
 
-    public function getCourseId() {
-        return $this->course->getId();
+    function getCourseId()
+    {
+        return $this->_course->getId();
     }
 
-    public function getCourseIdShort() {
-        return $this->course->getIdShort();
+    function getCourseIdShort()
+    {
+        return $this->_course->getIdShort();
     }
 
-    public function getPackNumber() {
-        return $this->pack_number;
+    function getPackNumber()
+    {
+        return $this->_pack_number;
     }
 
-    public function getCourse() {
-        return $this->course;
+    function getCourse()
+    {
+        return $this->_course;
     }
 
-    public function getSessions() {
+    function getSessions()
+    {
         $objects = array();
-        foreach($this->session_ids as $session_id) {
-            $object = $this->course->getSession($session_id);
+        foreach ($this->_session_ids as $session_id) {
+            $object = $this->_course->getSession($session_id);
             $objects[] = $object;
         }
         return $objects;
     }
 
-    public function getNumSessions() {
+    function getNumSessions()
+    {
         return count($this->getSessions());
     }
 
-    public function getFixedPrice() {
-        return $this->fixed_price;
+    function getFixedPrice()
+    {
+        return $this->_fixed_price;
     }
 
-    public function getDiscountPrice() {
-        return $this->discount_price;
+    function getDiscountPrice()
+    {
+        return $this->_discount_price;
     }
 
-    public function getReportFormId() {
-        return $this->report_form_id;
+    function getReportFormId()
+    {
+        return $this->_report_form_id;
     }
 
-    public function describe() {
+    function describe()
+    {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
         return "{$this->getCourse()->describe()} {$first_session->describe()}～{$last_session->describe()}";
     }
 
-    public function describeShort() {
+    function describeShort()
+    {
         $first_session = reset($this->getSessions());
         $last_session = end($this->getSessions());
         return "{$this->getCourse()->describeShort()}{$first_session->describeShort()}～{$last_session->describeShort()}";
     }
 }
 
-class MovieViewerDealBox {
+class MovieViewerDealBox
+{
     public $course_id = '';
     public $packs = array();
 
-    function __construct($course_id) {
+    function __construct($course_id)
+    {
         $this->course_id = $course_id;
     }
 
-    public function getPackById($id) {
+    function getPackById($id)
+    {
         if (array_key_exists($id, $this->packs)) {
             return $this->packs[$id];
         }
-        return NULL;
+        return null;
     }
     
-    public function getNextPack($id) {
+    function getNextPack($id)
+    {
         reset($this->packs);
         do {
             $current = current($this->packs);
             if ($current->getId() === $id ) {
                 $next = next($this->packs);
-                if ($next === FALSE) { $next = NULL; }
+                if ($next === false) { 
+                    $next = null;
+                }
                 return $next;
             }
-        } while (next($this->packs) !== FALSE);
-        return NULL;
+        } while (next($this->packs) !== false);
+        return null;
     }
 
-    function addPack($pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id) {
+    function addPack($pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id)
+    {
         $pack = new MovieViewerDealPack($this->course_id, $pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id);
         $this->packs[$pack->getId()] = $pack;
     }
 }
 
 # S4 => Session4つまとめたものって意味
-class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
-    function __construct() {
+class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox
+{
+    function __construct()
+    {
         parent::__construct("K1Kiso");
 
         $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
@@ -176,8 +225,10 @@ class MovieViewerS4K1KisoDealBox extends MovieViewerDealBox {
     }
 }
 
-class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
-    function __construct() {
+class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox
+{
+    function __construct()
+    {
         parent::__construct("K2Kiso");
 
         $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
@@ -189,29 +240,34 @@ class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox {
     }
 }
 
-class MovieViewerS4DealContainer {
+class MovieViewerS4DealContainer
+{
     public $boxes = array();
 
-    function __construct() {
+    function __construct()
+    {
         $this->addBox(new MovieViewerS4K1KisoDealBox());
         $this->addBox(new MovieViewerS4K2KisoDealBox());
     }
 
-    public function getBox($course_id) {
+    function getBox($course_id)
+    {
         return $this->boxes[$course_id];
     }
 
-    public function getPack($pack_id) {
+    function getPack($pack_id)
+    {
         foreach ($this->boxes as $box) {
             $pack = $box->getPackById($pack_id);
-            if ($pack !== NULL) {
+            if ($pack !== null) {
                 return $pack;
             }
         }
-        return NULL;
+        return null;
     }
 
-    public function addBox($box) {
+    function addBox($box)
+    {
         $this->boxes[$box->course_id] = $box;
     }
 }

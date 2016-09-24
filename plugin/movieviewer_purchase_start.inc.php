@@ -1,12 +1,41 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 受講申し込み
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  DealPackPurchase
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_purchase_start_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_purchase_start_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_purchase_start_convert() {
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 申し込み画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_purchase_start_convert()
+{
 
     try {
         $user = plugin_movieviewer_get_current_user();
@@ -66,7 +95,140 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer, $current_page) {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * 申し込みを確定させる
+ * 
+ * 引数: string purchase_method 支払い区分(bank, credit)
+ *      string deal_pack_id 受講パックID
+ * 
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+ *
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_purchase_start_action()
+{
+
+    $page = plugin_movieviewer_get_current_page();
+
+    $from_external_link = false;
+    $test_var = filter_input(INPUT_POST, "purchase_method");
+    if (empty($test_var)) {
+        $from_external_link = true;
+    }
+
+    if ($from_external_link) {
+        $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
+        $purchase_method = filter_input(INPUT_GET, "purchase_method");
+    } else {
+        $deal_pack_id = filter_input(INPUT_POST, "deal_pack_id");
+        $purchase_method = filter_input(INPUT_POST, "purchase_method");
+    }
+
+    if (!$from_external_link) {
+        try {
+            plugin_movieviewer_validate_csrf_token();
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+        }
+    }
+
+    try {
+        $user = plugin_movieviewer_get_current_user();
+    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
+    }
+
+    if ($user->mailAddress === null || $user->mailAddress === "") {
+        return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
+    }
+    
+    try {
+        plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
+
+    try {
+        plugin_movieviewer_validate_purchase_method($purchase_method);
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
+    }
+
+    $settings = plugin_movieviewer_get_global_settings();
+    $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+
+    if (!$offer_maker->canOffer()) {
+        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
+    }
+
+    $offer = $offer_maker->getOffer();
+
+    if ($offer->getPackId() !== $deal_pack_id) {
+        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
+    }
+
+    $offer->accept();
+
+    if ($purchase_method === "bank") {
+        $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, true);
+        $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
+        $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getPaymentGuide()->bank_transfer, $offer->getPaymentGuide()->deadline);
+        $result = $mail->send();
+
+        if (!$result) {
+            MovieViewerLogger::getLogger()->addError(
+                "案内通知エラー", array("error_statement"=>$mail->ErrorInfo)
+            );
+
+            return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
+        }
+        
+        $messages =<<<TEXT
+        ご登録のアドレスに振込先等のご案内をお送りしています。<br>
+        ご確認の上、お振込を期限までに完了してください。<br>
+        現在の状況をマイページに戻って、ご確認ください。
+TEXT;
+    } else if ($purchase_method === "credit") {
+        $messages =<<<TEXT
+        クレジットカードでの支払いが完了しました。<br>
+        現在の状況をマイページに戻って、ご確認ください。<br>
+        なおシステムの関係上、入金の確認には、しばらくお時間がかかることがありますので、ご了承ください。
+TEXT;
+    }
+
+    $hsc = "plugin_movieviewer_hsc";
+    $back_uri = plugin_movieviewer_get_home_uri();
+
+    $content =<<<TEXT
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
+    <h2>受講申し込み完了</h2>
+    <p>
+    $messages
+    </p>
+    <p>
+    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
+    </p>
+TEXT;
+
+    return array("msg"=>$page, "body"=>$content);
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] 銀行振込用の申し込みフォームを生成する
+ *
+ * @param MovieViewerSettings      $settings     プラグイン用設定
+ * @param MovieViewerUser          $user         ログインユーザ
+ * @param MovieViewerDealPackOffer $offer        受講申し込み購入オファー
+ * @param string                   $current_page 画面名
+ *
+ * @return string 申し込みフォーム(html)
+ */
+function plugin_movieviewer_purchase_start_convert_bank($settings, $user, $offer, $current_page)
+{
 
     $hsc = "plugin_movieviewer_hsc";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
@@ -101,7 +263,18 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $offer, $current_page) {
+/**
+ * [ブロック] クレジット支払い用の申し込みフォームを生成する
+ *
+ * @param MovieViewerSettings      $settings     プラグイン用設定
+ * @param MovieViewerUser          $user         ログインユーザ
+ * @param MovieViewerDealPackOffer $offer        受講申し込み購入オファー
+ * @param string                   $current_page 画面名
+ *
+ * @return string 申し込みフォーム(html)
+ */
+function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $offer, $current_page)
+{
 
     // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
     if (!$user->hasMemberId()) {
@@ -160,114 +333,6 @@ function plugin_movieviewer_purchase_start_convert_credit($settings, $user, $off
 TEXT;
 
     return $content;
-}
-
-function plugin_movieviewer_purchase_start_action() {
-
-    $page = plugin_movieviewer_get_current_page();
-
-    $from_external_link = FALSE;
-    $test_var = filter_input(INPUT_POST, "purchase_method");
-    if (empty($test_var)) {
-        $from_external_link = TRUE;
-    }
-
-    if ($from_external_link) {
-        $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
-        $purchase_method = filter_input(INPUT_GET, "purchase_method");
-    } else {
-        $deal_pack_id = filter_input(INPUT_POST, "deal_pack_id");
-        $purchase_method = filter_input(INPUT_POST, "purchase_method");
-    }
-
-    if (!$from_external_link) {
-        try {
-            plugin_movieviewer_validate_csrf_token();
-        } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
-        }
-    }
-
-    try {
-        $user = plugin_movieviewer_get_current_user();
-    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
-    }
-
-    if ($user->mailAddress === NULL || $user->mailAddress === "") {
-        return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
-    }
-    
-    try {
-        plugin_movieviewer_validate_deal_pack_id($deal_pack_id);
-    } catch (MovieViewerValidationException $ex) {
-        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
-    }
-
-    try {
-        plugin_movieviewer_validate_purchase_method($purchase_method);
-    } catch (MovieViewerValidationException $ex) {
-        return plugin_movieviewer_action_error_response($page, "指定した内容に誤りがあります。");
-    }
-
-    $settings = plugin_movieviewer_get_global_settings();
-    $offer_maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
-
-    if (!$offer_maker->canOffer()) {
-        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
-    }
-
-    $offer = $offer_maker->getOffer();
-
-    if ($offer->getPackId() !== $deal_pack_id) {
-        return plugin_movieviewer_action_error_response($page, "ご指定のコースはすでに申し込み済み、または、受講できなくなりました。");
-    }
-
-    $offer->accept();
-
-    if ($purchase_method === "bank") {
-        $price_with_notes = plugin_movieviewer_render_dealpack_offer_price($offer, TRUE);
-        $mail_builder = new MovieViewerDealPackBankTransferInformationMailBuilder($settings->mail);
-        $mail = $mail_builder->build($user, $offer->getPackName(), $price_with_notes, $offer->getPaymentGuide()->bank_transfer, $offer->getPaymentGuide()->deadline);
-        $result = $mail->send();
-
-        if (!$result) {
-            MovieViewerLogger::getLogger()->addError(
-                "案内通知エラー", array("error_statement"=>$mail->ErrorInfo)
-            );
-
-            return plugin_movieviewer_action_error_response($page, "メールの送信に失敗しました。{$settings->contact['name']}に問い合わせしてください。");
-        }
-        
-        $messages =<<<TEXT
-        ご登録のアドレスに振込先等のご案内をお送りしています。<br>
-        ご確認の上、お振込を期限までに完了してください。<br>
-        現在の状況をマイページに戻って、ご確認ください。
-TEXT;
-    } else if ($purchase_method === "credit") {
-        $messages =<<<TEXT
-        クレジットカードでの支払いが完了しました。<br>
-        現在の状況をマイページに戻って、ご確認ください。<br>
-        なおシステムの関係上、入金の確認には、しばらくお時間がかかることがありますので、ご了承ください。
-TEXT;
-    }
-
-    $hsc = "plugin_movieviewer_hsc";
-    $back_uri = plugin_movieviewer_get_home_uri();
-
-    $content =<<<TEXT
-    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
-    <h2>受講申し込み完了</h2>
-    <p>
-    $messages
-    </p>
-    <p>
-    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
-    </p>
-TEXT;
-
-    return array("msg"=>$page, "body"=>$content);
 }
 
 ?>

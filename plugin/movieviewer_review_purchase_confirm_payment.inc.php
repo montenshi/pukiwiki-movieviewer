@@ -1,12 +1,41 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 再視聴申し込み入金確認
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  ReviewPackPurchase
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_review_purchase_confirm_payment_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_review_purchase_confirm_payment_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 入金確認画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_convert()
+{
 
     try {
         $user = plugin_movieviewer_get_current_user();
@@ -70,7 +99,62 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_confirm_payment_render_begin_date_candidates() {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * パラメータ ope_type の値により、以下の処理を行う
+ *   confirm: 入金確定対象の申し込み一覧画面を生成する
+ *   execute: 入金を確定させ、結果画面を生成する
+ * 
+ * 引数: string ope_type 処理区分
+ *      string purchase_requests 対象の申し込みIDの一覧(カンマ区切り)
+ * 
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_action()
+{
+
+    $page = plugin_movieviewer_get_current_page();
+
+    try {
+        plugin_movieviewer_validate_csrf_token();
+    } catch (MovieViewerValidationException $ex) {
+        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+    }
+
+    try {
+        $user = plugin_movieviewer_get_current_user();
+    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
+    }
+
+    if (!$user->isAdmin()) {
+        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
+    }
+
+    $ope_type = filter_input(INPUT_POST, 'ope_type');
+
+    if ($ope_type === 'confirm') {
+        return plugin_movieviewer_review_purchase_confirm_payment_action_confirm();
+    }
+
+    if ($ope_type === 'execute') {
+        return plugin_movieviewer_review_purchase_confirm_payment_action_execute();
+    }
+
+    return plugin_movieviewer_action_error_response($page, "処理ができません。最初からやり直してください。");
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] 視聴開始日の選択肢を生成する
+ *
+ * @return string 選択肢(radio)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_render_begin_date_candidates()
+{
     // 選択は明後日のみ
     $date_begin = plugin_movieviewer_now();
     $date_begin->modify("+2 day");
@@ -82,14 +166,22 @@ TEXT;
     return $date_begin_cds;
 }
 
-function plugin_movieviewer_review_purchase_confirm_payment_render_requests($requests) {
+/**
+ * [ブロック] 確定対象候補となる申し込み一覧を生成する
+ *
+ * @param array $requests 申し込み(MovieViewerReviewPackPurchaseRequest)
+ *
+ * @return string 申し込み一覧(html)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_render_requests($requests)
+{
 
     $hsc = "plugin_movieviewer_hsc";
 
     usort($requests, "MovieViewerReviewPackPurchaseRequest::compareByMemberId");
 
     $content_rows = "";
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
 
         $ctrl_value = $hsc($request->getId());
         $ctrl_id = $hsc("pr_{$ctrl_value}");
@@ -131,46 +223,19 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_confirm_payment_action(){
-
-    $page = plugin_movieviewer_get_current_page();
-
-    try {
-        plugin_movieviewer_validate_csrf_token();
-    } catch (MovieViewerValidationException $ex) {
-        return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
-    }
-
-    try {
-        $user = plugin_movieviewer_get_current_user();
-    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
-    }
-
-    if (!$user->isAdmin()) {
-        return plugin_movieviewer_action_error_response($page, "管理者でログインする必要があります。");
-    }
-
-    $ope_type = filter_input(INPUT_POST, 'ope_type');
-
-    if ($ope_type === 'confirm') {
-        return plugin_movieviewer_review_purchase_confirm_payment_action_confirm();
-    }
-
-    if ($ope_type === 'execute') {
-        return plugin_movieviewer_review_purchase_confirm_payment_action_execute();
-    }
-
-    return plugin_movieviewer_action_error_response($page, "処理ができません。最初からやり直してください。");
-}
-
-function plugin_movieviewer_review_purchase_confirm_payment_action_confirm() {
+/**
+ * [アクション] 入金確定対象の受講申し込み一覧画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_action_confirm()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
     $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
 
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             plugin_movieviewer_validate_review_pack_request_id($req_id);
         } catch (MovieViewerValidationException $ex) {
@@ -179,7 +244,7 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_confirm() {
     }
 
     $requests = array();
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             $request = plugin_movieviewer_get_review_pack_purchase_request_repository()->findById($req_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
@@ -208,7 +273,7 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_confirm() {
     usort($requests, "MovieViewerReviewPackPurchaseRequest::compareByMemberId");
 
     $content_rows = "";
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
 
         $ctrl_value = $hsc($request->getId());
         $ctrl_id = $hsc("pr_{$ctrl_value}");
@@ -281,7 +346,13 @@ TEXT;
     
 }
 
-function plugin_movieviewer_review_purchase_confirm_payment_action_execute() {
+/**
+ * [アクション] 入金を確定させ、結果画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_review_purchase_confirm_payment_action_execute()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -293,7 +364,7 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_execute() {
 
     $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
 
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             plugin_movieviewer_validate_review_pack_request_id($req_id);
         } catch (MovieViewerValidationException $ex) {
@@ -302,7 +373,7 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_execute() {
     }
 
     $requests = array();
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             $request = plugin_movieviewer_get_review_pack_purchase_request_repository()->findById($req_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
@@ -329,7 +400,7 @@ function plugin_movieviewer_review_purchase_confirm_payment_action_execute() {
     $hsc = "plugin_movieviewer_hsc";
 
     $content_rows = "";
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
         $confirmation = $service->confirm($request, $date_begin);
 
         $content_row =<<<TEXT

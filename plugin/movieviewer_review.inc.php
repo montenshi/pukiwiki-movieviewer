@@ -1,24 +1,55 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 再視聴対象選択
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  ReviewPackPurchase
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_review_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_review_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_review_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 再視聴対象選択画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_review_convert()
+{
+    try {
+        $user = plugin_movieviewer_get_current_user();
+    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+        return plugin_movieviewer_convert_error_response("ログインが必要です。");
+    }
 
-    $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
-
-    $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
-    $viewing_periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($user_id);
+    $viewing_periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($user->id);
 
     $hsc = "plugin_movieviewer_hsc";
 
-    # 期限の切れているものをリストアップ
+    // 期限の切れているものをリストアップ
     $viewing_periods = $viewing_periods->getExpiredPeriods();
 
-    # コースごとに仕分け
+    // コースごとに分類
     $viewing_periods_by_course = MovieViewerViewingPeriod::sortByCourse($viewing_periods);
     
     $courses = plugin_movieviewer_get_courses_repository()->find();
@@ -75,10 +106,6 @@ TEXT;
 TEXT;
 
     return $content;
-}
-
-function plugin_movieviewer_review_action(){
-    return "hoge";
 }
 
 ?>

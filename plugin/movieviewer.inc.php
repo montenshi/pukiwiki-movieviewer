@@ -1,13 +1,14 @@
 <?php
 
 /**
- * Pukiwikiプラグイン::動画視聴画面
+ * Pukiwikiプラグイン::動画視聴ホーム
+ * 視聴可能な動画の一覧やお知らせなどを表示する
  *
  * PHP version 5.3.10
  * Pukiwiki Version 1.4.7
  *
  * @category MovieViewerPlugin
- * @package  Base
+ * @package  Home
  * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
  * @license  Apache License 2.0
  * @link     (T.B.D)
@@ -30,7 +31,9 @@ function plugin_movieviewer_init()
  * 認証済みの場合: 視聴画面を生成する
  * 未認証の場合: エラー画面を生成する
  *
- * @return string 視聴画面またはエラー画面(html)
+ * 引数: なし
+ *
+ * @return string 画面(html)
  */
 function plugin_movieviewer_convert()
 {
@@ -49,11 +52,22 @@ function plugin_movieviewer_convert()
 /**
  * プラグイン規定関数::アクション型で呼び出された場合の処理
  * パラメータ ope_type の値により、以下の処理を行う
- * show-movie: 動画再生画面を返す
- * download-text: 指定した単元のテキストをダウンロードするようLocationヘッダを返す
- * download-hls-key: 動画(HLS)再生用のキーを返す
+ *   show-movie: 動画再生画面を返す
+ *   download-text: 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ *   download-hls-key: 動画(HLS)再生用のキーを返す
  * 
- * @return array ページ名、内容
+ * 引数: string ope_type 処理区分
+ *      以下は ope_type が show-movie の時のみ必要
+ *        string course  コースID
+ *        string session セッションID
+ *        string chapter チャプターID
+ *      以下は ope_type が download-text の時のみ必要
+ *        string course  コースID
+ *        string session セッションID
+ *
+ * 例: http://host:port/index.php?cmd=movieviewer&ope_type=show-movie&course=GDGuide&session=01&chapter=01
+ * 
+ * @return array ページ名、画面(html)
  */
 function plugin_movieviewer_action()
 {
@@ -84,7 +98,7 @@ function plugin_movieviewer_action()
 /**
  * [ブロック] 未認証時のエラー画面を生成する
  *
- * @return string エラー画面(html)
+ * @return string 画面(html)
  */
 function plugin_movieviewer_convert_show_alert()
 {
@@ -101,7 +115,7 @@ TEXT;
  * [ブロック] 視聴画面を生成する
  * 視聴可能な単元、受講済みの単元を一覧で表示する
  *
- * @return string 視聴画面(html)
+ * @return string 画面(html)
  */
 function plugin_movieviewer_convert_show_contents()
 {
@@ -282,6 +296,8 @@ function plugin_movieviewer_action_get_ope_type()
 /**
  * [アクション] エラー処理(リクエスト内容の誤り)
  *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
  * @return void
  */
 function plugin_movieviewer_action_invalid_request()
@@ -292,6 +308,8 @@ function plugin_movieviewer_action_invalid_request()
 /**
  * [アクション] エラー処理(認証なし)
  *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
  * @return void
  */
 function plugin_movieviewer_action_access_denied()
@@ -301,6 +319,8 @@ function plugin_movieviewer_action_access_denied()
 
 /**
  * [アクション] 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
  *
  * @return void
  */
@@ -346,7 +366,9 @@ function plugin_movieviewer_action_download_text()
 }
 
 /**
- * [アクション] 動画再生画面を返す
+ * [アクション] 動画再生画面を生成し、クライアントに送信する
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
  *
  * @return void
  */
@@ -409,11 +431,14 @@ function plugin_movieviewer_action_show_movie()
     最大化ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-play.png"> を押した後、表示されます。
     </p>
 EOC;
+
     exit();
 }
 
 /**
  * [アクション] 動画(HLS)再生用のキーを返す
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
  *
  * @return void
  */
@@ -428,6 +453,7 @@ function plugin_movieviewer_action_download_hls_key()
     );
     
     print $decrypter->execute();  
+
     exit();
 }
 

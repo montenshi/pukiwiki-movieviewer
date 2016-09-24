@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Pukiwikiプラグイン::動画視聴用認証処理
+ * Pukiwikiプラグイン::動画視聴 認証
  *
  * PHP version 5.3.10
  * Pukiwiki Version 1.4.7
@@ -27,11 +27,13 @@ function plugin_movieviewer_auth_init()
 
 /**
  * プラグイン規定関数::ブロック型で呼び出された場合の処理
- * 認証済みの場合: 何もしない
+ * 認証済みの場合: 何もしない(空の画面を生成する)
  * 認証情報が指定されている場合: 認証処理を行う
  * 認証情報が指定されていない場合: 認証画面を生成する
  *
- * @return string 認証画面(html) または 空画面
+ * 引数: なし
+ *
+ * @return string 画面(html)
  */
 function plugin_movieviewer_auth_convert()
 {
@@ -86,7 +88,9 @@ function plugin_movieviewer_auth_convert()
  * プラグイン規定関数::アクション型で呼び出された場合の処理
  * 認証画面を生成する
  *
- * @return array タイトル、及び、認証画面(html)
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+ *
+ * @return array ページ名、画面(html)
  */
 function plugin_movieviewer_auth_action()
 {
@@ -130,7 +134,7 @@ function plugin_movieviewer_auth_move_to_authpage($messages)
  *
  * @param string $messages 認証画面に表示するメッセージ
  *
- * @return string 認証画面(html)
+ * @return string 画面(html)
  */
 function plugin_movieviewer_auth_generate_signin_page($messages)
 {

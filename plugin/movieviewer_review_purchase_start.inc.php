@@ -1,12 +1,41 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 再視聴申し込み
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  ReviewPackPurchase
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_review_purchase_start_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_review_purchase_start_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_review_purchase_start_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 申し込み画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_review_purchase_start_convert()
+{
 
     try {
         $user = plugin_movieviewer_get_current_user();
@@ -66,7 +95,98 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_start_convert_bank($settings, $user, $request, $request_stash_id, $current_page) {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * 申し込みの確定と通知メール(ユーザ、スタッフ)を送り、結果画面を生成する
+ * 
+ * 引数: string request_stash_id 申し込み仮ID
+ * 
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+ *
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_review_purchase_start_action()
+{
+
+    $from_external_link = false;
+    $test_var = filter_input(INPUT_POST, "request_stash_id");
+    if (empty($test_var)) {
+        $from_external_link = true;
+    }
+
+    if ($from_external_link) {
+        $request_stash_id = filter_input(INPUT_GET, "request_stash_id");
+    } else {
+        $request_stash_id = filter_input(INPUT_POST, "request_stash_id");
+    }
+
+    if (!$from_external_link) {
+        try {
+            plugin_movieviewer_validate_csrf_token();
+        } catch (MovieViewerValidationException $ex) {
+            return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
+        }
+    }
+
+    try {
+        $user = plugin_movieviewer_get_current_user();
+    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
+        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
+    }
+    
+    if ($user->mailAddress === null || $user->mailAddress === "") {
+        return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
+    }
+    
+    $settings = plugin_movieviewer_get_global_settings();
+    $service = new MovieViewerReviewPackPurchaseRequestService($settings);
+
+    $request = null;
+    try {
+        $request = $service->doRequest($user, $request_stash_id);
+    } catch (Exception $ex) {
+        return plugin_movieviewer_action_error_response($page, $ex->getMessage());
+    }
+
+    if ($request->purchase_method === "bank") {
+        $messages = plugin_movieviewer_review_purchase_start_action_bank($settings, $user, $request);
+    } else if ($request->purchase_method === "credit") {
+        $messages = plugin_movieviewer_review_purchase_start_action_credit($settings, $user, $request);
+    }
+
+    $page = plugin_movieviewer_get_current_page();
+    $back_uri = plugin_movieviewer_get_home_uri();
+
+    $content =<<<TEXT
+    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
+    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
+    <h2>再視聴申し込み完了</h2>
+    <p>
+    $messages
+    </p>
+    <p>
+    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
+    </p>
+TEXT;
+
+    return array("msg"=>$page, "body"=>$content);
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] 銀行振込用の申し込みフォームを生成する
+ *
+ * @param MovieViewerSettings                  $settings         プラグインの設定
+ * @param MovieViewerUser                      $user             ログインユーザ
+ * @param MovieViewerReviewPackPurchaseRequest $request          申し込み
+ * @param string                               $request_stash_id 申し込み仮ID
+ * @param string                               $current_page     画面名
+ * 
+ * @return string フォーム(html)
+ */
+function plugin_movieviewer_review_purchase_start_convert_bank($settings, $user, $request, $request_stash_id, $current_page)
+{
 
     $hsc = "plugin_movieviewer_hsc";
     $input_csrf_token = "plugin_movieviewer_generate_input_csrf_token";
@@ -92,7 +212,19 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_start_convert_credit($settings, $user, $request, $request_stash_id, $current_page) {
+/**
+ * [ブロック] クレジット支払い用の申し込みフォームを生成する
+ *
+ * @param MovieViewerSettings                  $settings         プラグインの設定
+ * @param MovieViewerUser                      $user             ログインユーザ
+ * @param MovieViewerReviewPackPurchaseRequest $request          申し込み
+ * @param string                               $request_stash_id 申し込み仮ID
+ * @param string                               $current_page     画面名
+ * 
+ * @return string フォーム(html)
+ */
+function plugin_movieviewer_review_purchase_start_convert_credit($settings, $user, $request, $request_stash_id, $current_page)
+{
 
     // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
     if (!$user->hasMemberId()) {
@@ -145,16 +277,25 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_start_convert_get_request_details($settings, $request) {
+/**
+ * [ブロック] 申し込みの詳細を生成する
+ *
+ * @param MovieViewerSettings                  $settings プラグインの設定
+ * @param MovieViewerReviewPackPurchaseRequest $request  申し込み
+ * 
+ * @return string 申し込みの詳細(html)
+ */
+function plugin_movieviewer_review_purchase_start_convert_get_request_details($settings, $request)
+{
 
     $courses = plugin_movieviewer_get_courses_repository()->find();
     $itemsByCourse = $request->getItemsByCourse();
 
     $item_description = "";
-    foreach($itemsByCourse as $course_id => $items) {
+    foreach ($itemsByCourse as $course_id => $items) {
         $course = $courses->getCourse($course_id);
         $session_list = "";
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $session = $course->getSession($item->session_id);
             $session_list .= "<li>{$session->describe()}</li>";
         }
@@ -187,73 +328,17 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_review_purchase_start_action(){
-
-    $from_external_link = FALSE;
-    $test_var = filter_input(INPUT_POST, "request_stash_id");
-    if (empty($test_var)) {
-        $from_external_link = TRUE;
-    }
-
-    if ($from_external_link) {
-        $request_stash_id = filter_input(INPUT_GET, "request_stash_id");
-    } else {
-        $request_stash_id = filter_input(INPUT_POST, "request_stash_id");
-    }
-
-    if (!$from_external_link) {
-        try {
-            plugin_movieviewer_validate_csrf_token();
-        } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_action_error_response($page, "不正なリクエストです。");
-        }
-    }
-
-    try {
-        $user = plugin_movieviewer_get_current_user();
-    } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-        return plugin_movieviewer_action_error_response($page, "ログインが必要です。");
-    }
-    
-    if ($user->mailAddress === NULL || $user->mailAddress === "") {
-        return plugin_movieviewer_action_error_response($page, "メールアドレスが登録されていません。");
-    }
-    
-    $settings = plugin_movieviewer_get_global_settings();
-    $service = new MovieViewerReviewPackPurchaseRequestService($settings);
-
-    $request = null;
-    try {
-        $request = $service->doRequest($user, $request_stash_id);
-    } catch (Exception $ex) {
-        return plugin_movieviewer_action_error_response($page, $ex->getMessage());
-    }
-
-    if ($request->purchase_method === "bank") {
-        $messages = plugin_movieviewer_review_purchase_start_action_bank($settings, $user, $request);
-    } else if ($request->purchase_method === "credit") {
-        $messages = plugin_movieviewer_review_purchase_start_action_credit($settings, $user, $request);
-    }
-
-    $page = plugin_movieviewer_get_current_page();
-    $back_uri = plugin_movieviewer_get_home_uri();
-
-    $content =<<<TEXT
-    <link href="https://code.jquery.com/ui/1.11.4/themes/redmond/jquery-ui.css" rel="stylesheet">
-    <link href="plugin/movieviewer/assets/css/movieviewer.css" rel="stylesheet">
-    <h2>再視聴申し込み完了</h2>
-    <p>
-    $messages
-    </p>
-    <p>
-    <a href="{$back_uri}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>マイページに戻る</a>
-    </p>
-TEXT;
-
-    return array("msg"=>$page, "body"=>$content);
-}
-
-function plugin_movieviewer_review_purchase_start_action_bank($settings, $user, $request) {
+/**
+ * [アクション] 銀行振込用の確定メッセージを生成する
+ *
+ * @param MovieViewerSettings                  $settings プラグインの設定
+ * @param MovieViewerUser                      $user     ログインユーザ
+ * @param MovieViewerReviewPackPurchaseRequest $request  申し込み
+ * 
+ * @return string 確定メッセージ(html)
+ */
+function plugin_movieviewer_review_purchase_start_action_bank($settings, $user, $request)
+{
     $messages =<<<TEXT
     ご登録のアドレスに振込先等のご案内をお送りしています。<br>
     ご確認の上、お振込を期限までに完了してください。<br>
@@ -263,7 +348,17 @@ TEXT;
     return $messages;
 }
 
-function plugin_movieviewer_review_purchase_start_action_credit($settings, $user, $request) {
+/**
+ * [アクション] クレジット支払い用の確定メッセージを生成する
+ *
+ * @param MovieViewerSettings                  $settings プラグインの設定
+ * @param MovieViewerUser                      $user     ログインユーザ
+ * @param MovieViewerReviewPackPurchaseRequest $request  申し込み
+ * 
+ * @return string 確定メッセージ(html)
+ */
+function plugin_movieviewer_review_purchase_start_action_credit($settings, $user, $request)
+{
     $messages =<<<TEXT
     クレジットカードでの支払いが完了しました。<br>
     現在の状況をマイページに戻って、ご確認ください。<br>

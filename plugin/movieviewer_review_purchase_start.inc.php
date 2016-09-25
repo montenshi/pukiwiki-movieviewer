@@ -70,6 +70,12 @@ function plugin_movieviewer_review_purchase_start_convert()
     }
 
     try {
+        plugin_movieviewer_review_purchase_assert_request_isnot_duplicate($user, $request);
+    } catch (Exception $ex) {
+        return plugin_movieviewer_convert_error_response("指定した単元はすでに申し込み済みです。");
+    }
+
+    try {
         $repo = plugin_movieviewer_get_review_pack_purchase_request_repository();
         $request_stash_id = $repo->stash($request);
     } catch (Exception $ex) {
@@ -173,6 +179,27 @@ TEXT;
 }
 
 /*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] 申し込みの内容が重複していないかどうかを検査し、問題がある場合は例外を発生させる
+ *
+ * @param MovieViewerReviewPackPurchaseRequest $request 申し込み
+ * 
+ * @return void
+ */
+function plugin_movieviewer_review_purchase_assert_request_isnot_duplicate($user, $request)
+{
+    $requests_not_yet_confirmed
+        = plugin_movieviewer_get_review_pack_purchase_request_repository()->findNotYetConfirmed($user->id);
+
+    foreach ($request->getItems() as $item) {
+        if (MovieViewerReviewPackPurchaseRequest::requestsHasItem(
+            $requests_not_yet_confirmed, $item->course_id, $item->session_id
+        )) {
+            throw new Exception($item->describe());
+        }
+    }
+}
 
 /**
  * [ブロック] 銀行振込用の申し込みフォームを生成する

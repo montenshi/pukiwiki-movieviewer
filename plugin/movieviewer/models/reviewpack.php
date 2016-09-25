@@ -134,6 +134,16 @@ class MovieViewerReviewPack
         return $sorted;
     }
 
+    function hasItem($course_id, $session_id)
+    {
+        foreach ($this->getItems() as $item) {
+            if ($item->course_id === $course_id && $item->session_id === $session_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function describe()
     {
         $item_count = count($this->_items);

@@ -15,6 +15,10 @@
 
 //---- (上のコメントをファイルのコメントと認識させるためのコメント)
 
+class MovieViewerRequestIsDuplicatedException extends Exception
+{
+}
+
 class MovieViewerReviewPackPurchaseRequestService
 {
     private $_settings;
@@ -26,7 +30,7 @@ class MovieViewerReviewPackPurchaseRequestService
 
     function doRequest($user, $request_stash_id)
     {
-        $request = $this->createRequest($request_stash_id);
+        $request = $this->createRequest($user, $request_stash_id);
 
         $this->sendBankTransferInformation($user, $request);
 
@@ -35,7 +39,7 @@ class MovieViewerReviewPackPurchaseRequestService
         return $request;
     }
 
-    private function createRequest($request_stash_id)
+    private function createRequest($user, $request_stash_id)
     {
         $repo = plugin_movieviewer_get_review_pack_purchase_request_repository();
 
@@ -45,6 +49,8 @@ class MovieViewerReviewPackPurchaseRequestService
         } catch (Exception $ex) {
             throw new Exception("指定した内容に誤りがあります。");
         }
+
+        $this->assertIfRequestIsDuplicated($user, $request);
 
         try {
             $repo->store($request);
@@ -105,6 +111,20 @@ class MovieViewerReviewPackPurchaseRequestService
             }
         }
         return $item_names;
+    }
+
+    private function assertIfRequestIsDuplicated($user, $request)
+    {
+        $requests_not_yet_confirmed
+            = plugin_movieviewer_get_review_pack_purchase_request_repository()->findNotYetConfirmed($user->id);
+
+        foreach ($request->getItems() as $item) {
+            if (MovieViewerReviewPackPurchaseRequest::requestsHasItem(
+                $requests_not_yet_confirmed, $item->course_id, $item->session_id
+            )) {
+                throw new MovieViewerRequestIsDuplicatedException("指定した単元はすでに申し込み済みです。");
+            }
+        }
     }
 
 }

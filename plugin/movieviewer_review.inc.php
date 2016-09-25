@@ -43,6 +43,7 @@ function plugin_movieviewer_review_convert()
     }
 
     $viewing_periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($user->id);
+    $requests_not_yet_confirmed = plugin_movieviewer_get_review_pack_purchase_request_repository()->findNotYetConfirmed($user->id);
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -60,12 +61,23 @@ function plugin_movieviewer_review_convert()
 
         $content_periods = "";
         foreach ($periods as $period) {
+
+            if (MovieViewerReviewPackPurchaseRequest::requestsHasItem(
+                $requests_not_yet_confirmed, $course_id, $period->session_id
+            )) {
+                continue;
+            }
+
             $session = $course->getSession($period->session_id);
             $field_id = "{$hsc($course->id)}_{$hsc($session->id)}";
             $content_periods .=<<<TEXT
             <label class='movie-session' for="{$field_id}">{$session->describe()}</label>
             <input class='movie-session' type="checkbox" name="sessions" id="{$field_id}" value="{$field_id}">
 TEXT;
+        }
+
+        if ($content_periods === "") {
+            continue;
         }
 
         $content_course =<<<TEXT
@@ -109,5 +121,4 @@ TEXT;
 
     return $content;
 }
-
 ?>

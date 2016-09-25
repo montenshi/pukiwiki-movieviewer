@@ -17,6 +17,16 @@
 
 class MovieViewerReviewPackPurchaseRequest
 {
+    static function requestsHasItem($requests, $course_id, $session_id)
+    {
+        foreach ($requests as $request) {
+            if ($request->hasItem($course_id, $session_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public  $user_id;
     public  $purchase_method;
     public  $review_pack;
@@ -92,6 +102,11 @@ class MovieViewerReviewPackPurchaseRequest
     function getDateRequested()
     {
         return $this->date_requested;
+    }
+
+    function hasItem($course_id, $session_id)
+    {
+        return $this->review_pack->hasItem($course_id, $session_id);
     }
 }
 

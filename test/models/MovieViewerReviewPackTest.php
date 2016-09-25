@@ -1,10 +1,11 @@
 <?php
 
-require_once('MovieViewerTestCase.php');
+require_once 'MovieViewerTestCase.php';
 
-class MovieViewerReviewPackTest extends MovieViewerTestCase {
-
-    public function setUp() {
+class MovieViewerReviewPackTest extends MovieViewerTestCase
+{
+    function setUp()
+    {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
@@ -13,7 +14,8 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
         $this->setGlobalSettings($settings);
     }
 
-    public function testConstructorCreatesReviewItems() {
+    function testConstructorCreatesReviewItems()
+    {
         $params = array();
         $params[] = "K1Kiso_01";
         $params[] = "K2Kiso_02";
@@ -29,7 +31,8 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
         $this->assertEquals("01", $item->session_id);
     }
 
-    public function testGetItemsByCourseReturnsSortedObjectsByCourse() {
+    function testGetItemsByCourseReturnsSortedObjectsByCourse()
+    {
         $params = array();
         $params[] = "K1Kiso_01";
         $params[] = "K2Kiso_02";
@@ -51,7 +54,8 @@ class MovieViewerReviewPackTest extends MovieViewerTestCase {
         $this->assertEquals("08", $items[2]->session_id);
     }
 
-    public function testGetPriceReturnsPackPrice() {
+    function testGetPriceReturnsPackPrice()
+    {
         $params = array();
         $params[] = "K1Kiso_01";
         $params[] = "K2Kiso_02";

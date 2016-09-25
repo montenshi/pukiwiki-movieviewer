@@ -887,11 +887,11 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFile extends MovieViewerRe
         return $object;
     }
 
-    function findNotYetConfirmed()
+    function findNotYetConfirmed($user_id = null)
     {
         $objects = array();
 
-        $data_dir = $this->getGlobPath();
+        $data_dir = $this->getGlobPath($user_id);
         foreach (glob($data_dir) as $file_path) {
             $file_path_confirmed = MovieViewerReviewPackPaymentConfirmationRepositoryInFile::getFilePathFromRequestPath($file_path);
             if (file_exists($file_path_confirmed)) {

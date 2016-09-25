@@ -1,10 +1,11 @@
 <?php
 
-require_once('MovieViewerTestCase.php');
+require_once 'MovieViewerTestCase.php';
 
-class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieViewerTestCase {
-
-    public function setUp() {
+class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieViewerTestCase
+{
+    function setUp()
+    {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
@@ -13,7 +14,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $this->setGlobalSettings($settings);
     }
 
-    public function testStoreSaveToFile() {
+    function testStoreSaveToFile()
+    {
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
@@ -35,7 +37,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $this->assertEquals("01", $items[0]->session_id);
     }
 
-    public function testStashSaveToTempFileAndReturnStashID() {
+    function testStashSaveToTempFileAndReturnStashID()
+    {
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
@@ -49,7 +52,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $this->assertTrue(file_exists("test/models/resources/purchase/review_pack/_stash/{$stash_id}.yml"));
     }
 
-    public function testRestoreDeserializeObjectAndDeleteTempFile() {
+    function testRestoreDeserializeObjectAndDeleteTempFile()
+    {
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
@@ -65,7 +69,8 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         $this->assertFalse(file_exists("test/models/resources/purchase/review_pack/_stash/{$stash_id}.yml"));
     }
 
-    public function testFindNotYetConfirmedReturnsObjects() {
+    function testFindNotYetConfirmedReturnsObjects()
+    {
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
@@ -78,10 +83,32 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
 
         $objects = $repo->findNotYetConfirmed();
 
+        $this->assertEquals(2, count($objects));
+
+        $object = $objects[0];
+        $this->assertEquals("xxx@bbb.ccc", $object->user_id);
+        $object = $objects[1];
+        $this->assertEquals("zzz@bbb.ccc", $object->user_id);
+    }
+
+    function testFindNotYetConfirmedByUserReturnsObjects()
+    {
+        $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        // 常にファイルの状態を同じにしたいなので、data dir を専用のものにする
+        $settings = new MovieViewerSettings();
+        $settings->data["dir"] = "test/models/resources_not_yet_confirmed";
+        $settings->timezone = new DateTimeZone("Asia/Tokyo");
+
+        $repo = new MovieViewerReviewPackPurchaseRequestRepositoryInFile($settings);
+
+        $objects = $repo->findNotYetConfirmed("xxx@bbb.ccc");
+
         $this->assertEquals(1, count($objects));
 
         $object = $objects[0];
-        $this->assertEquals("zzz@bbb.ccc", $object->user_id);
+        $this->assertEquals("xxx@bbb.ccc", $object->user_id);
     }
 }
 

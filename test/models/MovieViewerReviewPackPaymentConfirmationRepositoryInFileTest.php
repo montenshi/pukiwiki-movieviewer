@@ -1,10 +1,11 @@
 <?php
 
-require_once('MovieViewerTestCase.php');
+require_once 'MovieViewerTestCase.php';
 
-class MovieViewerReviewPackPaymentConfirmationRepositoryInFileTest extends MovieViewerTestCase {
-
-    public function setUp() {
+class MovieViewerReviewPackPaymentConfirmationRepositoryInFileTest extends MovieViewerTestCase
+{
+    function setUp()
+    {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
@@ -13,7 +14,8 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFileTest extends Movie
         $this->setGlobalSettings($settings);
     }
 
-    public function testStoreSaveToFile() {
+    function testStoreSaveToFile()
+    {
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
@@ -21,7 +23,7 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFileTest extends Movie
         $repo = new MovieViewerReviewPackPaymentConfirmationRepositoryInFile($settings);
 
         $request = new MovieViewerReviewPackPurchaseRequest("aaa@bbb.ccc", "credit", array("K1Kiso_01"));
-        $object = MovieViewerReviewPackPaymentConfirmation::createFromRequest($request, NULL);
+        $object = MovieViewerReviewPackPaymentConfirmation::createFromRequest($request, null);
 
         $repo->store($object);
 

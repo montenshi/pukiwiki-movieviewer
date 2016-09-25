@@ -317,7 +317,7 @@ TEXT;
     $content =<<<TEXT
     <p>
     <table class="movieviewer-purchase-request-details">
-      <tr><th>再視聴</th><td>{$item_description}</td></tr>
+      <tr><th>項目</th><td>{$item_description}</td></tr>
       <tr><th>金額</th><td>{$price_with_notes}</td></tr>
       <tr><th>振込先</th><td>{$bank_accounts_with_notes}</td></tr>
       <tr><th>振込期限</th><td>{$hsc($payment_guide->deadline->format("Y年m月d日"))}まで</td></tr>

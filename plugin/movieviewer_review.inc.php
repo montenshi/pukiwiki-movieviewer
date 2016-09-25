@@ -69,10 +69,12 @@ TEXT;
         }
 
         $content_course =<<<TEXT
+        <div class='movieviewer-course'>
         <h3>{$hsc($course->name)}</h3>
         <fieldset style='border: none;'>
         {$content_periods}
         </fieldset>
+        </div>
 TEXT;
 
         $content_courses .= $content_course;
@@ -91,10 +93,10 @@ TEXT;
     <style>
     </style>
 
-    <h2>再視聴可能なコース</h2>
+    <h2>再視聴可能な単元</h2>
 
     <p>
-    再視聴したいコースを選択して、申し込みボタンを押してください。
+    再視聴したい単元を選択して、申し込みボタンを押してください。
     </p>
 
     ${content_courses}

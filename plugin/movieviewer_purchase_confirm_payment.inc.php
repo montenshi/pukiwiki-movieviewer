@@ -83,7 +83,7 @@ TEXT;
           <td><label for="{$ctrl_id}">{$hsc($request->getUser()->lastName)} {$hsc($request->getUser()->firstName)}</label></td>
           <td><label for="{$ctrl_id}">{$hsc($request->getUser()->id)}</label></td>
           <td><label for="{$ctrl_id}">{$hsc($request->getPack()->describe())}</label></td>
-          <td><label for="{$ctrl_id}">{$hsc($request->getDateRequested()->format("Y/m/d H:m:s"))}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getDateRequested()->format("Y/m/d H:i:s"))}</label></td>
         </tr>
 TEXT;
 

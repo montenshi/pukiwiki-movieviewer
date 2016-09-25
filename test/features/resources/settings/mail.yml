@@ -40,3 +40,32 @@ template:
       {{bank_accounts_with_notes}}
 
       エンジェルズハウス研究所AHL　経理部
+  reviewpack_transfer_information:
+    subject: N期生 再視聴のお申し込み及び入金のお願い
+    body: |
+      {{user_name}}様
+
+      再視聴のお申し込みをいただき、ありがとうございました。下記内容にてお受けしました。
+
+      再視聴希望回
+      {{item_names}}
+
+      下記期限までに必ずお振込をお願いいたします。
+
+      金額：{{price}}
+      振込期限：{{deadline}}
+
+      振込み先口座を下記にご案内いたします。
+
+      {{bank_accounts_with_notes}}
+
+      エンジェルズハウス研究所AHL　経理部
+  reviewpack_request_notifycation:
+    to: staff@bbb.ccc
+    subject: N期生 再視聴 {{user_name}} {{item_count}}個
+    body: |
+      再視聴希望回
+      {{item_names}}
+
+      金額：{{price}}
+      振込期限：{{deadline}}

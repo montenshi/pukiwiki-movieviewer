@@ -27,6 +27,7 @@ class MovieViewerReviewPackPurchaseRequestRepositoryInFileTest extends MovieView
         
         $this->assertEquals("aaa@bbb.ccc", $object->user_id);
         $this->assertEquals("credit", $object->purchase_method);
+        $this->assertEquals(new DateTime("2015-08-14 23:59:59+09:00"), $object->getDateRequested());
 
         $items = $object->getItems();
         $this->assertEquals(1, count($items));

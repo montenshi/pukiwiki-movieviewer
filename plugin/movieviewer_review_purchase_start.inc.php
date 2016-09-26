@@ -335,19 +335,39 @@ TEXT;
     }
 
     $payment_guide = MovieViewerReviewPackPurchasePaymentGuide::create($settings->payment, $request);
-
-    $price_with_notes = plugin_movieviewer_render_price_with_notes($request->getPrice(), "回", FALSE);
-    $bank_accounts_with_notes = nl2br($payment_guide->bank_transfer->bank_accounts_with_notes);
-
     $hsc = "plugin_movieviewer_hsc";
+
+    if ($request->purchase_method === 'bank') {
+        $bank_accounts_with_notes = nl2br($payment_guide->bank_transfer->bank_accounts_with_notes);
+        $content_header_payment =<<<TEXT
+        <tr><th>振込先</th><td>{$bank_accounts_with_notes}</td></tr>
+TEXT;
+    } else {
+        $acceptable_brands = "";
+        foreach ($payment_guide->credit_card->acceptable_brands as $brand) {
+            $file_name = "logo_" . strtolower($brand) . ".gif";
+            $acceptable_brand=<<<TEXT
+            <img src="img/{$file_name}" ALT="{$brand}">
+TEXT;
+            $acceptable_brands .= $acceptable_brand;
+        }
+        
+        $content_header_payment =<<<TEXT
+        <tr><th>振込先<br>(利用可能なクレジットカード)</th>
+        <td style='vertical-align:top;'>{$acceptable_brands}</td>
+        </tr>
+TEXT;
+    }
+
+    $price_with_notes = plugin_movieviewer_render_price_with_notes($request->getPrice(), "回", false);
 
     $content =<<<TEXT
     <p>
     <table class="movieviewer-purchase-request-details">
-      <tr><th>項目</th><td>{$item_description}</td></tr>
-      <tr><th>金額</th><td>{$price_with_notes}</td></tr>
-      <tr><th>振込先</th><td>{$bank_accounts_with_notes}</td></tr>
-      <tr><th>振込期限</th><td>{$hsc($payment_guide->deadline->format("Y年m月d日"))}まで</td></tr>
+        <tr><th>項目</th><td>{$item_description}</td></tr>
+        <tr><th>金額</th><td>{$price_with_notes}</td></tr>
+        $content_header_payment
+        <tr><th>振込期限</th><td>{$hsc($payment_guide->deadline->format("Y年m月d日"))}まで</td></tr>
     </table>
     </p>
 TEXT;

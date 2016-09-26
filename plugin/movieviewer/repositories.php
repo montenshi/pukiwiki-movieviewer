@@ -1106,10 +1106,11 @@ class MovieViewerReviewPackPaymentConfirmationRepositoryInFile extends MovieView
 
     function findNotYetStartedByUser($user_id)
     {
-        $candidates = $this->findBy($user_id, "*");
-
         $objects = array();
-        foreach ($candidates as $candidate) {
+
+        $data_dir = $this->getGlobPathByUser($user_id);
+        foreach (glob($data_dir) as $file_path) {
+            $candidate = $this->createObject($file_path);
             if ($candidate->getViewingPeriod()->isBefore()) {
                 $objects[] = $candidate;
             }

@@ -101,8 +101,6 @@ class FeatureContext extends RawMinkContext implements Context, SnippetAccepting
         $page = $this->getSession()->getPage();
 
         foreach ($table->getHash() as $key => $row) {
-            print_r($key);
-            print_r($row);
             $course = $page->find('xpath', "//div[h3[contains(./text(), '{$row['コース']}')]]");
             $button = $course->find('xpath', "/fieldset/label[contains(./text(), '{$row['単元']}')]");
 

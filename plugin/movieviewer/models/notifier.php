@@ -132,45 +132,31 @@ class MovieViewerPurchaseStatusNotifier extends MovieViewerNotifier
 {
     function generateMessage($user, $context)
     {
-        $message = $this->generateMessageRequesting($user, $context);
+        $messages = array();
 
-        if ($message !== "") {
-            return $message;
-        }
+        $messages[] = $this->generateMessageRequesting($user, $context);
 
-        $message = $this->generateMessageConfirmed($user, $params);
+        $messages[] = $this->generateMessageConfirmed($user, $params);
         
-        return $message;
+        return implode('', $messages);
     }
     
     private function generateMessageRequesting($user, $context)
     {
-        $repo_req = plugin_movieviewer_get_deal_pack_purchase_request_repository();
-        $objects = $repo_req->findRequestingByUser($user->id);
+        $listDealPack = $this->generateMessageRequestingDealPack($user, $context);
+        $listReviewPack = $this->generateMessageRequestingReviewPack($user, $context);
 
-        if (count($objects) === 0) {
-            return '';
+        if ($listDealPack === "" && $listReviewPack == "") {
+            return "";
         }
-        
-        $list = "";
-        foreach ($objects as $object) {
-            $list .= <<<TEXT
-            <li>{$object->getPack()->describe()}<br>入金を確認中です。受講開始までお待ち下さい。</li>
-TEXT;
-        }
-
-        $message =<<<TEXT
-        <p>
-        <h3 id='content_1_1'>以下の受講セットを申し込んでいます。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
-        </p>
-        <ul>
-            $list
-        </ul>
-TEXT;
 
         $content =<<<TEXT
         <div class="movieviewer-notice movieviewer-notice-purchase-status">
-        $message
+        <h3>以下の申し込みについて、入金を確認しています。<br>開始までお待ち下さい。</h3>
+        <ul>
+            $listDealPack
+            $listReviewPack
+        </ul>
         </div>
 TEXT;
 
@@ -179,29 +165,95 @@ TEXT;
 
     private function generateMessageConfirmed($user, $context)
     {
-        $repo_req = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
-        $objects = $repo_req->findByNotYetStartedUser($user->id);
+        $listDealPack = $this->generateMessageConfirmedDealPack($user, $context);
+        $listReviewPack = $this->generateMessageConfirmedReviewPack($user, $context);
+
+        if ($listDealPack === "" && $listReviewPack == "") {
+            return "";
+        }
+
+        $content =<<<TEXT
+        <div class="movieviewer-notice movieviewer-notice-purchase-status">
+        <h3>入金が確認できました。</h3>
+        <ul>
+            $listDealPack
+            $listReviewPack
+        </ul>
+        <p>※基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。</p>
+        </div>
+TEXT;
+
+        return $content;
+    }
+
+    private function generateMessageRequestingDealPack($user, $context)
+    {
+        $objects = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findRequestingByUser($user->id);
+
+        if (count($objects) === 0) {
+            return '';
+        }
+        
+        $content = "";
+        foreach ($objects as $object) {
+            $content .= <<<TEXT
+            <li>{$object->getPack()->describe()}</li>
+TEXT;
+        }
+
+        return $content;
+    }
+
+    private function generateMessageRequestingReviewPack($user, $context)
+    {
+        $objects = plugin_movieviewer_get_review_pack_purchase_request_repository()->findNotYetConfirmed($user->id);
+
+        if (count($objects) === 0) {
+            return '';
+        }
+        
+        $content = "";
+        foreach ($objects as $object) {
+            $content .= <<<TEXT
+            <li>{$object->describePack()}</li>
+TEXT;
+        }
+
+        return $content;
+    }
+
+    private function generateMessageConfirmedDealPack($user, $context)
+    {
+        $objects = plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->findByNotYetStartedUser($user->id);
 
         if (count($objects) === 0) {
             return '';
         }
 
-        $list = "";
+        $content = "";
         foreach ($objects as $object) {
-            $list .= <<<TEXT
+            $content .= <<<TEXT
             <li>{$object->getPack()->describe()} (受講開始 {$object->getViewingPeriod()->date_begin->format('m月d日')})</li>
 TEXT;
         }
 
-        $content =<<<TEXT
-        <div class="movieviewer-notice movieviewer-notice-purchase-status">
-        <h3 id='content_1_1'>入金が確認できました。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
-        <ul>
-        $list
-        </ul>
-        <p>※基礎コース１年目第１回～第４回以外は、受講開始のご連絡はいたしません。<br>期日になりましたら、各自受講を開始して下さい。</p>
-        </div>
+        return $content;
+    }
+
+    private function generateMessageConfirmedReviewPack($user, $context)
+    {
+        $objects = plugin_movieviewer_get_review_pack_payment_confirmation_repository()->findNotYetStartedByUser($user->id);
+
+        if (count($objects) === 0) {
+            return '';
+        }
+
+        $content = "";
+        foreach ($objects as $object) {
+            $content .= <<<TEXT
+            <li>{$object->describePack()} (視聴開始 {$object->getViewingPeriod()->date_begin->format('m月d日')})</li>
 TEXT;
+        }
 
         return $content;
     }
@@ -236,7 +288,7 @@ class MovieViewerReportNotifier extends MovieViewerNotifier
             $reportLinkId = $pack->getReportFormId();
 
             $context .=<<<TEXT
-            <h3 id='content_1_1'>{$reportName}のレポート提出期間中です。<a class='anchor' id='p77e7264' name='p77e7264'></a></h3>
+            <h3>{$reportName}のレポート提出期間中です。</h3>
             レポートの提出期限は{$reportDeadline}までです。
             <div align="right">提出はこちらから→　
             <a href='https://ws.formzu.net/fgen/{$reportLinkId}/' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>
@@ -247,4 +299,5 @@ TEXT;
         return $context;
     }
 }
+
 ?>

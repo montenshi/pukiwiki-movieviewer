@@ -192,6 +192,11 @@ class MovieViewerReviewPackPaymentConfirmation
     {
         return $this->viewing_period;
     }
+
+    function describePack()
+    {
+        return $this->review_pack->describe();
+    }
 }
 
 class MovieViewerReviewPackPurchasePaymentGuide extends MovieViewerPaymentGuide

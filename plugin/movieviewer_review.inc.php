@@ -42,6 +42,17 @@ function plugin_movieviewer_review_convert()
         return plugin_movieviewer_convert_error_response("ログインが必要です。");
     }
 
+    $plugin_args = func_get_args();
+
+    try {
+        plugin_movieviewer_review_asset_plugin_arguments($plugin_args);
+    } catch (Exception $ex) {
+        return plugin_movieviewer_convert_error_response("プラグインの引数が設定されていません。");
+    }
+
+    $start_page_bank   = $plugin_args[0];
+    $start_page_credit = $plugin_args[1];
+
     $viewing_periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($user->id);
     $requests_not_yet_confirmed = plugin_movieviewer_get_review_pack_purchase_request_repository()->findNotYetConfirmed($user->id);
 
@@ -92,8 +103,19 @@ TEXT;
         $content_courses .= $content_course;
     }
 
-    $uri_start_bank = plugin_movieviewer_get_script_uri() . "?%3A動画配信会員_再視聴申し込み_銀行振り込み&purchase_method=bank";
-    $uri_start_credit = plugin_movieviewer_get_script_uri() . "?%3A動画配信会員_再視聴申し込み_クレジットカード&purchase_method=credit";
+    $uri_start_bank = plugin_movieviewer_get_script_uri() . "?{$start_page_bank}&purchase_method=bank";
+    $uri_start_credit = plugin_movieviewer_get_script_uri() . "?{$start_page_credit}&purchase_method=credit";
+
+    $buttons_payment =<<<TEXT
+    <a href="${uri_start_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
+TEXT;
+
+    $settings = plugin_movieviewer_get_global_settings();
+    if ($settings->payment->isCreditEnabled()) {
+        $buttons_payment .=<<<TEXT
+        <a href="${uri_start_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
+TEXT;
+    }
 
     $content =<<<TEXT
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -114,11 +136,31 @@ TEXT;
     ${content_courses}
 
     <div style="margin-top:10px;">
-        <a href="${uri_start_bank}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>銀行振り込みで申し込み</a>
-        <a href="${uri_start_credit}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>クレジットカードで申し込み</a>
+    $buttons_payment
     </div>
 TEXT;
 
     return $content;
 }
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * プラグインの引数が正しいかどうかを検査し、問題がある場合は例外を発生させる
+ *
+ * @param MovieViewerReviewPackPurchaseRequest $request 申し込み
+ * 
+ * @return void
+ */
+function plugin_movieviewer_review_asset_plugin_arguments($args)
+{
+    if (count($args) !== 2) {
+        throw new Exception();
+    }
+
+    if ($args[0] === "" || $args[1] === "") {
+        throw new Exception();
+    }
+}
+
 ?>

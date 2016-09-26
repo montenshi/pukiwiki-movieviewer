@@ -45,7 +45,7 @@ function plugin_movieviewer_review_convert()
     $plugin_args = func_get_args();
 
     try {
-        plugin_movieviewer_review_asset_plugin_arguments($plugin_args);
+        plugin_movieviewer_review_assert_plugin_arguments($plugin_args);
     } catch (Exception $ex) {
         return plugin_movieviewer_convert_error_response("プラグインの引数が設定されていません。");
     }
@@ -148,11 +148,11 @@ TEXT;
 /**
  * プラグインの引数が正しいかどうかを検査し、問題がある場合は例外を発生させる
  *
- * @param MovieViewerReviewPackPurchaseRequest $request 申し込み
+ * @param array $args プラグインの引数
  * 
  * @return void
  */
-function plugin_movieviewer_review_asset_plugin_arguments($args)
+function plugin_movieviewer_review_assert_plugin_arguments($args)
 {
     if (count($args) !== 2) {
         throw new Exception();

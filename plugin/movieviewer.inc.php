@@ -42,7 +42,8 @@ function plugin_movieviewer_convert()
     // 認証済み
     $manager = plugin_movieviewer_get_auth_manager();
     if ($manager->isAuthenticated()) {
-            return plugin_movieviewer_convert_show_contents();
+        $plugin_args = func_get_args();
+        return plugin_movieviewer_convert_show_contents($plugin_args);
     }
 
     // 認証なし
@@ -71,7 +72,6 @@ function plugin_movieviewer_convert()
  */
 function plugin_movieviewer_action()
 {
-
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
 
     $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
@@ -96,6 +96,24 @@ function plugin_movieviewer_action()
 /*-- 以下、内部処理 --*/
 
 /**
+ * プラグインの引数が正しいかどうかを検査し、問題がある場合は例外を発生させる
+ *
+ * @param array $args プラグインの引数
+ * 
+ * @return void
+ */
+function plugin_movieviewer_assert_plugin_arguments($args)
+{
+    if (count($args) !== 1) {
+        throw new Exception();
+    }
+
+    if ($args[0] === "") {
+        throw new Exception();
+    }
+}
+
+/**
  * [ブロック] 未認証時のエラー画面を生成する
  *
  * @return string 画面(html)
@@ -115,12 +133,21 @@ TEXT;
  * [ブロック] 視聴画面を生成する
  * 視聴可能な単元、受講済みの単元を一覧で表示する
  *
+ * @param array $plugin_args プラグインに設定されている引数
+ *
  * @return string 画面(html)
  */
-function plugin_movieviewer_convert_show_contents()
+function plugin_movieviewer_convert_show_contents($plugin_args)
 {
-
     global $script;
+
+    try {
+        plugin_movieviewer_assert_plugin_arguments($plugin_args);
+    } catch (Exception $ex) {
+        return plugin_movieviewer_convert_error_response("プラグインの引数が設定されていません。");
+    }
+
+    $review_page = $plugin_args[0];
 
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
 
@@ -140,7 +167,7 @@ function plugin_movieviewer_convert_show_contents()
 TEXT;
     }
 
-    $uri_review = plugin_movieviewer_get_script_uri() . "?%3A動画配信会員_再視聴";
+    $uri_review = plugin_movieviewer_get_script_uri() . "?{$review_page}";
 
     $body = <<<TEXT
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>

@@ -72,7 +72,7 @@ function plugin_movieviewer_notify_user_convert()
     if (count($messages) === 0) {
         return '';
     }
-    
+
     $messages_flat = implode("\r\n", $messages);
 
     $content =<<<TEXT

@@ -186,6 +186,12 @@ class MovieViewerDealBox
         return null;
     }
     
+    function getFirstPack()
+    {
+        reset($this->packs);
+        return current($this->packs);
+    }
+    
     function getNextPack($id)
     {
         reset($this->packs);
@@ -200,6 +206,11 @@ class MovieViewerDealBox
             }
         } while (next($this->packs) !== false);
         return null;
+    }
+
+    function getLastPack()
+    {
+        return end($this->packs);
     }
 
     function addPack($pack_id, $session_ids, $fixed_price, $discount_price, $report_form_id)
@@ -240,6 +251,36 @@ class MovieViewerS4K2KisoDealBox extends MovieViewerDealBox
     }
 }
 
+class MovieViewerS4OABunkaDealBox extends MovieViewerDealBox
+{
+    function __construct()
+    {
+        parent::__construct("OABunka");
+
+        $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
+        $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
+
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price, "");
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price, "");
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "");
+    }
+}
+
+class MovieViewerS4OBJyoSanDealBox extends MovieViewerDealBox
+{
+    function __construct()
+    {
+        parent::__construct("OBJyoSan");
+
+        $fixed_price = new MovieViewerDealPackFixedPrice(4750, 4, 1520);
+        $discount_price = new MovieViewerDealPackDiscountPrice(4500, 4, 1440);
+
+        $this->addPack(1, array("01", "02", "03", "04"), $fixed_price, $discount_price, "");
+        $this->addPack(2, array("05", "06", "07", "08"), $fixed_price, $discount_price, "");
+        $this->addPack(3, array("09", "10", "11", "12"), $fixed_price, $discount_price, "");
+    }
+}
+
 class MovieViewerS4DealContainer
 {
     public $boxes = array();
@@ -248,6 +289,8 @@ class MovieViewerS4DealContainer
     {
         $this->addBox(new MovieViewerS4K1KisoDealBox());
         $this->addBox(new MovieViewerS4K2KisoDealBox());
+        $this->addBox(new MovieViewerS4OABunkaDealBox());
+        $this->addBox(new MovieViewerS4OBJyoSanDealBox());
     }
 
     function getBox($course_id)

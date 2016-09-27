@@ -15,6 +15,42 @@
 
 //---- (上のコメントをファイルのコメントと認識させるためのコメント)
 
+class MovieViewerCourseRoute
+{
+    public $course_ids = array();
+
+    function __construct($course_ids)
+    {
+        $this->course_ids = $course_ids;
+    }
+
+    function getFirst()
+    {
+        return $this->course_ids[0];
+    }
+
+    function getNext($course_id)
+    {
+        $current_index = array_search($course_id, $this->course_ids);
+
+        if ($current_index === false) { // 見つからなかった
+            return null;
+        }
+
+        if ($current_index + 1 === count($this->course_ids)) {
+            return null;
+        }
+
+        return $this->course_ids[$current_index + 1];
+    }
+
+    function getLast()
+    {
+        return end($this->course_ids);
+    }
+
+}
+
 class MovieViewerUser
 {
     public $id = '';
@@ -23,8 +59,13 @@ class MovieViewerUser
     public $mailAddress = '';
     public $hashedPassword = '';
     public $memberId = '';
-    public $selected_courses = array('K1Kiso');
-    
+    public $selected_routes = array();
+
+    function __construct()
+    {
+        $this->selected_routes[] = new MovieViewerCourseRoute(array("K1Kiso", "K2Kiso"));
+    }
+
     function setPassword($raw_password)
     {
         $this->hashedPassword = $this->hashPassword($raw_password);
@@ -71,18 +112,6 @@ class MovieViewerUser
     function generateResetPasswordToken()
     {
         return new MovieViewerUserResetPasswordToken($this->id);
-    }
-
-    function getLastDealPackConfirmation()
-    {
-        $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
-        $confirmations = $repo->findByCourse($this->id, "*");
-        
-        if (count($confirmations) === 0) {
-            return null;
-        }
-
-        return end($confirmations);    
     }
 
     function getValidDealPackConfirmations()

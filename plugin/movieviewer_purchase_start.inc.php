@@ -43,11 +43,6 @@ function plugin_movieviewer_purchase_start_convert()
         return plugin_movieviewer_convert_error_response("ログインが必要です。");
     }
     
-    // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
-    if (!$user->hasMemberId()) {
-        return plugin_movieviewer_convert_error_response("クレジットカードの支払いには会員番号が必要です。");
-    }
-
     $deal_pack_id = filter_input(INPUT_GET, "deal_pack_id");
     $purchase_method = filter_input(INPUT_GET, "purchase_method");
 
@@ -61,6 +56,11 @@ function plugin_movieviewer_purchase_start_convert()
         plugin_movieviewer_validate_purchase_method($purchase_method);
     } catch (MovieViewerValidationException $ex) {
         return plugin_movieviewer_convert_error_response("指定した内容に誤りがあります。");
+    }
+
+    // 取引IDに会員番号を利用するため、会員番号がない場合は、クレジットカード支払いはできない
+    if ($purchase_method === "credit" && !$user->hasMemberId()) {
+        return plugin_movieviewer_convert_error_response("クレジットカードの支払いには会員番号が必要です。");
     }
 
     $settings = plugin_movieviewer_get_global_settings();

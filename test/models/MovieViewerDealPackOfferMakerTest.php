@@ -28,7 +28,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -45,7 +44,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -62,7 +60,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -82,7 +79,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -102,7 +98,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -122,7 +117,6 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -142,7 +136,10 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso", "K2Kiso");
+        $user->selected_routes = array(
+            new MovieViewerCourseRoute(array("K1Kiso")),
+            new MovieViewerCourseRoute(array("K2Kiso"))
+        );
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -160,7 +157,10 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_courses = array("K1Kiso", "K2Kiso");
+        $user->selected_routes = array(
+            new MovieViewerCourseRoute(array("K1Kiso")),
+            new MovieViewerCourseRoute(array("K2Kiso"))
+        );
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -173,13 +173,11 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
     function testGetOffersShouldReturnsOfferFirstTime()
     {
-
         $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
         timecop_freeze($date_freeze->getTimestamp());
 
         $user = new MovieViewerUser();
         $user->id = "bbb@bbb.ccc";
-        $user->selected_courses = array("K1Kiso");
 
         $settings = plugin_movieviewer_get_global_settings();
         $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
@@ -190,6 +188,60 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
         $this->assertEquals("2015-10-15 00:00:00+09:00", $offers[0]->getDiscountPeriod()->date_begin->format("Y-m-d H:i:sP"));
         $this->assertEquals("2015-10-31 23:59:59+09:00", $offers[0]->getDiscountPeriod()->date_end->format("Y-m-d H:i:sP"));
         $this->assertTrue($offers[0]->canDiscount());
+    }
+
+    function testGetOffersShouldReturnNextCourseOffer()
+    {
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "ddd@bbb.ccc";
+
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+        $offers = $maker->getOffers();
+
+        $this->assertCount(1, $offers);
+        $this->assertEquals("K2Kiso-1", $offers[0]->getPackId());
+    }
+
+    function testGetOffersShouldReturnEmptyWhenLastCourseEnded()
+    {
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "ddd@bbb.ccc";
+        $user->selected_routes = array(
+            new MovieViewerCourseRoute(array("K1Kiso")),
+        );
+
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+        $offers = $maker->getOffers();
+
+        $this->assertCount(0, $offers);
+    }
+
+    function testGetOffersShouldReturnNextCourseOfferWhenFirstPackEndedBothRoutes()
+    {
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "eee@bbb.ccc";
+        $user->selected_routes = array(
+            new MovieViewerCourseRoute(array("K1Kiso","OABunka")),
+            new MovieViewerCourseRoute(array("K2Kiso"))
+        );
+
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+        $offers = $maker->getOffers();
+
+        $this->assertCount(1, $offers);
+        $this->assertEquals("OABunka-1", $offers[0]->getPackId());
     }
 }
 

@@ -273,10 +273,20 @@ class MovieViewerDealPackOfferMaker
                 }
 
                 $next_box = $s4_container->getBox($next_course_id);
+
+                if ($next_box === null) {
+                    return null;
+                }
+
                 $next_pack = $next_box->getFirstPack();
             }
         } else { // 何も買っていなかった場合は、最初のBoxが対象
             $next_box = $s4_container->getBox($route->getFirst());
+
+            if ($next_box === null) {
+                return null;
+            }
+
             $next_pack = $next_box->getFirstPack();
         }
 

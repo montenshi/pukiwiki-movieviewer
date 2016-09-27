@@ -209,6 +209,13 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile
         $object->memberId = $data["custom1"];
         $object->commuId = $data["id"];
 
+        if ($data["custom11"] !== "" || $data["custom12"] !== "") {
+            $new_routes = array();
+            $this->addCourseRoute($new_routes, $data["custom11"]);
+            $this->addCourseRoute($new_routes, $data["custom12"]);
+            $object->selected_routes = $new_routes;
+        }
+
         return $object;
     }
 
@@ -254,6 +261,15 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile
         $object->hashedPassword = $hashedPassword;
 
         return $object;
+    }
+
+    private function addCourseRoute(&$routes, $courses_combined)
+    {
+        if ($courses_combined === null || $courses_combined === "") {
+            return;
+        }
+        $courses = split(",", $courses_combined);
+        $routes[] = new MovieViewerCourseRoute($courses);
     }
 }
 

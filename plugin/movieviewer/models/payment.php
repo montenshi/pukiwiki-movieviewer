@@ -46,7 +46,7 @@ abstract class MovieViewerPaygentParameterGenerator {
         $org_str = $this->getTradingId() .
                    $this->getId() .
                    $this->getSeqMerchantId() .
-                   $this->paygent_settings["hash_key"];
+                   $this->_paygent_settings["hash_key"];
         return hash("sha256", $org_str);
     }
 }

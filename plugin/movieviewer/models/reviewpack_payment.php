@@ -43,7 +43,7 @@ class MovieViewerReviewPackPaygentTradingIdGenerator
     private function convertMemberIdForPaygent($member_id)
     {
         // ハイフンは利用できないので、アンダーバーに置換する
-        return mb_ereg_replace("[¥-]", "_", $member_id);        
+        return mb_ereg_replace("[¥-]", "_", $member_id);
     }
 }
 

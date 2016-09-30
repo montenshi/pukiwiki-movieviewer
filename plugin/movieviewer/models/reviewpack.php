@@ -157,7 +157,7 @@ class MovieViewerReviewPack
 
         if ($item_count > 1) {
             $others_count = $item_count - 1;
-            $description = "{$description} 他{$others_count}個";
+            $description = "{$description} 他{$others_count}回";
         }
 
         return $description;
@@ -170,7 +170,7 @@ class MovieViewerReviewPack
             return "(なし)";
         }
 
-        return "再視聴 {$item_count}個";
+        return "再視聴 {$item_count}回";
     }
 }
 

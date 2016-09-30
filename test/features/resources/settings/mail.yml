@@ -62,7 +62,7 @@ template:
       エンジェルズハウス研究所AHL　経理部
   reviewpack_request_notifycation:
     to: staff@bbb.ccc
-    subject: N期生 再視聴 {{user_name}} {{item_count}}個
+    subject: N期生 再視聴 {{user_name}} {{item_count}}回
     body: |
       再視聴希望回
       {{item_names}}

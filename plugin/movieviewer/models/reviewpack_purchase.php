@@ -224,7 +224,7 @@ class MovieViewerReviewPackPurchasePaymentGuide extends MovieViewerPaymentGuide
             // 省略されている場合は現在日時とする
             $tmp = new DateTime();
         }
-        $last_day_of_this_month = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
+        $last_day_of_this_month = new DateTime($tmp->modify("+10 day")->format("Y-m-d 23:59:59"));
         return new MovieViewerTransferDeadline($last_day_of_this_month->format("Y-m-d H:i:sP"));
     }
 

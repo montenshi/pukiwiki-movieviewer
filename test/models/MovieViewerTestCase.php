@@ -1,8 +1,9 @@
 <?php
 
-class MovieViewerTestCase extends PHPUnit_Framework_TestCase {
-
-    public function setUp() {
+class MovieViewerTestCase extends PHPUnit_Framework_TestCase
+{
+    function setUp()
+    {
         // プラグインの動作に必要な設定 (movieviewer.ini.phpで行うコトを代理する)
         $this->define('PLUGIN_MOVIEVIEWER_COMMU_DIR', dirname(__FILE__) . "/../lib/commu");
         $this->define('PLUGIN_MOVIEVIEWER_PUKIWIKI_DIR', ".");
@@ -11,22 +12,20 @@ class MovieViewerTestCase extends PHPUnit_Framework_TestCase {
         $this->define('PLUGIN_MOVIEVIEWER_LOG_DIR', dirname(__FILE__) . "/logs");
 
         chdir('../');
-        require_once('plugin/movieviewer/functions.php');
-        require_once('plugin/movieviewer/models/aws.php');
-        require_once('plugin/movieviewer/models/core.php');
-        require_once('plugin/movieviewer/models/dealpack.php');
-        require_once('plugin/movieviewer/models/dealpack_purchase.php');
-        require_once('plugin/movieviewer/models/payment.php');
-        require_once('plugin/movieviewer/repositories.php');
+        include_once 'plugin/movieviewer/functions.php';
+        include_once 'plugin/movieviewer/models/index.php';
+        include_once 'plugin/movieviewer/repositories.php';
     }
 
-    protected function setGlobalSettings($settings) {
+    protected function setGlobalSettings($settings)
+    {
         // グローバルな設定
         date_default_timezone_set($settings->timezone->getName());
         $GLOBALS['movieviewer_settings'] = $settings;
     }
 
-    protected function define($name, $value) {
+    protected function define($name, $value)
+    {
         if (!defined($name)) {
             define($name, $value);
         }

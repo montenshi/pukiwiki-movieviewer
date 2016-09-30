@@ -1,16 +1,42 @@
 <?php
-# 目的: ページに動画を埋め込む
-# 引数: コースID、セッションID、チャプターID
-#       カンマの後に空白は入れないこと
-# 例) #movieviewer_embed("GDGuide","01","01")
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 再生画面埋め込み
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  Embed
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_embed_init(){
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_embed_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_embed_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 動画再生画面を生成する
+ *
+ * 引数: コースID、セッションID、チャプターID
+ *      カンマの後に空白は入れないこと
+ * 例) #movieviewer_embed("GDGuide","01","01");
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_embed_convert()
+{
 
     $videoopts = func_get_args();
 

@@ -1,10 +1,11 @@
 <?php
 
-require_once('MovieViewerTestCase.php');
+require_once 'MovieViewerTestCase.php';
 
-class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieViewerTestCase {
-
-    public function setUp() {
+class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieViewerTestCase
+{
+    function setUp()
+    {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
@@ -19,7 +20,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieVi
         $this->setGlobalSettings($settings);
     }
 
-    public function testFindValidsByUserReturnsNoneWhenBeforeStart() {
+    function testFindValidsByUserReturnsNoneWhenBeforeStart()
+    {
         // 視聴期限開始1秒まえ
         $date_freeze = new DateTime("2015-08-14 23:59:59+09:00");
         timecop_freeze($date_freeze->getTimestamp());
@@ -32,7 +34,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieVi
         $this->assertEquals(0, count($objects));
     }
 
-    public function testFindValidsByUserReturnsNoneWhenAfterEnd() {
+    function testFindValidsByUserReturnsNoneWhenAfterEnd()
+    {
         // 視聴期限切れちょうど
         $date_freeze = new DateTime("2015-11-15 00:00:01+09:00");
         timecop_freeze($date_freeze->getTimestamp());
@@ -45,7 +48,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieVi
         $this->assertEquals(0, count($objects));
     }
 
-    public function testFindValidsByUserReturnsValidConfirmations_One() {
+    function testFindValidsByUserReturnsValidConfirmations_One()
+    {
         // 視聴期限ぴったり
         $date_freeze = new DateTime("2015-08-15 00:00:00+09:00");
         timecop_freeze($date_freeze->getTimestamp());
@@ -59,7 +63,8 @@ class MovieViewerDealPackPaymentConfirmationRepositoryInFileTest extends MovieVi
         $this->assertEquals("K1Kiso-1", $objects[0]->getPack()->getId());
     }
 
-    public function testFindValidsByUserReturnsValidConfirmations_Two() {
+    function testFindValidsByUserReturnsValidConfirmations_Two()
+    {
         // 視聴期限ぴったり
         $date_freeze = new DateTime("2015-08-15 00:00:00+09:00");
         timecop_freeze($date_freeze->getTimestamp());

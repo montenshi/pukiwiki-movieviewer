@@ -1,25 +1,125 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴ホーム
+ * 視聴可能な動画の一覧やお知らせなどを表示する
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  Home
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 視聴画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_convert()
+{
     global $vars;
 
     // 認証済み
     $manager = plugin_movieviewer_get_auth_manager();
     if ($manager->isAuthenticated()) {
-            return plugin_movieviewer_convert_show_contents();
+        $plugin_args = func_get_args();
+        return plugin_movieviewer_convert_show_contents($plugin_args);
     }
 
     // 認証なし
     return plugin_movieviewer_convert_show_alert();
 }
 
-function plugin_movieviewer_convert_show_alert($messages){
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * パラメータ ope_type の値により、以下の処理を行う
+ *   show-movie: 動画再生画面を返す
+ *   download-text: 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ *   download-hls-key: 動画(HLS)再生用のキーを返す
+ * 
+ * 引数: string ope_type 処理区分
+ *      以下は ope_type が show-movie の時のみ必要
+ *        string course  コースID
+ *        string session セッションID
+ *        string chapter チャプターID
+ *      以下は ope_type が download-text の時のみ必要
+ *        string course  コースID
+ *        string session セッションID
+ *
+ * 例: http://host:port/index.php?cmd=movieviewer&ope_type=show-movie&course=GDGuide&session=01&chapter=01
+ * 
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_action()
+{
+    $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
+
+    $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
+
+    if ($current_user == null) {
+        plugin_movieviewer_action_access_denied();
+    }
+
+    $ope_type = plugin_movieviewer_action_get_ope_type();
+
+    if ($ope_type === 'show-movie') {
+        return plugin_movieviewer_action_show_movie();
+    } else if ($ope_type === 'download-text') {
+        return plugin_movieviewer_action_download_text();
+    } else if ($ope_type === 'download-hls-key') {
+        return plugin_movieviewer_action_download_hls_key();
+    }
+
+    return plugin_movieviewer_action_invalid_request();
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * プラグインの引数が正しいかどうかを検査し、問題がある場合は例外を発生させる
+ *
+ * @param array $args プラグインの引数
+ * 
+ * @return void
+ */
+function plugin_movieviewer_assert_plugin_arguments($args)
+{
+    if (count($args) !== 1) {
+        throw new Exception();
+    }
+
+    if ($args[0] === "") {
+        throw new Exception();
+    }
+}
+
+/**
+ * [ブロック] 未認証時のエラー画面を生成する
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_convert_show_alert()
+{
     plugin_movieviewer_get_auth_manager()->logout();
 
     $body =<<<TEXT
@@ -29,9 +129,25 @@ TEXT;
     return $body;
 }
 
-function plugin_movieviewer_convert_show_contents(){
-
+/**
+ * [ブロック] 視聴画面を生成する
+ * 視聴可能な単元、受講済みの単元を一覧で表示する
+ *
+ * @param array $plugin_args プラグインに設定されている引数
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_convert_show_contents($plugin_args)
+{
     global $script;
+
+    try {
+        plugin_movieviewer_assert_plugin_arguments($plugin_args);
+    } catch (Exception $ex) {
+        return plugin_movieviewer_convert_error_response("プラグインの引数が設定されていません。");
+    }
+
+    $review_page = $plugin_args[0];
 
     $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
 
@@ -51,6 +167,8 @@ function plugin_movieviewer_convert_show_contents(){
 TEXT;
     }
 
+    $uri_review = plugin_movieviewer_get_script_uri() . "?{$review_page}";
+
     $body = <<<TEXT
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
         <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -68,6 +186,7 @@ TEXT;
         <div>
             <h2>受講済みの単元</h2>
         </div>
+        <a href="{$uri_review}" class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'>再視聴の申し込み</a>
         <div class="movieviewer-sessions movieviewer-sessions-attended">
         {$body_expired_courses}
         </div>
@@ -85,7 +204,15 @@ TEXT;
     return $body;
 }
 
-function plugin_movieviewer_convert_render_courses($viewing_periods) {
+/**
+ * [ブロック] 視聴期限から単元の一覧を生成する
+ *
+ * @param array $viewing_periods 視聴期限
+ *
+ * @return string 単元の一覧(html)
+ */
+function plugin_movieviewer_convert_render_courses($viewing_periods) 
+{
 
     if (count($viewing_periods) == 0) {
         return "<div>対象の動画はありません。</div>";
@@ -126,13 +253,6 @@ TEXT;
                         <li>{$list_item}</li>
 TEXT;
         }
-
-        $action = <<<TEXT
-                  <button class="movieviewer-course-request-review" id="{$hsc($course->id)}_{$hsc($session->id)}_request_review" style="position:absolute;right:1em;">
-                    <span>再視聴の申込</span>
-                  </button>
-TEXT;
-        $action = ""; // 再視聴の申し込みが実装できたらここを外す
 
         if ($isValid) {
             $action = <<<TEXT
@@ -183,30 +303,13 @@ TEXT;
     return $body_courses;
 }
 
-function plugin_movieviewer_action(){
-
-    $user_id = plugin_movieviewer_get_auth_manager()->getUserId();
-
-    $current_user = plugin_movieviewer_get_user_repository()->findById($user_id);
-
-    if ($current_user == null) {
-        plugin_movieviewer_action_access_denied();
-    }
-
-    $ope_type = plugin_movieviewer_action_get_ope_type();
-
-    if ($ope_type === 'show-movie') {
-        return plugin_movieviewer_action_show_movie();
-    } else if ($ope_type === 'download-text') {
-        return plugin_movieviewer_action_download_text();
-    } else if ($ope_type === 'download-hls-key') {
-        return plugin_movieviewer_action_download_hls_key();
-    }
-
-    return plugin_movieviewer_action_invalid_request();
-}
-
-function plugin_movieviewer_action_get_ope_type(){
+/**
+ * [アクション] POSTまたはGETで指定されたope_type(処理区分)の値取得する
+ *
+ * @return string ope_type(処理区分)の値
+ */
+function plugin_movieviewer_action_get_ope_type()
+{
     $ope_type = 'unknown';
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $ope_type = filter_input(INPUT_GET, 'ope_type');
@@ -217,15 +320,39 @@ function plugin_movieviewer_action_get_ope_type(){
     return $ope_type;
 }
 
-function plugin_movieviewer_action_invalid_request(){
+/**
+ * [アクション] エラー処理(リクエスト内容の誤り)
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_invalid_request()
+{
     plugin_movieviewer_abort("リクエストの内容に誤りがあります。");
 }
 
-function plugin_movieviewer_action_access_denied(){
+/**
+ * [アクション] エラー処理(認証なし)
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_access_denied()
+{
     plugin_movieviewer_abort("動画を見るにはログインが必要です。");
 }
 
-function plugin_movieviewer_action_download_text(){
+/**
+ * [アクション] 指定した単元のテキストをダウンロードするようLocationヘッダを返す
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_download_text()
+{
     date_default_timezone_set("Asia/Tokyo");
 
     $settings = plugin_movieviewer_load_settings();
@@ -265,7 +392,15 @@ function plugin_movieviewer_action_download_text(){
     exit();
 }
 
-function plugin_movieviewer_action_show_movie(){
+/**
+ * [アクション] 動画再生画面を生成し、クライアントに送信する
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_show_movie()
+{
     date_default_timezone_set("Asia/Tokyo");
 
     $settings = MovieViewerSettings::loadFromYaml(PLUGIN_MOVIEVIEWER_PATH_TO_SETTINGS);
@@ -323,10 +458,19 @@ function plugin_movieviewer_action_show_movie(){
     最大化ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-maximize.png"> は再生ボタン <img src="$base_uri/plugin/movieviewer/assets/images/button-play.png"> を押した後、表示されます。
     </p>
 EOC;
+
     exit();
 }
 
-function plugin_movieviewer_action_download_hls_key() {
+/**
+ * [アクション] 動画(HLS)再生用のキーを返す
+ *
+ * 注意: exitを呼ぶので、処理の最後に呼び出すこと
+ *
+ * @return void
+ */
+function plugin_movieviewer_action_download_hls_key()
+{
     pkwk_common_headers();
     header('Content-type: application/octet-stream');
 
@@ -336,6 +480,7 @@ function plugin_movieviewer_action_download_hls_key() {
     );
     
     print $decrypter->execute();  
+
     exit();
 }
 

@@ -1,25 +1,44 @@
 <?php
 
-class MovieViewerPaymentGuide {
+/**
+ * Pukiwikiプラグイン::動画視聴 受講申し込み
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.DealPack
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
+
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
+
+class MovieViewerPaymentGuide
+{
     public $bank_transfer;
     public $credit_card;
     public $deadline;
     
-    function __construct($bank_transfer, $credit_card, $deadline) {
+    function __construct($bank_transfer, $credit_card, $deadline)
+    {
         $this->bank_transfer = $bank_transfer;
         $this->credit_card = $credit_card;
         $this->deadline = $deadline;
     }
 }
 
-class MovieViewerPaymentGuideBankTransfer {
+class MovieViewerPaymentGuideBankTransfer
+{
     public $bank_names;
     public $bank_accounts;
     public $notes;
     public $bank_names_with_notes;
     public $bank_accounts_with_notes;
 
-    function __construct($bank_names, $bank_accounts, $notes) {
+    function __construct($bank_names, $bank_accounts, $notes)
+    {
         $this->bank_names = $bank_names;
         $this->bank_accounts = $bank_accounts;
         $this->notes = $notes;
@@ -28,218 +47,289 @@ class MovieViewerPaymentGuideBankTransfer {
     }
 }
 
-class MovieViewerPaymentGuideCreditCard {
+class MovieViewerPaymentGuideCreditCard
+{
     public $acceptable_brands;
 
-    function __construct($acceptable_brands) {
+    function __construct($acceptable_brands)
+    {
         $this->acceptable_brands = $acceptable_brands;
     }    
 }
 
-class MovieViewerDealPackOffer {
+class MovieViewerDealPackOffer
+{
+    private $_user;
+    private $_pack;
+    private $_discount_period;
+    private $_payment_guide;
+    private $_purchase_request = null;
 
-    private $user;
-    private $pack;
-    private $discount_period;
-    private $payment_guide;
-    private $purchase_request = null;
+    function __construct($user, $pack, $discount_period, $payment_guide)
+    {
+        $this->_user = $user;
+        $this->_pack = $pack;
+        $this->_discount_period = $discount_period;
 
-    function __construct($user, $pack, $discount_period, $payment_guide) {
-        $this->user = $user;
-        $this->pack = $pack;
-        $this->discount_period = $discount_period;
-
-        $this->payment_guide = $payment_guide;
+        $this->_payment_guide = $payment_guide;
 
         try {
             $purchase_request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findBy($user->id, $pack->getId());
-            $this->purchase_request = $purchase_request;
+            $this->_purchase_request = $purchase_request;
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
             // 何もしない
         }
     }
 
-    public function getPackName() {
-        return $this->pack->describe();
+    function getPackName()
+    {
+        return $this->_pack->describe();
     }
 
-    public function getPackId() {
-        return $this->pack->getId();
+    function getPackId()
+    {
+        return $this->_pack->getId();
     }
 
-    public function getCourse() {
-        return $this->pack->getCourse();
+    function getCourse()
+    {
+        return $this->_pack->getCourse();
     }
 
-    public function getCourseId() {
-        return $this->pack->getCourseId();
+    function getCourseId()
+    {
+        return $this->_pack->getCourseId();
     }
 
-    public function getCourseIdShort() {
-        return $this->pack->getCourseIdShort();
+    function getCourseIdShort()
+    {
+        return $this->_pack->getCourseIdShort();
     }
 
-    public function getPackNumber() {
-        return $this->pack->getPackNumber();
+    function getPackNumber()
+    {
+        return $this->_pack->getPackNumber();
     }
 
-    public function getSessions() {
-        return $this->pack->getSessions();
+    function getSessions()
+    {
+        return $this->_pack->getSessions();
     }
 
-    public function getNumSessions() {
-        return $this->pack->getNumSessions();
+    function getNumSessions()
+    {
+        return $this->_pack->getNumSessions();
     }
 
-    public function getDiscountPeriod() {
-        return $this->discount_period;
+    function getDiscountPeriod()
+    {
+        return $this->_discount_period;
     }
 
-    public function getPrice() {
+    function getPrice()
+    {
         if ($this->canDiscount()) {
-            return $this->pack->getDiscountPrice();
+            return $this->_pack->getDiscountPrice();
         } else {
-            return $this->pack->getFixedPrice();
+            return $this->_pack->getFixedPrice();
         }
     }
 
-    public function getPaymentGuide() {
-        return $this->payment_guide;
+    function getPaymentGuide()
+    {
+        return $this->_payment_guide;
     }
 
-    public function canDiscount() {
-        return $this->discount_period->canDiscount();
+    function canDiscount()
+    {
+        return $this->_discount_period->canDiscount();
     }
 
-    public function isAccepted() {
-        return ($this->purchase_request != null);
+    function isAccepted()
+    {
+        return ($this->_purchase_request != null);
     }
 
-    public function accept() {
-        $purchase_request = new MovieViewerDealPackPurchaseRequest($this->user->id, $this->pack->getId());
+    function accept()
+    {
+        $purchase_request = new MovieViewerDealPackPurchaseRequest($this->_user->id, $this->_pack->getId());
 
         plugin_movieviewer_get_deal_pack_purchase_request_repository()->store($purchase_request);
 
-        $this->purchase_request = $purhase_request;
+        $this->_purchase_request = $purhase_request;
     }
 
-    public function isFirstPurchase() {
+    function isFirstPurchase()
+    {
         return ($this->getPackId() === 'K1Kiso-1');
     }
 
-    public function describePack() {
-        return $this->pack->describe();
+    function describePack()
+    {
+        return $this->_pack->describe();
     }
 
-    public function describePackShort() {
-        return $this->pack->describeShort();
+    function describePackShort()
+    {
+        return $this->_pack->describeShort();
     }
 }
 
-class MovieViewerDealPackOfferMaker {
-    private $payment_settings;
-    private $user;
-    private $s4_packs;
+class MovieViewerDealPackOfferMaker
+{
+    private $_payment_settings;
+    private $_user;
+    private $_s4_packs;
 
-    private $offers = array();
+    private $_offers = array();
 
-    function __construct($payment_settings, $user) {
-        $this->payment_settings = $payment_settings;
-        $this->user = $user;
-        $this->s4_container = new MovieViewerS4DealContainer();
+    function __construct($payment_settings, $user)
+    {
+        $this->_payment_settings = $payment_settings;
+        $this->_user = $user;
+        $this->_s4_container = new MovieViewerS4DealContainer();
 
         $this->createOffers();
     }
 
-    public function canOffer() {
-        return (count($this->offers) > 0);
+    function canOffer()
+    {
+        return (count($this->_offers) > 0);
     }
 
-    public function getOffer() {
-        return end($this->offers);
+    function getOffer()
+    {
+        return end($this->_offers);
     }
 
-    public function getOffers() {
-        return $this->offers;
+    function getOffers()
+    {
+        return $this->_offers;
     }
 
-    function createOffers() {
-        $repo = plugin_movieviewer_get_deal_pack_payment_confirmation_repository();
+    function createOffers()
+    {
+        foreach ($this->_user->selected_routes as $route) {
+            // 最後に購入したパックを見つける
+            $last_confirmation = $this->getLastConfirmationInRoute($this->_user, $route);
 
-        foreach($this->user->selected_courses as $selected_course) {
-            $box = $this->s4_container->getBox($selected_course);
-            $payment_confirmations = $repo->findByCourse($this->user->id, $selected_course);
+            // Offer開始ができない場合は何もしない
+            if (!$this->canStartOffering($last_confirmation)) {
+                continue;
+            }
 
-            $offer = $this->createOffer($this->user, $box, $payment_confirmations);
+            // 次のBoxとPackを取得する
+            $next = $this->getNextPackAndBox($route, $this->_s4_container, $last_confirmation);
+            $next_pack = $next['pack'];
 
-            if ($offer !== NULL) {
-                $this->offers[] = $offer;
+            if ($next === null) {
+                continue;
+            }
+
+            $offer = $this->createOffer($this->_user, $next_pack, $last_confirmation);
+
+            if ($offer->isAccepted()) { // 受け入れられている場合は何もしない
+                continue;
+            }
+
+            $this->_offers[] = $offer;
+        }
+    }
+
+    private function getLastConfirmationInRoute($user, $route)
+    {
+        $confirmations = array();
+        $course_ids_reversed = array_reverse($route->course_ids);
+        foreach ($course_ids_reversed as $course_id) {
+            $confirmations = plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->findByCourse($user->id, $course_id);
+
+            if (count($confirmations) > 0) {
+                break;
             }
         }
+
+        if (count($confirmations) === 0) {
+            return null;
+        }
+
+        return end($confirmations);
+    }
+
+    private function getNextPackAndBox($route, $s4_container, $last_confirmation)
+    {
+        if ($last_confirmation) { // 何か買っていた場合
+            $current_pack = $last_confirmation->getPack();
+
+            // 現在のBoxを取り出す
+            $next_box = $s4_container->getBox($current_pack->getCourseId());
+            $next_pack = $next_box->getNextPack($current_pack->getId());
+
+            // Boxの最終パックを購入済みの場合は、次のBoxが対象となる
+            if ($next_box->getLastPack()->getId() === $current_pack->getId()) {
+                $next_course_id = $route->getNext($current_pack->getCourseId());
+
+                if ($next_course_id === null) {
+                    return null;
+                }
+
+                $next_box = $s4_container->getBox($next_course_id);
+
+                if ($next_box === null) {
+                    return null;
+                }
+
+                $next_pack = $next_box->getFirstPack();
+            }
+        } else { // 何も買っていなかった場合は、最初のBoxが対象
+            $next_box = $s4_container->getBox($route->getFirst());
+
+            if ($next_box === null) {
+                return null;
+            }
+
+            $next_pack = $next_box->getFirstPack();
+        }
+
+        $result['box'] = $next_box;
+        $result['pack'] = $next_pack;
+        
+        return $result;
     }
     
-    function createOffer($user, $box, $payment_confirmations) {
-        
-        $next_pack = $this->getNextPack($box, $payment_confirmations);        
-        
-        if ($next_pack === NULL) {
-            return NULL;
-        }
-        
-        $last_confirmation = $this->getLastConfirmation($box, $payment_confirmations);
-
-        if (!$this->canStartOffering($last_confirmation)) {
-            return NULL;
-        }
-        
+    private function createOffer($user, $next_pack, $last_confirmation)
+    {
         $discount_period = $this->getDiscountPeriod($next_pack, $last_confirmation);
         
         $payment_deadline = $this->getPaymentDeadline();
         
         $bank_transfer = new MovieViewerPaymentGuideBankTransfer(
-                                  $this->payment_settings->bank_transfer["bank_names"]
-                                , $this->payment_settings->bank_transfer["bank_accounts"]
-                                , $this->payment_settings->bank_transfer["notes"]
-                            );
+            $this->_payment_settings->bank_transfer["bank_names"],
+            $this->_payment_settings->bank_transfer["bank_accounts"],
+            $this->_payment_settings->bank_transfer["notes"]
+        );
 
         $acceptable_brands = Array();
-        if (isset($this->payment_settings->credit)) {
-            $acceptable_brands = $this->payment_settings->credit->acceptable_brands;
+        if (isset($this->_payment_settings->credit)) {
+            $acceptable_brands = $this->_payment_settings->credit->acceptable_brands;
         }
         $credit_card = new MovieViewerPaymentGuideCreditCard($acceptable_brands);
 
         $payment_guide = new MovieViewerPaymentGuide($bank_transfer, $credit_card, $payment_deadline);
         
         $offer = new MovieViewerDealPackOffer(
-              $user
-            , $next_pack
-            , $discount_period
-            , $payment_guide
+            $user,
+            $next_pack,
+            $discount_period,
+            $payment_guide
         );
-
-        if ($offer->isAccepted()) {
-            return NULL;
-        }
 
         return $offer;
     }
 
-    function getNextPack($box, $payment_confirmations) {
-
-        // 何も購入していない場合は、最初のパック      
-        if (count($payment_confirmations) === 0) {
-            return reset($box->packs);
-        }
-        
-        // 何かしら購入している場合は、最後に購入したパックの次
-        $last_confirmation = $this->getLastConfirmation($box, $payment_confirmations);
-        return $box->getNextPack($last_confirmation->pack_id);
-    }
-    
-    function getDiscountPeriod($pack, $last_payment_confirmation) {
-        
+    private function getDiscountPeriod($pack, $last_payment_confirmation)
+    {
         // 直近の視聴期限の前月1日から前月末日の場合は、割引を行う
-        if ($last_payment_confirmation !== NULL) {
+        if ($last_payment_confirmation !== null) {
             $date_begin = plugin_movieviewer_get_first_day_of_last_month($last_payment_confirmation->viewing_period->date_end);
             $date_end   = plugin_movieviewer_get_last_day_of_same_month($date_begin);
 
@@ -257,40 +347,24 @@ class MovieViewerDealPackOfferMaker {
         return new MovieViewerNeverDiscountPeriod();
     }
     
-    function getPaymentDeadline() {
+    private function getPaymentDeadline()
+    {
         // 振込期限は今月の末日
         $tmp = new DateTime();
         $last_day_of_this_month = new DateTime($tmp->modify("last day of this month")->format("Y-m-d 23:59:59"));
         return new MovieViewerTransferDeadline($last_day_of_this_month->format("Y-m-d H:i:sP"));
     }
     
-    function getLastConfirmation($box, $payment_confirmations) {
-        $maped_confirmations = array();
-        foreach($payment_confirmations as $payment_confirmation) {
-            $maped_confirmations[$payment_confirmation->pack_id] = $payment_confirmation;
-        }
-
-        $last_confirmation = NULL;
-        foreach($box->packs as $pack) {
-            // 受講していないパックがあればそれを返す
-            if (!isset($maped_confirmations[$pack->getId()])) {
-                return $last_confirmation;
-            }
-            $last_confirmation = $maped_confirmations[$pack->getId()];
-        }
-        
-        return $last_confirmation;
-    }
-    
-    function canStartOffering($last_confirmation) {
+    private function canStartOffering($last_confirmation)
+    {
         // 何も購入していない場合は、いつでもオファーを開始できる
-        if ($last_confirmation === NULL) {
-            return TRUE;
+        if ($last_confirmation === null) {
+            return true;
         }
 
         // 直近の視聴期限をすぎている場合は、いつでもオファーを開始できる
         if ($last_confirmation->viewing_period->isExpired()) {
-            return TRUE;
+            return true;
         }
         
         // 直近の視聴期限の前月1日以降であれば、オファーを開始できる
@@ -300,15 +374,16 @@ class MovieViewerDealPackOfferMaker {
     
 }
 
-class MovieViewerDealPackPurchaseRequest {
-
+class MovieViewerDealPackPurchaseRequest
+{
     public $user_id;
     public $pack_id;
     public $purchase_method;
     public $date_requested;
     public $payment_confirmation;
 
-    public static function compareByMemberId($a, $b) {
+    static function compareByMemberId($a, $b)
+    {
         $aUser = $a->getUser();
         $bUser = $b->getUser();
         if (!$aUser->hasMemberId()) {
@@ -324,7 +399,8 @@ class MovieViewerDealPackPurchaseRequest {
         return ($aUser->memberId < $bUser->memberId) ? -1 : 1;
     }
 
-    function __construct($user_id, $pack_id, $date_requested = null) {
+    function __construct($user_id, $pack_id, $date_requested = null)
+    {
         $this->user_id = $user_id;
         $this->pack_id = $pack_id;
         if ($date_requested == null) {
@@ -333,50 +409,58 @@ class MovieViewerDealPackPurchaseRequest {
         $this->date_requested = $date_requested;
     }
 
-    public function getUser() {
+    function getUser()
+    {
         return plugin_movieviewer_get_user_repository()->findById($this->user_id);
     }
 
-    public function getPack() {
+    function getPack()
+    {
         static $s4_container;
-        if ($s4_container === NULL) {
+        if ($s4_container === null) {
             $s4_container = new MovieViewerS4DealContainer();
         }
         return $s4_container->getPack($this->pack_id);
     }
 
-    public function getDateRequested() {
+    function getDateRequested()
+    {
         return $this->date_requested;
     }
 
-    public function getPaymentConfirmation() {
-        if ($this->payment_confirmation !== NULL) {
+    function getPaymentConfirmation() 
+    {
+        if ($this->payment_confirmation !== null) {
             return $this->payment_confirmation;
         }
 
         return plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->find($this->user_id, $this->pack_id);
     }
 
-    public function getId() {
+    function getId()
+    {
         return "{$this->user_id}###{$this->pack_id}";
     }
 
-    public function isPaymentConfirmed() {
-        if ($this->payment_confirmation !== NULL) {
-            return TRUE;
+    function isPaymentConfirmed()
+    {
+        if ($this->payment_confirmation !== null) {
+            return true;
         }
 
         return plugin_movieviewer_get_deal_pack_payment_confirmation_repository()->exists($this->user_id, $this->pack_id);
     }
 
-    public function preConfirmPayment($date_begin = NULL) {
+    function preConfirmPayment($date_begin = null)
+    {
         $viewing_period = Array();
         $viewing_period["date_begin"] = $date_begin;
         $payment_confirmation = new MovieViewerDealPackPaymentConfirmation($this->user_id, $this->pack_id, $viewing_period);
         return $payment_confirmation;
     }
 
-    public function confirmPayment($date_begin = NULL) {
+    function confirmPayment($date_begin = null)
+    {
         $this->payment_confirmation = $this->preConfirmPayment($date_begin);
         $periods = $this->addViewingPeriods($this->payment_confirmation);
 
@@ -386,8 +470,8 @@ class MovieViewerDealPackPurchaseRequest {
         return $this->payment_confirmation;
     }
 
-    function addViewingPeriods($payment_confirmation) {
-
+    private function addViewingPeriods($payment_confirmation)
+    {
         $periods = plugin_movieviewer_get_viewing_periods_by_user_repository()->findById($payment_confirmation->getUser()->id);
 
         $course_id = $payment_confirmation->getPack()->getCourse()->id;
@@ -395,7 +479,7 @@ class MovieViewerDealPackPurchaseRequest {
         $date_begin = $payment_confirmation->getViewingPeriod()->date_begin;
         $date_end = $payment_confirmation->getViewingPeriod()->date_end;
 
-        foreach($sessions as $session) {
+        foreach ($sessions as $session) {
             $periods->addPeriod($course_id, $session->id, $date_begin, $date_end);
         }
 
@@ -403,13 +487,15 @@ class MovieViewerDealPackPurchaseRequest {
     }
 }
 
-class MovieViewerDealPackPaymentConfirmation {
+class MovieViewerDealPackPaymentConfirmation
+{
     public $user_id;
     public $pack_id;
     public $date_confirmed;
     public $viewing_period;
 
-    function __construct($user_id, $pack_id, $viewing_period = array(), $date_confirmed = null) {
+    function __construct($user_id, $pack_id, $viewing_period = array(), $date_confirmed = null)
+    {
         $this->user_id = $user_id;
         $this->pack_id = $pack_id;
         if ($date_confirmed == null) {
@@ -429,21 +515,54 @@ class MovieViewerDealPackPaymentConfirmation {
         $this->viewing_period = new MovieViewerPeriod($viewing_period["date_begin"], $viewing_period["date_end"]);
     }
 
-    public function getUser() {
+    function getUser()
+    {
         return plugin_movieviewer_get_user_repository()->findById($this->user_id);
     }
 
-    public function getPack() {
+    function getPack()
+    {
         return plugin_movieviewer_get_deal_pack_repository()->findById($this->pack_id);
     }
 
-    public function getDateConfirmed() {
+    function getDateConfirmed()
+    {
         return $this->date_confirmed;
     }
 
-    public function getViewingPeriod() {
+    function getViewingPeriod()
+    {
         return $this->viewing_period;
     }
+}
+
+class MovieViewerDealPackBankTransferInformationMailBuilder extends MovieViewerMailBuilder
+{
+    function __construct($settings)
+    {
+        parent::__construct($settings);
+    }
+
+    function build($user, $deal_pack_name, $price, $bank_transfer, $deadline)
+    {
+        $settings_local = $this->settings->template["transfer_information"];
+        $mail = $this->createMail($user->mailAddress);
+
+        $params = array(
+              "user_name" => $user->describe()
+            , "deal_pack_name" => $deal_pack_name
+            , "bank_accounts_with_notes" => "{$bank_transfer->bank_accounts_with_notes}"
+            , "deadline" => $deadline->format("Y年m月d日")
+            , "price" => $price
+        );
+
+        $body = $this->renderBody($settings_local["body"], $params);
+
+        $mail->Subject = $settings_local["subject"];
+        $mail->Body = $body;
+        return $mail;
+    }
+
 }
 
 ?>

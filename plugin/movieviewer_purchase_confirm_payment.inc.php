@@ -1,12 +1,41 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 受講申し込み入金確認
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  DealPackPurchaseConfirmPayment
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_purchase_confirm_payment_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_purchase_confirm_payment_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_purchase_confirm_payment_convert() {
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 入金確認画面を生成する
+ * 未認証の場合: エラー画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_purchase_confirm_payment_convert()
+{
 
     $hsc = "plugin_movieviewer_hsc";
 
@@ -23,7 +52,7 @@ function plugin_movieviewer_purchase_confirm_payment_convert() {
     $requests = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findAll();
 
     $requestsNotConfirmed = array();
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
         if ($request->isPaymentConfirmed()) {
             continue;
         }
@@ -42,7 +71,7 @@ TEXT;
     usort($requestsNotConfirmed, "MovieViewerDealPackPurchaseRequest::compareByMemberId");
 
     $content_rows = "";
-    foreach($requestsNotConfirmed as $request) {
+    foreach ($requestsNotConfirmed as $request) {
 
         $ctrl_value = $hsc($request->getId());
         $ctrl_id = $hsc("pr_{$ctrl_value}");
@@ -54,7 +83,7 @@ TEXT;
           <td><label for="{$ctrl_id}">{$hsc($request->getUser()->lastName)} {$hsc($request->getUser()->firstName)}</label></td>
           <td><label for="{$ctrl_id}">{$hsc($request->getUser()->id)}</label></td>
           <td><label for="{$ctrl_id}">{$hsc($request->getPack()->describe())}</label></td>
-          <td><label for="{$ctrl_id}">{$hsc($request->getDateRequested()->format("Y/m/d H:m:s"))}</label></td>
+          <td><label for="{$ctrl_id}">{$hsc($request->getDateRequested()->format("Y/m/d H:i:s"))}</label></td>
         </tr>
 TEXT;
 
@@ -153,7 +182,21 @@ TEXT;
     return $content;
 }
 
-function plugin_movieviewer_purchase_confirm_payment_action() {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * パラメータ ope_type の値により、以下の処理を行う
+ *   confirm: 入金確定対象の申し込み一覧画面を生成する
+ *   execute: 入金を確定させ、結果画面を生成する
+ * 
+ * 引数: string ope_type 処理区分
+ *      string purchase_requests 対象の申し込みIDの一覧(カンマ区切り)
+ * 
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_purchase_confirm_payment_action()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -186,11 +229,19 @@ function plugin_movieviewer_purchase_confirm_payment_action() {
     return plugin_movieviewer_action_error_response($page, "処理ができません。最初からやり直してください。");
 }
 
-function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
+/*-- 以下、内部処理 --*/
 
-    $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+/**
+ * [アクション] 入金確定対象の受講申し込み一覧画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_purchase_confirm_payment_action_confirm()
+{
 
-    foreach($ids as $req_id) {
+    $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+
+    foreach ($ids as $req_id) {
         try {
             plugin_movieviewer_validate_deal_pack_request_id($req_id);
         } catch (MovieViewerValidationException $ex) {
@@ -199,7 +250,7 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
     }
 
     $requests = array();
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
@@ -224,7 +275,7 @@ function plugin_movieviewer_purchase_confirm_payment_action_confirm() {
 
     $hsc = "plugin_movieviewer_hsc";
 
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
 
         $ctrl_value = $hsc($request->getId());
         $ctrl_id = $hsc("pr_{$ctrl_value}");
@@ -292,7 +343,13 @@ TEXT;
     return array('msg'=>$page, 'body'=>$content);
 }
 
-function plugin_movieviewer_purchase_confirm_payment_action_execute() {
+/**
+ * [アクション] 入金を確定させ、結果画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_purchase_confirm_payment_action_execute()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -304,7 +361,7 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
 
     $ids = filter_input(INPUT_POST, 'purchase_requests', FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
 
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             plugin_movieviewer_validate_deal_pack_request_id($req_id);
         } catch (MovieViewerValidationException $ex) {
@@ -313,7 +370,7 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
     }
 
     $requests = array();
-    foreach($ids as $req_id) {
+    foreach ($ids as $req_id) {
         try {
             $request = plugin_movieviewer_get_deal_pack_purchase_request_repository()->findById($req_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
@@ -332,13 +389,13 @@ function plugin_movieviewer_purchase_confirm_payment_action_execute() {
 
     $date_begin = new DateTime($date_begin);
 
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
         $request->confirmPayment($date_begin);
     }
 
     $hsc = "plugin_movieviewer_hsc";
 
-    foreach($requests as $request) {
+    foreach ($requests as $request) {
         $confirmation = $request->getPaymentConfirmation();
 
         $content_row =<<<TEXT

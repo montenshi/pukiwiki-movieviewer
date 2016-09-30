@@ -1,16 +1,89 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 パスワードリセット
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  Auth
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_reset_password_init() {
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_reset_password_init()
+{
     plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_reset_password_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * パスワードリセット開始画面を生成する
+ *
+ * 引数: string messages エラーメッセージを表示するかどうか(する場合に値を設定する)
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_reset_password_convert()
+{
     return plugin_movieviewer_reset_password_generate_request_page();
 }
 
-function plugin_movieviewer_reset_password_generate_request_page($messages){
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * パラメータ ope_type の値により、以下の処理を行う
+ *   request: パスワードリセットのお知らせメールを送り、結果画面を生成する
+ *   confirm: パスワードリセット画面を生成する
+ *   reset:   パスワードをリセットし、結果画面を生成する
+ *   delete_expired_tokens: 期限切れになったパスワードリセットトークンを削除する
+ * 
+ * 引数: string ope_type 処理区分
+ *      以下は ope_type が request の時のみ必要
+ *        string movieviewer_user ユーザID(メールアドレス)
+ *      以下は ope_type が confirm, reset の時のみ必要
+ *        string token トークンID
+ *
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+ * 
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_reset_password_action()
+{
+    plugin_movieviewer_set_global_settings();
+
+    $ope_type = plugin_movieviewer_reset_password_action_get_ope_type();
+
+    if ($ope_type === 'request') {
+        return plugin_movieviewer_reset_password_action_request();
+    } else if ($ope_type === 'confirm') {
+        return plugin_movieviewer_reset_password_action_confirm();
+    } else if ($ope_type === 'reset') {
+        return plugin_movieviewer_reset_password_action_reset();
+    } else if ($ope_type === 'delete_expired_tokens') {
+        return plugin_movieviewer_reset_password_delete_expired_tokens();
+    }
+
+    return plugin_movieviewer_reset_password_action_invalid_request();
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * [ブロック] パスワードリセット開始画面を生成する
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_reset_password_generate_request_page()
+{
     $manager = plugin_movieviewer_get_auth_manager();
     $manager->logout();
 
@@ -62,25 +135,13 @@ TEXT;
     return $body;
 }
 
-function plugin_movieviewer_reset_password_action(){
-    plugin_movieviewer_set_global_settings();
-
-    $ope_type = plugin_movieviewer_reset_password_action_get_ope_type();
-
-    if ($ope_type === 'request') {
-        return plugin_movieviewer_reset_password_action_request();
-    } else if ($ope_type === 'confirm') {
-        return plugin_movieviewer_reset_password_action_confirm();
-    } else if ($ope_type === 'reset') {
-        return plugin_movieviewer_reset_password_action_reset();
-    } else if ($ope_type === 'delete_expired_tokens') {
-        return plugin_movieviewer_reset_password_delete_expired_tokens();
-    }
-
-    return plugin_movieviewer_reset_password_action_invalid_request();
-}
-
-function plugin_movieviewer_reset_password_action_get_ope_type(){
+/**
+ * [アクション] POSTまたはGETで指定されたope_type(処理区分)の値取得する
+ *
+ * @return string ope_type(処理区分)の値
+ */
+function plugin_movieviewer_reset_password_action_get_ope_type()
+{
     $ope_type = 'unknown';
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $ope_type = filter_input(INPUT_GET, 'ope_type');
@@ -91,7 +152,13 @@ function plugin_movieviewer_reset_password_action_get_ope_type(){
     return $ope_type;
 }
 
-function plugin_movieviewer_reset_password_action_request(){
+/**
+ * [アクション] パスワードリセットのお知らせメールを送り、結果画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_action_request()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -136,10 +203,17 @@ function plugin_movieviewer_reset_password_action_request(){
     有効期限は1時間です。ご注意ください。<br>
     有効期限を過ぎた場合は、あらためてパスワード再設定のお手続きをお願いします。<br>
 TEXT;
+
     return array("msg"=>$page, "body"=>$message);
 }
 
-function plugin_movieviewer_reset_password_action_confirm(){
+/**
+ * [アクション] パスワードリセット画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_action_confirm()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -149,7 +223,8 @@ function plugin_movieviewer_reset_password_action_confirm(){
         $token = plugin_movieviewer_get_user_reset_password_token_repository()->findById($token_id);
     } catch (MovieViewerRepositoryObjectNotFoundException $ex ) {
         MovieViewerLogger::getLogger()->addWarning(
-            "トークンが見つからない", array("token" => $token_id));
+            "トークンが見つからない", array("token" => $token_id)
+        );
 
         return plugin_movieviewer_reset_password_error("無効なリンクです。");
     }
@@ -162,7 +237,9 @@ function plugin_movieviewer_reset_password_action_confirm(){
         $user = plugin_movieviewer_get_user_repository()->findById($token->user_id);
     } catch (MovieViewerRepositoryObjectNotFoundException $ex ) {
         MovieViewerLogger::getLogger()->addError(
-            "ユーザが見つからない", array("token" => $token_id, "user" => $token->user_id));
+            "ユーザが見つからない",
+            array("token" => $token_id, "user" => $token->user_id)
+        );
 
         return plugin_movieviewer_reset_password_error("無効なリンクです。");
     }
@@ -172,7 +249,17 @@ function plugin_movieviewer_reset_password_action_confirm(){
     return array("msg"=>$page, "body"=>$content);
 }
 
-function plugin_movieviewer_reset_password_action_confirm_generate_page($token, $user, $messages = ""){
+/**
+ * [アクション] パスワードリセット画面を生成する
+ *
+ * @param string          $token    パスワードリセットトークン
+ * @param MovieViewerUser $user     対象ユーザ
+ * @param string          $messages エラーメッセージ
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_action_confirm_generate_page($token, $user, $messages = "")
+{
     $manager = plugin_movieviewer_get_auth_manager();
     $manager->logout();
 
@@ -218,10 +305,17 @@ TEXT;
         <button class="movieviewer-button" type="submit">パスワードをリセットする</button>
     </form>
 TEXT;
+
     return $body;
 }
 
-function plugin_movieviewer_reset_password_action_reset(){
+/**
+ * [アクション] パスワードをリセットし、結果画面を生成する
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_action_reset()
+{
 
     $page = plugin_movieviewer_get_current_page();
 
@@ -237,7 +331,9 @@ function plugin_movieviewer_reset_password_action_reset(){
         $token = plugin_movieviewer_get_user_reset_password_token_repository()->findById($token_id);
     } catch (MovieViewerRepositoryObjectNotFoundException $ex ) {
         MovieViewerLogger::getLogger()->addError(
-            "トークンが見つからない", array("token" => $token_id));
+            "トークンが見つからない",
+            array("token" => $token_id)
+        );
 
         return plugin_movieviewer_reset_password_error("パスワードの再設定ができませんでした。");
     }
@@ -246,7 +342,9 @@ function plugin_movieviewer_reset_password_action_reset(){
         $user = plugin_movieviewer_get_user_repository()->findById($token->user_id);
     } catch (MovieViewerRepositoryObjectNotFoundException $ex ) {
         MovieViewerLogger::getLogger()->addError(
-            "ユーザが見つからない", array("token" => $token_id, "user" => $token->user_id));
+            "ユーザが見つからない",
+            array("token" => $token_id, "user" => $token->user_id)
+        );
 
         return plugin_movieviewer_reset_password_error("パスワードの再設定ができませんでした。");
     }
@@ -272,31 +370,69 @@ TEXT;
     return array("msg"=>$page, "body"=>$content);
 }
 
-function plugin_movieviewer_reset_password_delete_expired_tokens(){
+/**
+ * [アクション] 期限切れになったパスワードリセットトークンを削除する
+ *
+ * @return void
+ */
+function plugin_movieviewer_reset_password_delete_expired_tokens()
+{
     plugin_movieviewer_get_user_reset_password_token_repository()->deleteExpiredTokens();
 }
 
-function plugin_movieviewer_reset_password_action_invalid_request(){
+/**
+ * [アクション] エラー処理(リクエスト内容の誤り)
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_action_invalid_request()
+{
     return array("msg"=>"エラー", "body"=>"<p>リクエストの内容に誤りがあります。</p>");
 }
 
-function plugin_movieviewer_reset_password_error($custom_message){
+/**
+ * [アクション] エラー処理(汎用)
+ *
+ * @param string $custom_message 処理に応じたエラーメッセージ
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_error($custom_message)
+{
     $page = plugin_movieviewer_get_current_page();
     $message = plugin_movieviewer_reset_password_generate_error_message($page, $custom_message);
     return array("msg" => $page, "body" => $message);
 }
 
-function plugin_movieviewer_reset_password_generate_error_message($page, $custom_message){
+/**
+ * エラー処理(汎用)用の画面を生成する
+ *
+ * @param string $page           ページ名
+ * @param string $custom_message 処理に応じたエラーメッセージ
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_generate_error_message($page, $custom_message)
+{
     $reset_uri = plugin_movieviewer_reset_password_get_script_uri($page);
     $message =<<<TEXT
     $custom_message<br>
     <br>
     <a href='${reset_uri}'>パスワード再設定ページ</a>からもう一度やり直してください。<br>
 TEXT;
+
     return $message;
 }
 
-function plugin_movieviewer_reset_password_get_script_uri($page){
+/**
+ * パスワードリセット用ページのURIを返す
+ *
+ * @param string $page パスワードリセット用ページ名
+ *
+ * @return array ページ名, 画面(html)
+ */
+function plugin_movieviewer_reset_password_get_script_uri($page)
+{
     $base_uri = plugin_movieviewer_get_script_uri();
     return "$base_uri?$page";
 }

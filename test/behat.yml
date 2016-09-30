@@ -9,6 +9,7 @@ default:
   extensions:
     Behat\MinkExtension:
       base_url: http://172.16.1.84
+      browser_name: chrome
       show_cmd: firefox %s
       sessions:
         default:

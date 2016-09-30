@@ -1,85 +1,53 @@
 <?php
 
-class MovieViewerNoMemberIdException extends Exception {}
+/**
+ * Pukiwikiプラグイン::動画視聴 支払い
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewer
+ * @package  Models.Payment
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-class MovieViewerDealPackPaygentTradingIdGenerator {
-    private $offer;
-    private $user;
-    
-    function __construct($user, $offer) {
-        $this->offer = $offer;
-        $this->user = $user;
-    }
-    
-    public function generate() {
-        if (!$this->user->hasMemberId()) {
-            throw new MovieViewerNoMemberIdException();
-        }
-        
-        $course_id_short = $this->offer->getCourseIdShort();
-        $pack_number = sprintf('%02d', $this->offer->getPackNumber());
-        
-        $price_class = "F";
-        if ($this->offer->canDiscount()) {
-            $price_class = "D";
-        }
+//---- (上のコメントをファイルのコメントと認識させるためのコメント)
 
-        // [コースID(短縮)]S[セット番号]_[D(割引あり)/F(定価)]_[会員番号(-を_に変換)]
-        return "{$course_id_short}Set{$pack_number}_{$price_class}_{$this->convertMemberIdForPaygent($this->user->memberId)}";
-    }
-    
-    function convertMemberIdForPaygent($member_id) {
-        // ハイフンは利用できないので、アンダーバーに置換する
-        return mb_ereg_replace("[¥-]", "_", $member_id);        
-    }
+class MovieViewerNoMemberIdException extends Exception
+{
 }
 
-class MovieViewerPaygentParameterGenerator {
-    private $paygent_settings;
-    private $user;
-    private $offer;
-    private $trading_id_generator;
+abstract class MovieViewerPaygentParameterGenerator {
+    private $_paygent_settings;
+    private $_trading_id_generator;
     
-    function __construct($paygent_settings, $user, $offer, $trading_id_generator) {
-        $this->paygent_settings = $paygent_settings;
-        $this->user = $user;
-        $this->offer = $offer;
-        $this->trading_id_generator = $trading_id_generator;
+    abstract function getId();
+    abstract function getPaymentDetail();
+
+    function __construct($paygent_settings, $trading_id_generator) {
+        $this->_paygent_settings = $paygent_settings;
+        $this->_trading_id_generator = $trading_id_generator;
     }
     
-    public function getTradingId() {
-        return $this->trading_id_generator->generate();        
+    function getTradingId()
+    {
+        return $this->_trading_id_generator->generate();        
     }
     
-    public function getSeqMerchantId() {
-        return $this->paygent_settings["merchant_id"];
+    function getSeqMerchantId()
+    {
+        return $this->_paygent_settings["merchant_id"];
     }
     
-    public function getId() {
-        return "{$this->offer->getPrice()->getTotalAmountWithTax()}";
-    }
-    
-    public function getHash() {
+    function getHash()
+    {
         $org_str = $this->getTradingId() .
                    $this->getId() .
                    $this->getSeqMerchantId() .
-                   $this->paygent_settings["hash_key"];
+                   $this->_paygent_settings["hash_key"];
         return hash("sha256", $org_str);
-    }
-    
-    public function getPaymentDetail() {
-        return mb_convert_kana($this->offer->describePackShort(), 'S');        
-    }
-}
-
-class MovieViewerDealPackPaygentParameterGenerator extends MovieViewerPaygentParameterGenerator {
-    function __construct($paygent_settings, $user, $offer) {
-        parent::__construct(
-              $paygent_settings
-            , $user
-            , $offer
-            , new MovieViewerDealPackPaygentTradingIdGenerator($user, $offer)
-        );
     }
 }
 

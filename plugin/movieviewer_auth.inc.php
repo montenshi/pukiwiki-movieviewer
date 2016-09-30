@@ -1,12 +1,42 @@
 <?php
 
-require_once("movieviewer.ini.php");
+/**
+ * Pukiwikiプラグイン::動画視聴 認証
+ *
+ * PHP version 5.3.10
+ * Pukiwiki Version 1.4.7
+ *
+ * @category MovieViewerPlugin
+ * @package  Auth
+ * @author   Toshiyuki Ando <couger@kt.rim.or.jp>
+ * @license  Apache License 2.0
+ * @link     (T.B.D)
+ */
 
-function plugin_movieviewer_auth_init(){
-  plugin_movieviewer_set_global_settings();
+require_once "movieviewer.ini.php";
+
+/**
+ * プラグイン規定関数::初期化処理
+ *
+ * @return void
+ */
+function plugin_movieviewer_auth_init()
+{
+    plugin_movieviewer_set_global_settings();
 }
 
-function plugin_movieviewer_auth_convert(){
+/**
+ * プラグイン規定関数::ブロック型で呼び出された場合の処理
+ * 認証済みの場合: 何もしない(空の画面を生成する)
+ * 認証情報が指定されている場合: 認証処理を行う
+ * 認証情報が指定されていない場合: 認証画面を生成する
+ *
+ * 引数: なし
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_auth_convert()
+{
     global $vars;
 
     $manager = plugin_movieviewer_get_auth_manager();
@@ -14,47 +44,76 @@ function plugin_movieviewer_auth_convert(){
     $req_user_id = filter_input(INPUT_POST, "movieviewer_user");
 
     // 認証開始
-    if ($req_user_id !== NULL && $req_user_id !== "") {
+    if ($req_user_id !== null && $req_user_id !== "") {
 
         try {
             plugin_movieviewer_validate_csrf_token();
         } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         try {
             plugin_movieviewer_validate_user_id($req_user_id);
         } catch (MovieViewerValidationException $ex) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         try {
             $maybe_user = plugin_movieviewer_get_user_repository()->findById($req_user_id);
         } catch (MovieViewerRepositoryObjectNotFoundException $ex) {
-            plugin_movieviewer_auth_move_to_authpage(TRUE);
+            plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         $user_password = filter_input(INPUT_POST, 'movieviewer_password');
 
         if (!$maybe_user->verifyPassword($user_password)) {
-            return plugin_movieviewer_auth_move_to_authpage(TRUE);
+            return plugin_movieviewer_auth_move_to_authpage(true);
         }
 
         $manager->login($maybe_user);
 
-       return '';
+        return '';
     }
 
     // 認証済み
     if ($manager->isAuthenticated()) {
-       return '';
+        return '';
     }
 
     // 認証なし
-    return plugin_movieviewer_auth_move_to_authpage(FALSE);
+    return plugin_movieviewer_auth_move_to_authpage(false);
 }
 
-function plugin_movieviewer_auth_move_to_authpage($messages) {
+/**
+ * プラグイン規定関数::アクション型で呼び出された場合の処理
+ * 認証画面を生成する
+ *
+ * 注意: 単独で呼び出さないこと(convertの画面と連携している)
+ *
+ * @return array ページ名、画面(html)
+ */
+function plugin_movieviewer_auth_action()
+{
+    global $vars;
+
+    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
+    $title = "${page}（認証）";
+
+    $body = plugin_movieviewer_auth_generate_signin_page();
+    return array('msg'=>$title, 'body'=>$body);
+}
+
+/*-- 以下、内部処理 --*/
+
+/**
+ * 認証画面に移動するようLocationヘッダを返す
+ *
+ * @param string $messages 認証画面に表示するメッセージ
+ *
+ * @return void
+ */
+function plugin_movieviewer_auth_move_to_authpage($messages)
+{
 
     global $vars, $script;
 
@@ -70,18 +129,15 @@ function plugin_movieviewer_auth_move_to_authpage($messages) {
     exit();
 }
 
-function plugin_movieviewer_auth_action(){
-
-    global $vars;
-
-    $page = isset($vars['page']) ? $vars['page'] : $defultpage;
-    $title = "${page}（認証）";
-
-    $body = plugin_movieviewer_auth_generate_signin_page();
-    return array('msg'=>$title, 'body'=>$body);
-}
-
-function plugin_movieviewer_auth_generate_signin_page($messages){
+/**
+ * 認証画面を生成する
+ *
+ * @param string $messages 認証画面に表示するメッセージ
+ *
+ * @return string 画面(html)
+ */
+function plugin_movieviewer_auth_generate_signin_page($messages)
+{
     $manager = plugin_movieviewer_get_auth_manager();
     $manager->logout();
 
@@ -134,6 +190,7 @@ TEXT;
         <button class="movieviewer-button" type="submit">ログインする</button>
     </form>
 TEXT;
+
     return $body;
 }
 

@@ -1,10 +1,11 @@
 <?php
 
-require_once('MovieViewerTestCase.php');
+require_once 'MovieViewerTestCase.php';
 
-class MovieViewerPeriodTest extends MovieViewerTestCase {
-
-    public function setUp() {
+class MovieViewerPeriodTest extends MovieViewerTestCase
+{
+    function setUp()
+    {
         parent::setUp();
 
         $settings = new MovieViewerSettings();
@@ -16,7 +17,8 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
     /**
      * @dataProvider betweenShouldBeTrueProvider
      */
-    public function testIsBetweenShouldBeTrue($date_target) {
+    function testIsBetweenShouldBeTrue($date_target)
+    {
         $date_begin = new DateTime('2015-10-01 00:00:00+09:00');
         $date_end = new DateTime('2015-10-01 10:00:00+09:00');
 
@@ -28,7 +30,8 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
         $this->assertTrue($period->isBetween());
     }
 
-    public function betweenShouldBeTrueProvider() {
+    function betweenShouldBeTrueProvider()
+    {
         return array(
               array(new DateTime('2015-10-01 00:00:00+09:00'))
             , array(new DateTime('2015-10-01 09:00:00+09:00'))
@@ -39,7 +42,8 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
     /**
      * @dataProvider betweenShouldBeFalseProvider
      */
-    public function testIsBetweenShouldBeFalse($date_target) {
+    function testIsBetweenShouldBeFalse($date_target)
+    {
         $date_begin = new DateTime('2015-10-01 00:00:00+09:00');
         $date_end = new DateTime('2015-10-01 10:00:00+09:00');
 
@@ -51,14 +55,16 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
         $this->assertFalse($period->isBetween());
     }
 
-    public function betweenShouldBeFalseProvider() {
+    function betweenShouldBeFalseProvider()
+    {
         return array(
               array(new DateTime('2015-09-30 23:59:59+09:00'))
             , array(new DateTime('2015-10-01 10:00:01+09:00'))
         );
     }
 
-    public function testIsExpiredShouldBeTrue() {
+    function testIsExpiredShouldBeTrue()
+    {
         $date_begin = new DateTime('2015-10-01 00:00:00+09:00');
         $date_end = new DateTime('2015-10-01 10:00:00+09:00');
 
@@ -71,7 +77,8 @@ class MovieViewerPeriodTest extends MovieViewerTestCase {
         $this->assertTrue($period->isExpired());
     }
 
-    public function testIsExpiredShouldBeFalse() {
+    function testIsExpiredShouldBeFalse()
+    {
         $date_begin = new DateTime('2015-10-01 00:00:00+09:00');
         $date_end = new DateTime('2015-10-01 10:00:00+09:00');
 

@@ -161,7 +161,13 @@ class MovieViewerDealPackOffer
 
     function isFirstPurchase()
     {
-        return ($this->getPackId() === 'K1Kiso-1');
+        if ($this->_user->selected_routes->isFirstCourse($this->_pack->getCourseId())
+            && $this->_pack->getPackNumber() === 1
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     function describePack()
@@ -298,8 +304,8 @@ class MovieViewerDealPackOfferMaker
     
     private function createOffer($user, $next_pack, $last_confirmation)
     {
-        $discount_period = $this->getDiscountPeriod($next_pack, $last_confirmation);
-        
+        $discount_period = $this->getDiscountPeriod($user, $next_pack, $last_confirmation);
+
         $payment_deadline = $this->getPaymentDeadline();
         
         $bank_transfer = new MovieViewerPaymentGuideBankTransfer(
@@ -326,7 +332,7 @@ class MovieViewerDealPackOfferMaker
         return $offer;
     }
 
-    private function getDiscountPeriod($pack, $last_payment_confirmation)
+    private function getDiscountPeriod($user, $pack, $last_payment_confirmation)
     {
         // 直近の視聴期限の前月1日から前月末日の場合は、割引を行う
         if ($last_payment_confirmation !== null) {
@@ -336,8 +342,8 @@ class MovieViewerDealPackOfferMaker
             return new MovieViewerDiscountPeriod($date_begin, $date_end);
         }
         
-        // 基礎1の場合は、割引を行う
-        if ($pack->getId() === "K1Kiso-1") {
+        // ユーザの最初の講座の場合は割引を行う
+        if ($user->selected_routes->isFirstCourse($pack->getCourseId()) && $pack->getPackNumber() === 1) {
             $date_begin = new DateTime();
             $date_end   = plugin_movieviewer_get_last_day_of_same_month($date_begin);
             return new MovieViewerDiscountPeriod($date_begin, $date_end);

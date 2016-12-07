@@ -51,6 +51,24 @@ class MovieViewerCourseRoute
 
 }
 
+class MovieViewerCourseRoutes extends ArrayObject
+{
+    public function __construct()
+    { 
+        parent::__construct(func_get_args(), ArrayObject::ARRAY_AS_PROPS);
+    }
+
+    public function isFirstCourse($course_id)
+    {
+        foreach ($this as $route) {
+            if ($route->getFirst() === $course_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 class MovieViewerUser
 {
     public $id = '';
@@ -59,10 +77,11 @@ class MovieViewerUser
     public $mailAddress = '';
     public $hashedPassword = '';
     public $memberId = '';
-    public $selected_routes = array();
+    public $selected_routes = null;
 
     function __construct()
     {
+        $this->selected_routes = new MovieViewerCourseRoutes();
         $this->selected_routes[] = new MovieViewerCourseRoute(array("K1Kiso", "K2Kiso"));
     }
 

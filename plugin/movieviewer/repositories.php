@@ -210,7 +210,7 @@ class MovieViewerUserRepositoryInCommuDb extends MovieViewerRepositoryInFile
         $object->commuId = $data["id"];
 
         if ($data["custom11"] !== "" || $data["custom12"] !== "") {
-            $new_routes = array();
+            $new_routes = new MovieViewerCourseRoutes();
             $this->addCourseRoute($new_routes, $data["custom11"]);
             $this->addCourseRoute($new_routes, $data["custom12"]);
             $object->selected_routes = $new_routes;

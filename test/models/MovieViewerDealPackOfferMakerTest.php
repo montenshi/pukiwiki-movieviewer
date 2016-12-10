@@ -136,7 +136,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_routes = array(
+        $user->selected_routes = new MovieViewerCourseRoutes(
             new MovieViewerCourseRoute(array("K1Kiso")),
             new MovieViewerCourseRoute(array("K2Kiso"))
         );
@@ -157,7 +157,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "aaa@bbb.ccc";
-        $user->selected_routes = array(
+        $user->selected_routes = new MovieViewerCourseRoutes(
             new MovieViewerCourseRoute(array("K1Kiso")),
             new MovieViewerCourseRoute(array("K2Kiso"))
         );
@@ -213,8 +213,8 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "ddd@bbb.ccc";
-        $user->selected_routes = array(
-            new MovieViewerCourseRoute(array("K1Kiso")),
+        $user->selected_routes = new MovieViewerCourseRoutes(
+            new MovieViewerCourseRoute(array("K1Kiso"))
         );
 
         $settings = plugin_movieviewer_get_global_settings();
@@ -231,7 +231,7 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $user = new MovieViewerUser();
         $user->id = "eee@bbb.ccc";
-        $user->selected_routes = array(
+        $user->selected_routes = new MovieViewerCourseRoutes(
             new MovieViewerCourseRoute(array("K1Kiso","OABunka")),
             new MovieViewerCourseRoute(array("K2Kiso"))
         );
@@ -242,6 +242,31 @@ class MovieViewerDealPackOfferMakerTest extends MovieViewerTestCase
 
         $this->assertCount(1, $offers);
         $this->assertEquals("OABunka-1", $offers[0]->getPackId());
+    }
+
+    function testGetOffersShouldReturnNextCourseOfferWithDiscountWhenBothRoutes()
+    {
+        $date_freeze = new DateTime("2015-10-15 00:00:00+09:00");
+        timecop_freeze($date_freeze->getTimestamp());
+
+        $user = new MovieViewerUser();
+        $user->id = "fff@bbb.ccc";
+        $user->selected_routes = new MovieViewerCourseRoutes(
+            new MovieViewerCourseRoute(array("K2Kiso")),
+            new MovieViewerCourseRoute(array("OBJyoSan"))
+        );
+
+        $settings = plugin_movieviewer_get_global_settings();
+        $maker = new MovieViewerDealPackOfferMaker($settings->payment, $user);
+        $offers = $maker->getOffers();
+
+        $this->assertCount(2, $offers);
+        $this->assertEquals("K2Kiso-1", $offers[0]->getPackId());
+        $this->assertEquals("OBJyoSan-1", $offers[1]->getPackId());
+        $this->assertTrue($offers[0]->canDiscount());
+        $this->assertEquals("2015-10-15 00:00:00+09:00", $offers[0]->getDiscountPeriod()->date_begin->format("Y-m-d H:i:sP"));
+        $this->assertEquals("2015-10-31 23:59:59+09:00", $offers[0]->getDiscountPeriod()->date_end->format("Y-m-d H:i:sP"));
+        $this->assertTrue($offers[1]->canDiscount());
     }
 }
 

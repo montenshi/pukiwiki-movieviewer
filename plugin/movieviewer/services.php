@@ -32,7 +32,9 @@ class MovieViewerReviewPackPurchaseRequestService
     {
         $request = $this->createRequest($user, $request_stash_id);
 
-        $this->sendBankTransferInformation($user, $request);
+        if ($request->purchase_method === "bank") {
+            $this->sendBankTransferInformation($user, $request);
+        }
 
         $this->sendRequestNotifycation($user, $request);
 
